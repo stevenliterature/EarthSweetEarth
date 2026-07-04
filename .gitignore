@@ -1,0 +1,9 @@
+# macOS Finder metadata (this is the stray file that kept showing up)
+.DS_Store
+
+# Windows / other OS clutter
+Thumbs.db
+
+# Common editor scratch files
+*.swp
+.vscode/
