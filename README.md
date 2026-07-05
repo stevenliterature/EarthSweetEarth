@@ -3,9 +3,9 @@
 A youth-led environmental project growing a greener, kinder planet — one neighborhood at a time.
 
 **Website:** [earthsweetearth.org](https://earthsweetearth.org) · **Repo:** https://github.com/stevenliterature/EarthSweetEarth
-**Status:** In formation (2026) · **Based in:** Syosset, NY (Nassau County, Long Island)
+**Status:** In formation (2026) — website is **live** ✅ · **Based in:** Syosset, NY (Nassau County, Long Island)
 
-This repo holds the Earth Sweet Earth website. This README is the general info doc — what the project is, how to run and deploy the site, and the roadmap for becoming a real organization. If you're an AI coding assistant (Claude Code), read `CLAUDE.md` instead.
+This repo holds the Earth Sweet Earth website. This README is the general info doc — what the project is, how to run and deploy the site, and the roadmap for becoming a real organization. For a running record of what's already been set up, see `SETUP-LOG.md`. If you're an AI coding assistant (Claude Code), read `CLAUDE.md` instead.
 
 > **Note on the numbers below:** prices, fees, and legal rules are current as of 2026 and are for the U.S., New York State. Syosset is in Nassau County, but nonprofit filings happen at the **New York State + federal** level — there's no separate county nonprofit registration to worry about. Always check the official source before spending money or filing anything.
 
@@ -45,7 +45,11 @@ Just the **domain** (~$11–15/year, already purchased on Namecheap). Hosting st
 
 ## Domain & DNS: connect Namecheap to GitHub Pages
 
-The domain (`earthsweetearth.org`) is registered at **Namecheap**. The site can be published free from this GitHub repo using **GitHub Pages**. Here's the exact setup. *(Verified against GitHub's official docs, 2026.)*
+The domain (`earthsweetearth.org`) is registered at **Namecheap**; the site is published free from this GitHub repo using **GitHub Pages**.
+
+> ✅ **This is already set up and live** (July 4, 2026). The steps below are kept as a reference for how it was done — and how to redo it if anything ever breaks. See `SETUP-LOG.md` for the full record.
+
+Here's the exact setup. *(Verified against GitHub's official docs, 2026.)*
 
 ### Step 1 — Turn on GitHub Pages
 In the repo: **Settings → Pages**. Under **Build and deployment → Source**, choose **Deploy from a branch**, set branch to `main` and folder to `/ (root)`, then **Save**. (Later, if we add a framework/build step, switch this to **GitHub Actions** — see [Growing the site](#growing-the-site).)
@@ -82,6 +86,9 @@ dig www.earthsweetearth.org +noall +answer      # should show CNAME → stevenli
 ```
 Then open `https://earthsweetearth.org`. 🎉
 
+### Email (free forwarding)
+`hello@earthsweetearth.org` and `info@earthsweetearth.org` forward to a real inbox using **Namecheap's free email forwarding** (Domain tab → *Redirect Email*) — no paid mailbox needed. The site's contact link uses `hello@`.
+
 ### Growing beyond GitHub Pages
 GitHub Pages can serve a React/Astro site too (build it with **GitHub Actions** and deploy the output), so it's not a static-only dead end. Its one real limit is no server-side/serverless functions — for contact forms or newsletter signups, use a free service like **Formspree**. If we later need serverless functions, form handling, or heavier media, connect this same repo to **Netlify** or **Cloudflare Pages** instead; each gives you its own DNS values to swap into Namecheap (Cloudflare Pages is easiest if we move the domain's nameservers to Cloudflare, and has unlimited bandwidth for media).
 
@@ -110,7 +117,8 @@ Being "just getting started" is charming, not a weakness.
 | Item | Cost | Time | When |
 |---|---|---|---|
 | Domain (earthsweetearth.org) | ~$11–15/yr (✅ purchased) | — | Done |
-| Website hosting (GitHub Pages) | **Free** | 30–60 min | Now |
+| Website hosting (GitHub Pages) | **Free** | ✅ done | Done |
+| Email forwarding (hello@, info@) | **Free** (Namecheap) | ✅ done | Done |
 | Media (images optimized, video embedded) | **Free** at this scale | — | As you grow |
 | Fiscal sponsorship | 0% setup at some sponsors; ~1–15% of donations | Days | When accepting donations |
 | EIN (federal tax ID) | Free | Minutes | If/when you incorporate |
@@ -125,7 +133,7 @@ The "website first" instinct is good — it's cheap, doesn't require being a non
 
 1. **Get a parent/guardian partner** (signatory) — step zero.
 2. **Nail the mission** in 1–2 sentences.
-3. **Put the website up** ← now.
+3. **Put the website up** ← ✅ done — live at [earthsweetearth.org](https://earthsweetearth.org).
 4. **Learn the basic regulations** *before* recruiting a board (so you know what you're asking of people).
 5. **Recruit a board** — after deciding fiscal sponsorship vs. your own nonprofit.
 

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Instructions for Claude Code working in this repo. Read `README.md` for the full human-facing project background.
+Instructions for Claude Code working in this repo. Read `README.md` for the full human-facing project background, and `SETUP-LOG.md` for what's already been set up.
 
 ## Project
 
@@ -12,7 +12,7 @@ Earth Sweet Earth — the website for a youth-led environmental nonprofit **in f
 
 ## Stack (today) and direction
 
-- **Today:** a single static page, `index.html` — vanilla **HTML + CSS**, styles in a `<style>` block, Google Fonts, inline **SVG**, and **CSS custom properties** (design tokens) in `:root`. No framework, no build step, no backend yet.
+- **Today:** a single static page, `index.html` — vanilla **HTML + CSS**, styles in a `<style>` block, Google Fonts, inline **SVG**, and **CSS custom properties** (design tokens) in `:root`. It has a top nav, hero, mission, a numbered "what we do" list, a founder's note, a photo strip, get-involved, and footer — plus an inline SVG favicon, Open Graph/Twitter meta, and a `prefers-reduced-motion`-safe scroll reveal. No framework, no build step, no backend yet.
 - **Direction:** this is expected to **grow** — more pages, photos/video, and possibly a build step, a framework, a CMS, or a form/serverless service later. The founder knows some **React**. Do **not** treat "static" as permanent.
 
 ## Commands
@@ -22,9 +22,11 @@ Earth Sweet Earth — the website for a youth-led environmental nonprofit **in f
 
 ## Deployment
 
-- Published free via **GitHub Pages** from this repo; custom domain `earthsweetearth.org` connected through **Namecheap DNS** (A records → GitHub IPs, `www` CNAME → `stevenliterature.github.io`). Full steps are in `README.md`.
-- For the current branch-deploy setup, the homepage file must stay named **`index.html`**, and the repo's **`CNAME` file must be preserved** — deleting or overwriting it breaks the custom domain.
-- Enforce HTTPS is enabled in repo Settings → Pages.
+- **Live at https://earthsweetearth.org** (since July 4, 2026) via **GitHub Pages**. The repo is **public**; Pages is set to **Deploy from a branch**, `main` / root. Custom domain connected through **Namecheap DNS** (four `A` records on `@` → GitHub IPs, `www` CNAME → `stevenliterature.github.io`). Full how-to in `README.md`; full record in `SETUP-LOG.md`.
+- **Shipping a change:** edit → commit → push to `main`; the live site updates in about a minute.
+- The homepage file must stay named **`index.html`**, and the repo's **`CNAME` file must be preserved** — deleting or overwriting it breaks the custom domain.
+- **Enforce HTTPS is on**; `http://` and `www` redirect to `https://earthsweetearth.org`.
+- **Email:** `hello@` and `info@earthsweetearth.org` forward to a real inbox via Namecheap forwarding (the site's contact link uses `hello@`).
 
 ## Design tokens — preserve these; don't introduce new colors/fonts without asking
 
@@ -40,6 +42,14 @@ Earth Sweet Earth — the website for a youth-led environmental nonprofit **in f
 --mist:       #dcebe2
 ```
 Display font: **Fraunces**. Body font: **Inter**.
+
+## Design direction — keep it bespoke, not "templated"
+
+The founder rejected an earlier version for looking **"too AI-like."** That's a *design* problem, not a tooling one — so the fix is craft, not a new framework.
+
+- **Stay vanilla HTML + CSS, no build step.** Do **not** reach for **Tailwind** or **shadcn/ui** — shadcn especially is the signature look of AI-generated sites, and its cool, techy style fights this warm, earthy brand. (A framework/Tailwind is only worth discussing if the site grows to many pages — see "Growing the site.")
+- **Make it read as hand-made and editorial:** expressive Fraunces display type, the pine/honey/cream palette used boldly, organic motifs (the sunrise-behind-hills, leaves, a faint paper grain), asymmetric layouts (e.g. a numbered list rather than three identical icon-cards), and a genuine first-person founder's voice.
+- **Avoid the generic tells:** everything centered, three identical feature cards, pill-badges everywhere, cool-gray palettes, and filler copy.
 
 ## Growing the site — don't over-build, but don't box us into static-only
 
