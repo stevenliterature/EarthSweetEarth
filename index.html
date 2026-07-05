@@ -6,471 +6,817 @@
 
 <!-- CHANGE THIS: the title shows in the browser tab and in Google results -->
 <title>Earth Sweet Earth — a youth-led environmental project</title>
-<!-- CHANGE THIS: one sentence describing your org (Google shows this under your title) -->
 <meta name="description" content="Earth Sweet Earth is a youth-led project growing a greener, kinder planet, one neighborhood at a time. Based in Syosset, NY.">
 
-<!-- Link-preview cards (Google, iMessage, WhatsApp, social). CHANGE THIS text to match above. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Earth Sweet Earth">
 <meta property="og:description" content="A youth-led project growing a greener, kinder planet — one neighborhood at a time.">
 <meta property="og:url" content="https://earthsweetearth.org">
-<!-- CHANGE THIS later: add a real 1200×630 image named social.jpg in the repo for rich link previews -->
 <meta property="og:image" content="https://earthsweetearth.org/social.jpg">
 <meta name="twitter:card" content="summary_large_image">
 
-<!-- Little leaf/sun emblem in the browser tab (drawn inline so there's no extra file to manage) -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2314312a'/%3E%3Ccircle cx='15' cy='18' r='7' fill='%23f0b24a'/%3E%3Cpath d='M16 17c0-6 5-9 9-9 0 6-4 9-9 9z' fill='%23f9f6ee'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23007600'/%3E%3Ccircle cx='16' cy='19' r='7' fill='%23F4C430'/%3E%3Cpath d='M17 18c0-6 5-9 9-9 0 6-4 9-9 9z' fill='%23ffffff'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Fraunces (display) + Inter (body). Fraunces includes its true italics here for the "Sweet" and the signature. -->
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-<!-- Set a flag before the page paints, so the gentle fade-in never flickers.
-     Skipped automatically if the visitor prefers reduced motion. -->
+<!-- Supabase library — powers real accounts once you add your keys (see the CONFIG block in the script below). -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!--
+  ============================================================================
+  EARTH SWEET EARTH — website prototype (structure only, all placeholders)
+  ============================================================================
+  WHAT THIS IS: a clickable skeleton of the whole site — every page, the top
+  tabs (which change pages without scrolling), role-based views, popups, the
+  dynamic sun, and an Admin Settings role builder.
+
+  LOGIN & ROLES — TWO MODES (this is the "non-static" part):
+  • PREVIEW MODE (default, before you add keys): accounts are faked in the
+    browser so you can click around. The dark "Preview as" bar lets you view
+    the site as Public / Member / Moderator / Admin / Owner.
+  • REAL MODE: paste your two Supabase keys into the CONFIG block at the very
+    top of the script below. Then Sign Up / Log In use a real, secure database
+    (passwords are handled by Supabase, never stored here). The "Preview as"
+    bar disappears and each person's real role decides what they can see.
+  Setup steps are in SETUP-supabase.md, and the database is created by
+  supabase-setup.sql. Search this file for "SUPABASE" to see where it plugs in.
+  ============================================================================
+-->
+
 <script>
+  // Add a class before paint so first view fades in smoothly (skipped if reduced motion).
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    document.documentElement.classList.add('js-reveal');
+    document.documentElement.classList.add('js-anim');
   }
 </script>
 
 <style>
   :root{
-    --pine:#14312a;      /* deep forest green: hero background + headings */
-    --forest:#2f5d4a;
-    --moss:#6a9a6f;
-    --honey:#f0b24a;     /* warm "sweet" accent */
-    --honey-deep:#d9932a;
-    --cream:#f9f6ee;     /* light section background */
-    --paper:#fffdf8;     /* cards */
-    --ink:#23342d;       /* body text on light backgrounds */
-    --mist:#dcebe2;
-    --maxw:1120px;
+    /* ---- Color scheme (green + blue for words & buttons; soft green background) ---- */
+    --green:#007600;      /* headings, brand, primary buttons */
+    --green-dk:#005800;
+    --blue:#2083C4;       /* links, secondary accents & buttons */
+    --blue-dk:#186098;
+    --bg:#D5E3DA;         /* page background */
+    --card:#ffffff;       /* content surfaces */
+    --ink:#20302a;        /* body text (kept dark for readability) */
+    --muted:#5f7168;      /* secondary / placeholder text */
+    --line:#c4d6cb;       /* borders */
+    --sun:#F4C430;        /* decorative sun (not a "word/button", so a warm color is fine) */
+    --maxw:1140px;
   }
 
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   body{
-    margin:0;
-    overflow-x:hidden;
+    margin:0;overflow-x:hidden;
     font-family:"Inter",system-ui,-apple-system,sans-serif;
-    color:var(--ink);
-    background:var(--cream);
-    line-height:1.65;
-    -webkit-font-smoothing:antialiased;
+    color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;
   }
-  h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:600;line-height:1.08;margin:0;}
+  h1,h2,h3{font-family:"Fraunces",Georgia,serif;line-height:1.1;margin:0;color:var(--green);}
   p{margin:0 0 1rem;}
-  a{color:inherit;}
+  a{color:var(--blue);}
   img{max-width:100%;display:block;}
-
-  /* A faint paper grain over everything, so the cream reads as warm paper (not flat screen). Delete this block to remove. */
-  body::after{
-    content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;
-    mix-blend-mode:multiply;opacity:.04;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
-  .section{padding:96px 0;scroll-margin-top:24px;}
 
-  /* Keyboard focus: a clear ring for people navigating by Tab (accessibility floor — please keep). */
-  a:focus-visible,.btn:focus-visible,button:focus-visible{
-    outline:3px solid var(--honey-deep);outline-offset:3px;border-radius:6px;
+  /* focus ring for keyboard users (accessibility — keep) */
+  a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{
+    outline:3px solid var(--blue);outline-offset:2px;border-radius:6px;
   }
-  /* Jump-to-content link, visible only when focused by keyboard. */
-  .skip{position:absolute;left:16px;top:-60px;background:var(--honey);color:var(--pine);
-    padding:10px 18px;border-radius:8px;font-weight:600;z-index:100;transition:top .2s ease;}
-  .skip:focus{top:16px;}
+  .skip{position:absolute;left:16px;top:-60px;background:var(--green);color:#fff;padding:10px 18px;border-radius:8px;font-weight:600;z-index:200;transition:top .2s;}
+  .skip:focus{top:70px;}
 
-  /* ---------- shared bits ---------- */
-  .label{
-    font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;font-weight:600;
-    color:var(--forest);display:flex;align-items:center;gap:10px;margin-bottom:18px;
-  }
-  .label::before{content:"";width:22px;height:2px;background:var(--honey-deep);display:inline-block;}
-  .on-dark .label{color:var(--honey);}
-  .on-dark .label::before{background:var(--honey);}
+  /* ---------- buttons ---------- */
+  .btn{display:inline-block;font-family:inherit;font-weight:600;font-size:.98rem;padding:12px 24px;border-radius:100px;text-decoration:none;cursor:pointer;border:2px solid transparent;transition:transform .15s,background .2s,color .2s,border-color .2s;}
+  .btn-primary{background:var(--green);color:#fff;}
+  .btn-primary:hover{background:var(--green-dk);transform:translateY(-2px);}
+  .btn-blue{background:var(--blue);color:#fff;}
+  .btn-blue:hover{background:var(--blue-dk);transform:translateY(-2px);}
+  .btn-ghost{background:transparent;border-color:var(--blue);color:var(--blue);}
+  .btn-ghost:hover{background:var(--blue);color:#fff;transform:translateY(-2px);}
+  .btn-sm{padding:8px 16px;font-size:.9rem;}
 
-  .btn{
-    display:inline-block;font-weight:600;font-size:1rem;
-    padding:14px 30px;border-radius:100px;
-    text-decoration:none;cursor:pointer;border:1.5px solid transparent;
-    transition:transform .15s ease, background .2s ease, color .2s ease, border-color .2s ease;
-  }
-  .btn-primary{background:var(--honey);color:var(--pine);}
-  .btn-primary:hover{background:#ffc463;transform:translateY(-2px);}
-  .btn-ghost{border-color:rgba(249,246,238,.45);color:var(--cream);}
-  .btn-ghost:hover{border-color:var(--honey);color:var(--honey);transform:translateY(-2px);}
+  /* ---------- prototype "preview as" bar (developer tool, not real chrome) ---------- */
+  .proto{background:#20302a;color:#e7efe9;font-size:.86rem;}
+  .proto .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:9px 24px;}
+  .proto b{color:var(--sun);}
+  .proto .spacer{flex:1;}
+  .proto .pv{display:flex;gap:6px;flex-wrap:wrap;}
+  .proto .pv button{background:transparent;border:1px solid #4a5d54;color:#cfe;border-radius:100px;padding:5px 12px;font-size:.82rem;cursor:pointer;font-family:inherit;}
+  .proto .pv button.active{background:var(--sun);color:#20302a;border-color:var(--sun);font-weight:600;}
 
   /* ---------- top navigation ---------- */
-  .site-nav{
-    position:relative;z-index:5;
-    display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
-    padding:22px 0;
-  }
-  .brand{font-family:"Fraunces",serif;font-weight:600;font-size:1.15rem;color:var(--cream);text-decoration:none;letter-spacing:-.01em;}
-  .brand .sweet{color:var(--honey);font-style:italic;}
-  .nav-links{display:flex;gap:26px;flex-wrap:wrap;}
-  .nav-links a{
-    color:rgba(249,246,238,.82);text-decoration:none;font-size:.95rem;font-weight:500;
-    padding-bottom:3px;border-bottom:1.5px solid transparent;transition:color .2s ease,border-color .2s ease;
-  }
-  .nav-links a:hover{color:var(--honey);border-color:var(--honey);}
+  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50;}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:14px 0;}
+  .brand{font-family:"Fraunces",serif;font-weight:600;font-size:1.2rem;color:var(--green);text-decoration:none;letter-spacing:-.01em;white-space:nowrap;}
+  .brand .sw{color:var(--blue);font-style:italic;}
+  .tabs{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;flex:1;}
+  .tabs button{background:transparent;border:none;font-family:inherit;font-size:.95rem;font-weight:500;color:var(--ink);cursor:pointer;padding:8px 12px;border-radius:8px;border-bottom:2px solid transparent;}
+  .tabs button:hover{color:var(--green);background:rgba(0,118,0,.06);}
+  .tabs button.active{color:var(--green);border-bottom-color:var(--green);font-weight:600;}
+  .tabs button.admin{color:var(--blue);}
+  .tabs button.admin.active{color:var(--blue);border-bottom-color:var(--blue);}
+  .acct{display:flex;gap:8px;align-items:center;white-space:nowrap;}
+  .acct .who{font-size:.9rem;color:var(--muted);}
+  .acct .who b{color:var(--green);}
 
-  /* ---------- hero ---------- */
-  .hero{
-    position:relative;background:var(--pine);color:var(--cream);overflow:hidden;
-    min-height:90vh;display:flex;flex-direction:column;
-  }
-  .hero-inner{position:relative;z-index:3;flex:1;display:flex;flex-direction:column;justify-content:center;
-    text-align:center;padding:40px 0 210px;}
-  .eyebrow{font-size:.82rem;letter-spacing:.18em;text-transform:uppercase;color:var(--honey);margin:0 0 22px;font-weight:600;}
-  .wordmark{font-size:clamp(2.6rem,10vw,7rem);font-weight:900;letter-spacing:-.03em;margin:0 0 22px;overflow-wrap:break-word;}
-  .wordmark .sweet{color:var(--honey);font-style:italic;font-weight:600;}
-  .tagline{font-size:clamp(1.1rem,2.3vw,1.5rem);max-width:640px;margin:0 auto 38px;color:rgba(249,246,238,.86);}
+  /* ---------- generic page bits ---------- */
+  .view{padding:56px 0 88px;}
+  .js-anim .view{animation:fade .5s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  .eyebrow{font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:var(--blue);margin-bottom:12px;}
+  .page-title{font-size:clamp(2rem,4.5vw,2.9rem);margin-bottom:10px;}
+  .page-intro{font-size:1.1rem;color:var(--ink);max-width:65ch;margin-bottom:8px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;box-shadow:0 8px 22px rgba(20,48,42,.06);}
+  .grid{display:grid;gap:22px;}
+  .g3{grid-template-columns:repeat(3,1fr);}
+  .g4{grid-template-columns:repeat(4,1fr);}
+  .g2{grid-template-columns:repeat(2,1fr);}
+
+  /* placeholder look — anything not built yet */
+  .ph{border:2px dashed var(--line);border-radius:12px;color:var(--muted);background:rgba(255,255,255,.5);padding:18px;text-align:center;font-size:.95rem;}
+  .ph-box{aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
+  .muted{color:var(--muted);}
+  .pill{display:inline-block;background:rgba(32,131,196,.12);color:var(--blue-dk);border-radius:100px;padding:3px 12px;font-size:.78rem;font-weight:600;}
+  .lock-note{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted);margin-left:8px;}
+
+  /* info tooltip (ⓘ) */
+  .info{position:relative;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;font-size:.8rem;font-style:italic;font-weight:700;cursor:help;margin-left:2px;}
+  .info .tip{visibility:hidden;opacity:0;position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:#20302a;color:#eef;padding:10px 12px;border-radius:8px;font-size:.82rem;font-weight:400;font-style:normal;width:230px;line-height:1.4;z-index:20;transition:opacity .15s;}
+  .info .tip a{color:var(--sun);}
+  .info:hover .tip,.info:focus .tip{visibility:visible;opacity:1;}
+
+  /* ---------- hero (home) ---------- */
+  .hero{position:relative;text-align:center;padding:40px 0 150px;overflow:hidden;}
+  .hero .sun{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:0;will-change:transform;}
+  .hero .scene{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:auto;z-index:1;}
+  .hero .inner{position:relative;z-index:2;}
+  .wordmark{font-size:clamp(2.6rem,9vw,6rem);font-weight:900;letter-spacing:-.03em;color:var(--green);margin:14px 0;}
+  .wordmark .sw{color:var(--blue);font-style:italic;font-weight:600;}
+  .tagline{font-size:clamp(1.05rem,2.2vw,1.4rem);color:var(--ink);max-width:620px;margin:0 auto 30px;}
   .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
 
-  /* decorative sun + drifting leaves behind the hills */
-  .sun{position:absolute;left:50%;bottom:-90px;transform:translateX(-50%);z-index:0;}
-  .leaf-drift{position:absolute;z-index:1;opacity:.5;}
-  .scene{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:auto;z-index:2;display:block;}
+  /* team cards */
+  .team-photo{width:96px;height:96px;border-radius:50%;margin:0 auto 14px;border:2px dashed var(--line);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.78rem;text-align:center;}
+  .team-card{text-align:center;}
+  .team-card h3{color:var(--green);font-size:1.15rem;margin-bottom:4px;}
 
-  /* ---------- mission (editorial two-column) ---------- */
-  .mission{background:var(--cream);}
-  .mission-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:56px;align-items:start;}
-  .mission h2{font-size:clamp(2rem,4.2vw,3.1rem);color:var(--pine);max-width:14ch;}
-  .mission .lede{font-size:1.2rem;color:var(--ink);}
-  .pullquote{
-    font-family:"Fraunces",serif;font-style:italic;font-size:1.5rem;line-height:1.35;color:var(--forest);
-    border-left:3px solid var(--honey);padding-left:22px;margin-top:30px;
-  }
+  /* discord block */
+  .discord{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:34px;text-align:center;box-shadow:0 8px 22px rgba(20,48,42,.06);}
+  .discord h2{font-size:1.7rem;margin-bottom:8px;}
 
-  /* ---------- what we do (editorial numbered list, not a card grid) ---------- */
-  .focus{background:var(--pine);color:var(--cream);position:relative;}
-  .focus .wave-top{position:absolute;top:-1px;left:0;width:100%;height:auto;display:block;}
-  .focus .inner{position:relative;z-index:2;padding-top:20px;}
-  .focus h2{font-size:clamp(2rem,4.2vw,3.1rem);color:var(--cream);max-width:18ch;margin-bottom:8px;}
-  .focus-list{margin-top:52px;display:flex;flex-direction:column;}
-  .focus-item{
-    display:grid;grid-template-columns:auto 52px 1fr;gap:28px;align-items:center;
-    padding:32px 0;border-top:1px solid rgba(249,246,238,.16);
-  }
-  .focus-item:last-child{border-bottom:1px solid rgba(249,246,238,.16);}
-  .focus-item .idx{font-family:"Fraunces",serif;font-weight:900;font-size:2.4rem;color:var(--honey);line-height:1;}
-  .focus-item .icon{color:var(--honey);}
-  .focus-item h3{font-size:1.5rem;color:var(--cream);margin-bottom:6px;}
-  .focus-item p{color:rgba(249,246,238,.82);margin:0;max-width:60ch;}
-  .focus-item:hover h3{color:var(--honey);}
+  /* newsletter */
+  .featured{border-left:5px solid var(--green);}
+  .reactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+  .reactions button{background:rgba(0,118,0,.07);border:1px solid var(--line);border-radius:100px;padding:6px 14px;font-size:.9rem;cursor:pointer;font-family:inherit;color:var(--ink);}
+  .reactions button:hover{background:rgba(0,118,0,.14);}
+  .nl-list a{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card);text-decoration:none;color:var(--ink);margin-bottom:10px;}
+  .nl-list a:hover{border-color:var(--blue);}
+  .nl-list .pdf{font-size:.78rem;color:var(--blue);font-weight:600;}
+  .composer input,.composer textarea{width:100%;font-family:inherit;font-size:1rem;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;background:#fff;color:var(--ink);}
+  .composer .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
 
-  /* ---------- founder's note ---------- */
-  .story{background:var(--paper);}
-  .story-grid{display:grid;grid-template-columns:200px 1fr;gap:48px;align-items:center;max-width:920px;margin:0 auto;}
-  .portrait{
-    width:200px;height:200px;border-radius:50%;background:var(--mist);color:var(--forest);
-    display:flex;align-items:center;justify-content:center;text-align:center;font-size:.82rem;
-    border:2px solid var(--honey);overflow:hidden;flex-shrink:0;
-  }
-  .note-quote{font-family:"Fraunces",serif;font-size:clamp(1.3rem,2.4vw,1.7rem);line-height:1.4;color:var(--pine);}
-  .note-quote .mark{color:var(--honey);font-size:2.4em;line-height:0;vertical-align:-.35em;margin-right:.08em;}
-  .signature{font-family:"Fraunces",serif;font-style:italic;font-size:1.35rem;color:var(--honey-deep);margin-top:18px;}
+  /* chapters */
+  .search{width:100%;font-family:inherit;font-size:1rem;padding:13px 16px;border:1px solid var(--line);border-radius:100px;margin-bottom:20px;background:#fff;}
+  details.cont{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+  details.cont summary{cursor:pointer;padding:15px 18px;font-weight:600;color:var(--green);list-style:none;display:flex;justify-content:space-between;}
+  details.cont summary::after{content:"＋";color:var(--blue);}
+  details.cont[open] summary::after{content:"–";}
+  details.cont .body{padding:0 18px 16px;}
 
-  /* ---------- photos (staggered snapshots) ---------- */
-  .field{background:var(--cream);}
-  .field .head{text-align:center;max-width:620px;margin:0 auto 52px;}
-  .field h2{font-size:clamp(2rem,4vw,2.8rem);color:var(--pine);margin-bottom:14px;}
-  .field .label{justify-content:center;}
-  .gallery{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;}
-  .snap{
-    background:var(--paper);padding:12px 12px 18px;border-radius:6px;width:280px;
-    box-shadow:0 14px 30px rgba(20,49,42,.14);
-  }
-  .snap:nth-child(1){transform:rotate(-2.5deg);}
-  .snap:nth-child(2){transform:rotate(1.5deg);}
-  .snap:nth-child(3){transform:rotate(-1deg);}
-  .snap .frame{
-    aspect-ratio:4/3;border-radius:3px;background:var(--mist);color:var(--forest);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-    font-size:.85rem;text-align:center;overflow:hidden;
-  }
-  .snap figcaption{font-family:"Fraunces",serif;font-style:italic;color:var(--forest);text-align:center;margin-top:12px;font-size:1rem;}
+  /* access-denied card */
+  .denied{text-align:center;max-width:520px;margin:40px auto;}
+  .denied .big{font-size:2.4rem;margin-bottom:10px;}
 
-  /* ---------- get involved ---------- */
-  .join{background:var(--mist);}
-  .join-inner{max-width:680px;margin:0 auto;text-align:center;}
-  .join h2{font-size:clamp(2rem,4.2vw,3rem);color:var(--pine);margin-bottom:18px;}
-  .join .lede{font-size:1.2rem;color:var(--ink);margin-bottom:30px;}
-  .ways{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:0 0 34px;padding:0;list-style:none;}
-  .ways li{background:var(--paper);border:1px solid rgba(47,93,74,.18);border-radius:14px;padding:18px 22px;flex:1 1 190px;max-width:230px;}
-  .ways strong{display:block;font-family:"Fraunces",serif;font-weight:600;color:var(--pine);margin-bottom:4px;font-size:1.1rem;}
-  .ways span{font-size:.95rem;color:var(--forest);}
-  .note{font-size:.92rem;color:var(--forest);margin-top:24px;}
+  /* admin settings */
+  .table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .table th,.table td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:.92rem;vertical-align:middle;}
+  .table th{background:rgba(0,118,0,.06);color:var(--green);font-family:"Fraunces",serif;font-weight:600;}
+  .table tr:last-child td{border-bottom:none;}
+  .table td.center,.table th.center{text-align:center;}
+  .switch{position:relative;display:inline-block;width:40px;height:22px;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;inset:0;background:#c4d6cb;border-radius:22px;transition:.2s;cursor:pointer;}
+  .slider::before{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+  .switch input:checked + .slider{background:var(--green);}
+  .switch input:checked + .slider::before{transform:translateX(18px);}
+  .switch input:disabled + .slider{opacity:.55;cursor:not-allowed;}
+  select.role-sel{font-family:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);}
 
-  /* ---------- footer ---------- */
-  footer{background:var(--pine);color:rgba(249,246,238,.72);padding:56px 0 40px;text-align:center;font-size:.92rem;}
-  footer .fm{font-family:"Fraunces",serif;color:var(--cream);font-size:1.3rem;font-weight:600;margin-bottom:8px;}
-  footer .fm .sweet{color:var(--honey);font-style:italic;}
-  footer a{color:var(--honey);text-decoration:none;}
-  footer a:hover{text-decoration:underline;}
-  footer .meta{margin-top:10px;opacity:.8;}
-  .to-top{display:inline-block;margin-top:22px;font-size:.9rem;}
+  /* ---------- modal / popup ---------- */
+  .modal{position:fixed;inset:0;background:rgba(20,48,42,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:300;}
+  .modal.open{display:flex;}
+  .modal-card{background:#fff;border-radius:18px;padding:30px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:pop .2s ease;}
+  @keyframes pop{from{transform:scale(.94);opacity:0;}to{transform:none;opacity:1;}}
+  .modal-card h3{font-size:1.5rem;margin-bottom:10px;}
+  .modal-card .x{float:right;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted);line-height:1;}
+  .modal-card label{display:block;font-size:.85rem;font-weight:600;color:var(--green);margin:12px 0 5px;}
+  .modal-card input{width:100%;font-family:inherit;font-size:1rem;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);}
+  .modal-note{background:rgba(32,131,196,.1);border:1px solid rgba(32,131,196,.3);color:var(--blue-dk);border-radius:10px;padding:11px 13px;font-size:.84rem;margin:14px 0;}
+  .err{color:#b3261e;font-size:.84rem;margin:6px 0 0;min-height:1em;}
 
-  /* ---------- reveal-on-scroll (only if JS runs AND motion is allowed) ---------- */
-  .js-reveal .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease, transform .6s ease;}
-  .js-reveal .reveal.is-visible{opacity:1;transform:none;}
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:#20302a;color:#eef;padding:12px 20px;border-radius:100px;font-size:.9rem;opacity:0;transition:.3s;z-index:400;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-  /* ---------- responsive ---------- */
-  @media (max-width:820px){
-    .mission-grid{grid-template-columns:1fr;gap:24px;}
-    .story-grid{grid-template-columns:1fr;text-align:center;gap:28px;}
-    .portrait{margin:0 auto;}
-    .note-quote{text-align:left;}
-  }
-  @media (max-width:560px){
-    .section{padding:68px 0;}
-    .hero-inner{padding-bottom:150px;}
-    .nav-links{gap:18px;}
-    .focus-item{grid-template-columns:auto 1fr;gap:16px 18px;}
-    .focus-item .icon{display:none;}
-    .snap{transform:none !important;}
-  }
-  @media (prefers-reduced-motion:reduce){
-    html{scroll-behavior:auto;}
-    *{transition:none !important;animation:none !important;}
-  }
+  /* footer */
+  footer{background:var(--green);color:#dfeede;padding:44px 0 34px;text-align:center;font-size:.9rem;}
+  footer .fm{font-family:"Fraunces",serif;color:#fff;font-size:1.25rem;margin-bottom:8px;}
+  footer .fm .sw{color:var(--sun);font-style:italic;}
+  footer a{color:#fff;}
+
+  /* responsive */
+  @media (max-width:860px){.g4{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:1fr;}.g2{grid-template-columns:1fr;}}
+  @media (max-width:560px){.view{padding:40px 0 64px;}.tabs{gap:0;}.tabs button{padding:7px 8px;font-size:.86rem;}}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none!important;animation:none!important;}}
 </style>
 </head>
-<body id="top">
+<body>
 
-  <a class="skip" href="#content">Skip to content</a>
+<a class="skip" href="#/home">Skip to content</a>
 
-  <!-- ============ HERO ============ -->
-  <header class="hero on-dark">
-    <div class="wrap">
-      <nav class="site-nav" aria-label="Primary">
-        <a class="brand" href="#top">Earth <span class="sweet">Sweet</span> Earth</a>
-        <div class="nav-links">
-          <a href="#mission">Mission</a>
-          <a href="#focus">What we do</a>
-          <a href="#story">Our story</a>
-          <a href="#join">Get involved</a>
-        </div>
-      </nav>
-    </div>
+<!-- ============ "PREVIEW AS" BAR — shows only in preview mode (hidden once real accounts are on) ============ -->
+<div class="proto" id="protoBar">
+  <div class="wrap">
+    <span>🔧 <b>Preview mode</b> — add Supabase keys to go live.</span>
+    <span class="spacer"></span>
+    <span>Preview as:</span>
+    <span class="pv" id="previewBar"></span>
+  </div>
+</div>
 
-    <!-- honey "sun" rising behind the hills -->
-    <svg class="sun" width="300" height="300" viewBox="0 0 300 300" aria-hidden="true">
-      <circle cx="150" cy="150" r="128" fill="#f0b24a" opacity="0.16"/>
-      <circle cx="150" cy="150" r="82" fill="#f0b24a" opacity="0.9"/>
-    </svg>
+<!-- ============ TOP NAVIGATION (rebuilt for each role) ============ -->
+<div class="topbar">
+  <div class="wrap">
+    <nav class="nav" aria-label="Primary">
+      <a class="brand" href="#/home">Earth <span class="sw">Sweet</span> Earth</a>
+      <div class="tabs" id="tabs"></div>
+      <div class="acct" id="acct"></div>
+    </nav>
+  </div>
+</div>
 
-    <!-- a couple of drifting leaves, purely decorative -->
-    <svg class="leaf-drift" style="top:20%;left:12%" width="46" height="46" viewBox="0 0 48 48" aria-hidden="true">
-      <path d="M8 40C8 22 24 8 40 8c0 18-16 32-32 32z" fill="none" stroke="#6a9a6f" stroke-width="1.6"/>
-      <path d="M8 40C16 32 28 22 36 16" fill="none" stroke="#6a9a6f" stroke-width="1.6"/>
-    </svg>
-    <svg class="leaf-drift" style="top:30%;right:14%" width="34" height="34" viewBox="0 0 48 48" aria-hidden="true">
-      <path d="M8 40C8 22 24 8 40 8c0 18-16 32-32 32z" fill="none" stroke="#f0b24a" stroke-width="1.6"/>
-      <path d="M8 40C16 32 28 22 36 16" fill="none" stroke="#f0b24a" stroke-width="1.6"/>
-    </svg>
+<!-- ============ PAGE CONTENT renders here ============ -->
+<main id="app"></main>
 
-    <div class="wrap hero-inner">
-      <!-- CHANGE THIS little line if you like -->
-      <p class="eyebrow">Est. 2026 · Syosset, New York</p>
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="fm">Earth <span class="sw">Sweet</span> Earth</div>
+    <div>A youth-led environmental project, in formation · Syosset, NY · Est. 2026</div>
+    <!-- CHANGE THIS: real contact email -->
+    <div style="margin-top:8px;"><a href="mailto:hello@earthsweetearth.org">hello@earthsweetearth.org</a></div>
+  </div>
+</footer>
 
-      <!-- CHANGE THIS: your organization's name -->
-      <h1 class="wordmark">Earth <span class="sweet">Sweet</span> Earth</h1>
+<div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast"></div>
 
-      <!-- CHANGE THIS: one sentence about what you do -->
-      <p class="tagline">A youth-led project growing a greener, kinder planet — one neighborhood at a time.</p>
+<script>
+/* ==========================================================================
+   0) SUPABASE CONFIG  ← paste your two keys here to switch on real accounts
+   --------------------------------------------------------------------------
+   Get these from your Supabase project: Project Settings → API.
+   Leave them as "" and the site runs in local PREVIEW mode (fake accounts).
+   Fill them in and Sign Up / Log In become real and secure.
+   (The anon/public key is SAFE to put in the browser — that's what it's for.
+    Your data is protected by the rules in supabase-setup.sql, not by hiding
+    this key. NEVER paste the "service_role" key here.)
+   ========================================================================== */
+const SUPABASE_URL      = "https://najuadikmuiojsmnylya.supabase.co";   // base project URL only — NO "/rest/v1" (supabase-js adds it)
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hanVhZGlrbXVpb2pzbW55bHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjAxNzUsImV4cCI6MjA5ODgzNjE3NX0.Y-ji-1eVcF8LHf9skBJhO8THzlALFSJ21h8TD6s0CQA";   // the long "anon public" key
 
-      <div class="cta-row">
-        <a class="btn btn-primary" href="#join">Get involved</a>
-        <a class="btn btn-ghost" href="#mission">Our mission</a>
-      </div>
-    </div>
+let sb = null, BACKEND = false;
+if (SUPABASE_URL && SUPABASE_ANON_KEY && typeof supabase !== 'undefined' && supabase.createClient) {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  BACKEND = true;   // real accounts are ON
+}
 
-    <!-- layered hills -->
-    <svg class="scene" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">
-      <path fill="#2f5d4a" d="M0,224 C240,160 480,192 720,208 C960,224 1200,176 1440,200 L1440,320 L0,320 Z"/>
-      <path fill="#6a9a6f" d="M0,272 C280,224 520,272 760,256 C1000,240 1220,288 1440,264 L1440,320 L0,320 Z" opacity="0.9"/>
-      <path fill="#14312a" d="M0,300 C360,276 720,308 1080,296 C1260,290 1360,300 1440,296 L1440,320 L0,320 Z"/>
-    </svg>
-  </header>
+/* ==========================================================================
+   1) STATE  (roles/permissions live here; `session` is the logged-in person)
+   ========================================================================== */
 
-  <main id="content">
+// Every permission the site knows about, with a human label for the toggles.
+const CAPS = [
+  {id:'view_chapters',   label:'View the Chapters page'},
+  {id:'view_gallery',    label:'View the Gallery page'},
+  {id:'view_calendar',   label:'View the Calendar page'},
+  {id:'newsletter_post', label:'Post & edit newsletters'},
+  {id:'programs_update', label:'Update the Programs page'},
+  {id:'gallery_upload',  label:'Upload photos to the Gallery'},
+  {id:'calendar_edit',   label:'Edit Calendar & post meeting links'},
+  {id:'chapters_add',    label:'Add / approve chapters'},
+  {id:'admin_settings',  label:'Open Admin Settings & manage roles'},
+];
+const allCaps = (v)=>Object.fromEntries(CAPS.map(c=>[c.id,v]));
 
-    <!-- ============ MISSION ============ -->
-    <section class="section mission reveal" id="mission" aria-labelledby="mission-h">
-      <div class="wrap mission-grid">
-        <div>
-          <div class="label">Why we're here</div>
-          <h2 id="mission-h">We believe caring for the earth starts close to home.</h2>
-        </div>
-        <div>
-          <!-- CHANGE THIS: write a few sentences in your own words about why you started this -->
-          <p class="lede">Earth Sweet Earth began with a simple idea: young people don't have to wait to make a difference. Small actions — a cleaner park, a planted tree, a friend who learns something new — add up to real change.</p>
-          <p class="lede">We're building a community of people who want to help our planet feel a little more like home for everyone who shares it.</p>
-          <!-- CHANGE THIS quote, or delete it -->
-          <p class="pullquote">"Nobody's too small, and no place is too ordinary, to be worth taking care of."</p>
-        </div>
-      </div>
-    </section>
+// Default roles. Owner is locked (always all permissions). Defaults match your table.
+let roles = {
+  owner:     {name:'Owner',     locked:true,  caps:allCaps(true)},
+  admin:     {name:'Admin',     caps:allCaps(true)},
+  moderator: {name:'Moderator', caps:{...allCaps(false), newsletter_post:true, programs_update:true}},
+  member:    {name:'Member',    caps:allCaps(false)},   // a signed-in person with no special powers
+};
 
-    <!-- ============ WHAT WE DO ============ -->
-    <section class="section focus on-dark reveal" id="focus" aria-labelledby="focus-h">
-      <!-- gentle wave so the cream above flows into this green section -->
-      <svg class="wave-top" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
-        <path fill="#f9f6ee" d="M0,0 L1440,0 L1440,20 C1120,52 960,12 720,24 C480,36 320,58 0,28 Z"/>
-      </svg>
-      <div class="wrap inner">
-        <div class="label">What we're growing</div>
-        <h2 id="focus-h">A few of the things we care about.</h2>
+// Mock people for the Admin Settings "check profiles" table (placeholders).
+let people = [
+  {id:1, username:'(you)',      email:'owner@earthsweetearth.org', roleId:'owner'},
+  {id:2, username:'Add member', email:'—', roleId:'member'},
+  {id:3, username:'Add member', email:'—', roleId:'member'},
+];
 
-        <!-- CHANGE THESE three items to match what your group actually wants to do. Be specific! -->
-        <div class="focus-list">
+// Newsletter posts (1 featured + 2 list placeholders). "pdf:true" = shown as a link to a PDF.
+let newsletters = [
+  {id:1, featured:true, title:'Featured news', body:'Add featured newsletter', reactions:{heart:0,support:0,thank:0,celebrate:0}},
+  {id:2, featured:false, title:'Newsletter — add date', pdf:true},
+  {id:3, featured:false, title:'Newsletter — add date', pdf:true},
+];
 
-          <div class="focus-item">
-            <span class="idx">01</span>
-            <!-- water-drop icon -->
-            <svg class="icon" width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M24 7C24 7 12 21 12 31a12 12 0 0 0 24 0C36 21 24 7 24 7z"/>
-              <path d="M20 31a4 4 0 0 0 4 4"/>
-            </svg>
-            <div>
-              <h3>Neighborhood clean-ups</h3>
-              <p>We pick a park, a beach, or a stretch of sidewalk and clean it up together — then step back and enjoy how much better it looks.</p>
-            </div>
-          </div>
+// The current "logged in" person for the prototype. null = Public (logged out).
+let session = null;   // e.g. {roleId:'member', username:'...', email:'...'}
 
-          <div class="focus-item">
-            <span class="idx">02</span>
-            <!-- open-book icon -->
-            <svg class="icon" width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M24 14C20 11 14 10 8 11v25c6-1 12 0 16 3"/>
-              <path d="M24 14c4-3 10-4 16-3v25c-6-1-12 0-16 3z"/>
-            </svg>
-            <div>
-              <h3>Learning by sharing</h3>
-              <p>We turn what we learn about the environment into simple guides and honest conversations, so helping the planet feels doable for anyone.</p>
-            </div>
-          </div>
+/* ==========================================================================
+   2) PERMISSION HELPERS
+   ========================================================================== */
+const isLoggedIn = ()=> session !== null;
+const myRole     = ()=> session ? roles[session.roleId] : null;
+const can        = (cap)=> isLoggedIn() && !!myRole().caps[cap];
 
-          <div class="focus-item">
-            <span class="idx">03</span>
-            <!-- sprout icon -->
-            <svg class="icon" width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M24 40V22"/>
-              <path d="M24 26c0-8-6-13-13-13 0 8 6 13 13 13z"/>
-              <path d="M24 22c0-7 5-12 13-12 0 7-6 12-13 12z"/>
-              <path d="M15 40h18"/>
-            </svg>
-            <div>
-              <h3>Planting &amp; greener spaces</h3>
-              <p>We plant trees and tend small gardens that give people shade, wildlife a home, and the neighborhood a little more life.</p>
-            </div>
-          </div>
+// Which pages each visitor can open. Home/Newsletter/Programs/Contact are public.
+function canView(route){
+  if(route==='chapters') return can('view_chapters');
+  if(route==='gallery')  return can('view_gallery');
+  if(route==='calendar') return can('view_calendar');
+  if(route==='admin')    return can('admin_settings');
+  return true;
+}
 
-        </div>
-      </div>
-    </section>
+/* ==========================================================================
+   3) ROUTER  (top tabs change the page via the URL #hash — no scrolling)
+   ========================================================================== */
+const ROUTES = ['home','newsletter','programs','chapters','gallery','contact','calendar','admin'];
+const TAB_LABELS = {home:'Home',newsletter:'Newsletter',programs:'Programs',chapters:'Chapters',gallery:'Gallery',contact:'Contact',calendar:'Calendar',admin:'Admin Settings'};
+const route = ()=> (location.hash.replace('#/','') || 'home');
+const go = (r)=>{ location.hash = '#/'+r; };
+window.addEventListener('hashchange', render);
 
-    <!-- ============ FOUNDER'S NOTE — this is your voice; it matters most ============ -->
-    <section class="section story reveal" id="story" aria-labelledby="story-h">
-      <div class="wrap">
-        <div class="label" style="justify-content:center;">A note from our founder</div>
-        <div class="story-grid">
-          <!-- CHANGE THIS: drop in a real photo (optimized WebP/JPG) of the founder. Keep it friendly. -->
-          <div class="portrait">Add a<br>photo here</div>
-          <div>
-            <!-- CHANGE THIS whole note into your own words — honest and personal beats polished -->
-            <p class="note-quote" id="story-h"><span class="mark">“</span>I'm still in middle school, and I know I can't fix the whole planet by myself. But I can start where I live. Earth Sweet Earth is my way of bringing my friends, my neighbors, and anyone who wants to help together — to make our corner of the world a little greener and a little kinder.<span aria-hidden="true">”</span></p>
-            <!-- CHANGE THIS: your name -->
-            <p class="signature">— The Earth Sweet Earth team</p>
-          </div>
-        </div>
-      </div>
-    </section>
+/* ==========================================================================
+   4) SMALL UI HELPERS (modal, toast)
+   ========================================================================== */
+const modal = document.getElementById('modal');
+function openModal(html){ modal.innerHTML = '<div class="modal-card">'+html+'</div>'; modal.classList.add('open'); }
+function closeModal(){ modal.classList.remove('open'); modal.innerHTML=''; }
+modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
+function popup(title,msg){ openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>'+title+'</h3><p>'+msg+'</p><button class="btn btn-primary" onclick="closeModal()">Got it</button>'); }
+const comingSoon = ()=> popup('Under construction','Coming soon!');
+let toastT;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
 
-    <!-- ============ PHOTOS ============ -->
-    <section class="section field reveal" aria-labelledby="field-h">
-      <div class="wrap">
-        <div class="head">
-          <div class="label">From the ground</div>
-          <h2 id="field-h">Real moments, as we make them.</h2>
-          <p>Photos of actual clean-ups, plantings, and events build more trust than anything else. As you run activities, swap these in.</p>
-        </div>
-        <!-- CHANGE THESE: replace each grey box with a real photo.
-             Tip: optimize images first (export as WebP, keep them under ~300 KB) and write a short, honest alt="" describing what's happening. -->
-        <div class="gallery">
-          <figure class="snap">
-            <div class="frame">📷<span>Your photo here</span></div>
-            <figcaption>Our first clean-up</figcaption>
-          </figure>
-          <figure class="snap">
-            <div class="frame">📷<span>Your photo here</span></div>
-            <figcaption>Planting day</figcaption>
-          </figure>
-          <figure class="snap">
-            <div class="frame">📷<span>Your photo here</span></div>
-            <figcaption>The whole crew</figcaption>
-          </figure>
-        </div>
-      </div>
-    </section>
+/* ==========================================================================
+   5) LOGIN / SIGN UP — real via Supabase when keys are set, else local preview
+   ========================================================================== */
+function noteHtml(){
+  return BACKEND ? '' :
+    '<div class="modal-note">Preview mode: this doesn\'t make a real account yet. Add your Supabase keys (top of the code) to turn on real, secure accounts. You can change these details later.</div>';
+}
+function openSignup(){
+  openModal(
+    '<button class="x" onclick="closeModal()" aria-label="Close">×</button>'+
+    '<h3>Sign up</h3>'+ noteHtml() +
+    '<label for="su-email">Email</label><input id="su-email" type="email" placeholder="you@example.com" autocomplete="email">'+
+    '<label for="su-user">Username</label><input id="su-user" type="text" placeholder="Pick a username">'+
+    '<label for="su-pass">Password</label><input id="su-pass" type="password" placeholder="Create a password">'+
+    '<p class="err" id="su-err"></p>'+
+    '<button class="btn btn-primary" id="su-btn" style="margin-top:6px;width:100%" onclick="doSignup()">Create account</button>'
+  );
+}
+async function doSignup(){
+  const email=document.getElementById('su-email').value.trim();
+  const user=document.getElementById('su-user').value.trim();
+  const pass=document.getElementById('su-pass').value;
+  const err=document.getElementById('su-err');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ err.textContent='Please enter a valid email.'; return; }
+  if(!user){ err.textContent='Please pick a username.'; return; }
+  if(pass.length<6){ err.textContent='Password should be at least 6 characters.'; return; }
 
-    <!-- ============ GET INVOLVED ============ -->
-    <section class="section join reveal" id="join" aria-labelledby="join-h">
-      <div class="wrap join-inner">
-        <div class="label" style="justify-content:center;">Want to help?</div>
-        <h2 id="join-h">Let's grow this together.</h2>
-        <p class="lede">Whether you want to volunteer, share ideas, or just follow along as we get started, we'd love to hear from you.</p>
+  if(BACKEND){
+    const btn=document.getElementById('su-btn'); btn.disabled=true; btn.textContent='Creating…'; err.textContent='';
+    const { data, error } = await sb.auth.signUp({ email, password:pass, options:{ data:{ username:user } } });
+    if(error){ btn.disabled=false; btn.textContent='Create account'; err.textContent=error.message; return; }
+    if(!data.session){ closeModal(); popup('Almost there!','Check your email to confirm your account, then log in.'); return; }
+    await loadSession(); closeModal(); render(); toast('Welcome, '+user+'!');
+  } else {
+    session = {roleId:'member', username:user, email:email};   // preview: new users start as "Member"
+    closeModal(); render(); toast('Signed up (preview) — welcome, '+user+'!');
+  }
+}
+function openLogin(){
+  openModal(
+    '<button class="x" onclick="closeModal()" aria-label="Close">×</button>'+
+    '<h3>Log in</h3>'+ noteHtml() +
+    '<label for="li-email">Email</label><input id="li-email" type="email" placeholder="you@example.com" autocomplete="email">'+
+    '<label for="li-pass">Password</label><input id="li-pass" type="password" placeholder="Your password">'+
+    '<p class="err" id="li-err"></p>'+
+    '<button class="btn btn-primary" id="li-btn" style="margin-top:6px;width:100%" onclick="doLogin()">Log in</button>'
+  );
+}
+async function doLogin(){
+  const email=document.getElementById('li-email').value.trim();
+  const pass=document.getElementById('li-pass').value;
+  const err=document.getElementById('li-err');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ err.textContent='Please enter a valid email.'; return; }
 
-        <!-- CHANGE THESE ways to help if you like -->
-        <ul class="ways">
-          <li><strong>Volunteer</strong><span>Join us at an event or lend a hand behind the scenes.</span></li>
-          <li><strong>Spread the word</strong><span>Tell a friend, a teacher, or your family about us.</span></li>
-          <li><strong>Partner with us</strong><span>Schools and local groups — let's team up.</span></li>
-        </ul>
+  if(BACKEND){
+    const btn=document.getElementById('li-btn'); btn.disabled=true; btn.textContent='Logging in…'; err.textContent='';
+    const { error } = await sb.auth.signInWithPassword({ email, password:pass });
+    if(error){ btn.disabled=false; btn.textContent='Log in'; err.textContent=error.message; return; }
+    await loadSession(); closeModal(); render(); toast('Logged in');
+  } else {
+    session = {roleId:'member', username:email.split('@')[0], email:email};
+    closeModal(); render(); toast('Logged in (preview)');
+  }
+}
+async function logout(){ if(BACKEND){ await sb.auth.signOut(); } session=null; go('home'); render(); toast('Logged out'); }
 
-        <!-- CHANGE THIS: replace the email with your real contact email.
-             Later, if you want a proper contact form, a free service like Formspree can send messages to your inbox without any backend. -->
-        <a class="btn btn-primary" href="mailto:hello@earthsweetearth.org">Say hello</a>
-        <p class="note">This site is just getting started — more is on the way. 🌍</p>
-      </div>
-    </section>
+// Read the logged-in Supabase user + their role from the "profiles" table.
+async function loadSession(){
+  if(!BACKEND){ return; }
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user){ session=null; return; }
+  let role='member', username=user.email.split('@')[0];
+  const { data:profile } = await sb.from('profiles').select('username, role').eq('id', user.id).single();
+  if(profile){ role = profile.role || 'member'; username = profile.username || username; }
+  session = { roleId:role, username:username, email:user.email };
+}
 
-  </main>
+function openProfile(){
+  openModal(
+    '<button class="x" onclick="closeModal()" aria-label="Close">×</button>'+
+    '<h3>Your profile</h3>'+ noteHtml() +
+    '<label>Username</label><input id="pf-user" type="text" value="'+(session?session.username:'')+'">'+
+    '<label>Email</label><input type="email" value="'+(session?session.email:'')+'" disabled>'+
+    '<label>New password</label><input id="pf-pass" type="password" placeholder="Leave blank to keep current">'+
+    '<button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="saveProfile()">Save changes</button>'
+  );
+}
+async function saveProfile(){
+  const user=document.getElementById('pf-user').value.trim();
+  const pass=document.getElementById('pf-pass').value;
+  if(BACKEND){
+    const { data:{ user:u } } = await sb.auth.getUser();
+    if(u){ await sb.from('profiles').update({ username:user }).eq('id', u.id); }
+    if(pass){ await sb.auth.updateUser({ password:pass }); }
+    await loadSession(); closeModal(); render(); toast('Saved');
+  } else {
+    if(session){ session.username = user || session.username; }
+    closeModal(); render(); toast('Saved (preview)');
+  }
+}
 
-  <!-- ============ FOOTER ============ -->
-  <footer>
-    <div class="wrap">
-      <div class="fm">Earth <span class="sweet">Sweet</span> Earth</div>
-      <div>A youth-led environmental project, in formation.</div>
-      <!-- CHANGE THIS: your real contact email -->
-      <div class="meta"><a href="mailto:hello@earthsweetearth.org">hello@earthsweetearth.org</a> · Syosset, NY · Est. 2026</div>
-      <!-- CHANGE THIS as you grow: e.g. add Instagram or other links here -->
-      <a class="to-top" href="#top">Back to top ↑</a>
-      <div class="meta" style="margin-top:16px;">© 2026 Earth Sweet Earth</div>
-    </div>
-  </footer>
+/* ==========================================================================
+   6) PREVIEW SWITCHER + NAV
+   ========================================================================== */
+const PREVIEWS = [
+  {id:'public',    label:'Public'},
+  {id:'member',    label:'Member'},
+  {id:'moderator', label:'Moderator'},
+  {id:'admin',     label:'Admin'},
+  {id:'owner',     label:'Owner'},
+];
+function setPreview(id){
+  session = (id==='public') ? null : {roleId:id, username:roles[id].name+' (preview)', email:'preview@earthsweetearth.org'};
+  if(!canView(route())) go('home');
+  render();
+}
+function currentPreviewId(){ return session ? session.roleId : 'public'; }
 
-  <script>
-    // Subtle "fade up" as each section scrolls into view.
-    // Fully progressive and accessible: with JavaScript off, OR "reduce motion" on,
-    // OR no IntersectionObserver support, every section is simply shown with no animation.
-    (function () {
-      var root = document.documentElement;
-      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reduce || !('IntersectionObserver' in window)) { root.classList.remove('js-reveal'); return; }
-      var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
-        });
-      }, { threshold: 0.12 });
-      document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
-    })();
-  </script>
+function renderChrome(){
+  // preview bar — only in preview mode (real roles govern once accounts are live)
+  const proto = document.getElementById('protoBar');
+  if(BACKEND){
+    proto.style.display = 'none';
+  } else {
+    proto.style.display = '';
+    document.getElementById('previewBar').innerHTML = PREVIEWS.map(p=>
+      '<button class="'+(currentPreviewId()===p.id?'active':'')+'" onclick="setPreview(\''+p.id+'\')">'+p.label+'</button>'
+    ).join('');
+  }
+
+  // tabs — only the pages this visitor can see
+  const r = route();
+  document.getElementById('tabs').innerHTML = ROUTES.filter(canView).map(rt=>
+    '<button class="'+(rt==='admin'?'admin ':'')+(r===rt?'active':'')+'" onclick="go(\''+rt+'\')">'+TAB_LABELS[rt]+'</button>'
+  ).join('');
+
+  // account area
+  document.getElementById('acct').innerHTML = isLoggedIn()
+    ? '<span class="who">Hi, <b>'+session.username+'</b></span>'+
+      '<button class="btn btn-ghost btn-sm" onclick="openProfile()">Profile</button>'+
+      '<button class="btn btn-blue btn-sm" onclick="logout()">Log out</button>'
+    : '<button class="btn btn-ghost btn-sm" onclick="openLogin()">Log in</button>'+
+      '<button class="btn btn-primary btn-sm" onclick="openSignup()">Sign up</button>';
+}
+
+/* ==========================================================================
+   7) PAGE VIEWS  (all placeholders)
+   ========================================================================== */
+function deniedView(msg){
+  return '<div class="wrap view"><div class="denied card"><div class="big">🔒</div><h2>Not available yet</h2>'+
+    '<p class="muted">'+msg+'</p><button class="btn btn-primary" onclick="go(\'home\')">Back to Home</button></div></div>';
+}
+
+function homeView(){
+  return ''+
+  '<section class="hero">'+
+    '<svg class="sun" id="sun" width="300" height="300" viewBox="0 0 300 300" aria-hidden="true">'+
+      '<circle cx="150" cy="150" r="130" fill="#F4C430" opacity="0.18"/>'+
+      '<circle cx="150" cy="150" r="84" fill="#F4C430" opacity="0.95"/>'+
+    '</svg>'+
+    '<svg class="scene" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">'+
+      '<path fill="#007600" opacity="0.28" d="M0,224 C240,160 480,192 720,208 C960,224 1200,176 1440,200 L1440,320 L0,320 Z"/>'+
+      '<path fill="#007600" opacity="0.5"  d="M0,272 C280,224 520,272 760,256 C1000,240 1220,288 1440,264 L1440,320 L0,320 Z"/>'+
+      '<path fill="#005800" d="M0,300 C360,276 720,308 1080,296 C1260,290 1360,300 1440,296 L1440,320 L0,320 Z"/>'+
+    '</svg>'+
+    '<div class="wrap inner">'+
+      '<p class="eyebrow">Est. 2026 · Syosset, New York</p>'+
+      '<h1 class="wordmark">Earth <span class="sw">Sweet</span> Earth</h1>'+
+      '<p class="tagline">A youth-led project growing a greener, kinder planet — one neighborhood at a time.</p>'+
+      '<div class="cta-row"><button class="btn btn-primary" onclick="go(\'programs\')">See our programs</button>'+
+      '<button class="btn btn-ghost" onclick="go(\'contact\')">Get in touch</button></div>'+
+    '</div>'+
+  '</section>'+
+
+  '<div class="wrap" style="padding-bottom:20px;">'+
+    // Mission
+    '<section style="margin:20px 0 56px;">'+
+      '<p class="eyebrow">Our mission</p>'+
+      '<div class="card"><p class="muted" style="margin:0;font-size:1.15rem;">Mission statement</p></div>'+
+    '</section>'+
+
+    // Our team
+    '<section style="margin-bottom:56px;">'+
+      '<p class="eyebrow">Our team</p>'+
+      '<h2 class="page-title" style="font-size:2rem;">The people behind ESE</h2>'+
+      '<p class="page-intro">Our founding members — and soon, our board.</p>'+
+      '<div class="grid g4" style="margin-top:24px;">'+
+        teamCard()+teamCard()+teamCard()+teamCard()+
+      '</div>'+
+    '</section>'+
+
+    // Discord
+    '<section class="discord">'+
+      '<h2>Join our Discord server!</h2>'+
+      '<p class="muted">Our Discord server is where we discuss, plan events, and just chat!</p>'+
+      '<button class="btn btn-blue" onclick="joinDiscord()">Join our Discord server!</button>'+
+    '</section>'+
+  '</div>';
+}
+function teamCard(){
+  return '<div class="card team-card"><div class="team-photo">Add<br>photo</div><h3>Add name</h3><p class="muted" style="margin:0;">Add description</p></div>';
+}
+function joinDiscord(){
+  if(!isLoggedIn()){ popup('Almost there!','You have to make an account before you can join the Discord!'); return; }
+  comingSoon(); // logged in → would redirect to the server, but it doesn't exist yet
+}
+
+function newsletterView(){
+  const f = newsletters.find(n=>n.featured);
+  const list = newsletters.filter(n=>!n.featured);
+  let html = '<div class="wrap view">'+
+    '<p class="eyebrow">Newsletter</p><h1 class="page-title">News &amp; updates</h1>'+
+    '<p class="page-intro">Read the latest from Earth Sweet Earth.</p>';
+
+  // composer for people allowed to post
+  if(can('newsletter_post')){
+    html += '<div class="card composer" style="margin:24px 0;background:rgba(0,118,0,.04);">'+
+      '<h3 style="font-size:1.2rem;margin-bottom:12px;">＋ New post <span class="pill">You can post</span></h3>'+
+      '<input type="text" placeholder="Post title">'+
+      '<textarea rows="4" placeholder="Write anything — no word limit"></textarea>'+
+      '<div class="tools">'+
+        '<button class="btn btn-ghost btn-sm" onclick="comingSoon()">📎 Attach file</button>'+
+        '<button class="btn btn-ghost btn-sm" onclick="comingSoon()">🔗 Attach link</button>'+
+        '<span style="flex:1"></span>'+
+        '<button class="btn btn-primary btn-sm" onclick="comingSoon()">Publish</button>'+
+      '</div></div>';
+  }
+
+  // featured
+  html += '<div class="card featured" style="margin-bottom:24px;">'+
+    '<span class="pill">Featured</span>'+
+    '<h2 style="font-size:1.8rem;margin:10px 0;">'+f.title+'</h2>'+
+    '<p class="muted">'+f.body+'</p>'+ reactionsBar(f.id) +'</div>';
+
+  // list → PDFs
+  html += '<h3 style="color:var(--green);margin:8px 0 14px;">More newsletters</h3><div class="nl-list">';
+  list.forEach(n=>{ html += '<a href="#" onclick="comingSoon();return false;"><span>'+n.title+'</span><span class="pdf">PDF ↗</span></a>'; });
+  html += '</div><p class="muted" style="font-size:.85rem;">Older newsletters will open as PDFs once you post them.</p>';
+
+  return html+'</div>';
+}
+function reactionsBar(id){
+  const n = newsletters.find(x=>x.id===id); const r=n.reactions;
+  return '<div class="reactions">'+
+    '<button onclick="react('+id+',\'heart\')">❤️ Heart · '+r.heart+'</button>'+
+    '<button onclick="react('+id+',\'support\')">🤝 Support · '+r.support+'</button>'+
+    '<button onclick="react('+id+',\'thank\')">🙏 Thank · '+r.thank+'</button>'+
+    '<button onclick="react('+id+',\'celebrate\')">🎉 Celebrate · '+r.celebrate+'</button>'+
+  '</div>';
+}
+function react(id,kind){ const n=newsletters.find(x=>x.id===id); n.reactions[kind]++; render(); }
+
+function programsView(){
+  let html='<div class="wrap view">'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;">'+
+      '<div><p class="eyebrow">Programs</p><h1 class="page-title">What we\'ve been doing</h1></div>'+
+      '<div><button class="btn btn-primary" onclick="createChapter()">Create Chapter</button>'+
+        '<span class="info" tabindex="0">ⓘ<span class="tip">A chapter is a regional branch of ESE. To learn more, visit <a href="#/chapters" onclick="closeModal&&0">Chapters</a>.</span></span>'+
+      '</div>'+
+    '</div>'+
+    (can('programs_update') ? '<p><span class="pill">You can edit this page</span> <button class="btn btn-ghost btn-sm" onclick="comingSoon()">Edit programs</button></p>' : '')+
+    '<div class="grid g3" style="margin-top:24px;">'+
+      '<div class="card"><h3 style="color:var(--green);">Recent events</h3><div class="ph ph-box">Add a recent event</div></div>'+
+      '<div class="card"><h3 style="color:var(--green);">Guest speakers</h3><div class="ph ph-box">Add a guest speaker</div></div>'+
+      '<div class="card"><h3 style="color:var(--green);">What we\'re doing</h3><div class="ph ph-box">Add an activity</div></div>'+
+    '</div>'+
+  '</div>';
+  return html;
+}
+function createChapter(){
+  if(!isLoggedIn()){ popup('Become a member','Become a member to start your own chapter!'); return; }
+  comingSoon(); // logged in → would open the Google Form application, which doesn't exist yet
+}
+
+function chaptersView(){
+  const continents=['Africa','Antarctica','Asia','Europe','North America','Oceania','South America'];
+  let html='<div class="wrap view">'+
+    '<p class="eyebrow">Chapters</p><h1 class="page-title">ESE chapters</h1>'+
+    '<p class="page-intro">Chapters are regional branches of Earth Sweet Earth. People can apply to start one in their area.</p>'+
+    (can('chapters_add') ? '<p><button class="btn btn-primary btn-sm" onclick="comingSoon()">＋ Add chapter</button> <span class="lock-note">Approvals come through the application form (coming soon).</span></p>' : '')+
+    '<input class="search" type="search" placeholder="🔎 Search for a chapter…" oninput="toast(\'No chapters yet to search\')">'+
+    continents.map(c=>
+      '<details class="cont"><summary>'+c+'</summary><div class="body"><p class="ph">No chapters here yet — check back soon!</p></div></details>'
+    ).join('')+
+  '</div>';
+  return html;
+}
+
+function galleryView(){
+  let html='<div class="wrap view">'+
+    '<p class="eyebrow">Gallery</p><h1 class="page-title">Moments from the field</h1>'+
+    '<p class="page-intro">Photos of clean-ups, plantings, and events.</p>'+
+    (can('gallery_upload') ? '<p><span class="pill">You can add photos</span> <button class="btn btn-primary btn-sm" onclick="comingSoon()">＋ Add photo &amp; caption</button></p>' : '')+
+    '<div class="grid g3" style="margin-top:20px;">'+
+      '<div class="ph ph-box">📷 Add a photo</div><div class="ph ph-box">📷 Add a photo</div><div class="ph ph-box">📷 Add a photo</div>'+
+    '</div>'+
+    '<p class="muted" style="margin-top:16px;">No photos yet — they\'ll appear here once you upload them.</p>'+
+  '</div>';
+  return html;
+}
+
+function contactView(){
+  return '<div class="wrap view">'+
+    '<p class="eyebrow">Contact</p><h1 class="page-title">Get in touch</h1>'+
+    '<p class="page-intro">We\'d love to hear from you.</p>'+
+    '<div class="grid g2" style="margin-top:24px;">'+
+      '<div class="card"><h3 style="color:var(--green);">Email us</h3>'+
+        '<p class="muted">Reach the team directly:</p>'+
+        '<p><a href="mailto:hello@earthsweetearth.org">hello@earthsweetearth.org</a></p>'+
+        '<a class="btn btn-primary" href="mailto:hello@earthsweetearth.org">Say hello</a></div>'+
+      '<div class="card"><h3 style="color:var(--green);">More ways to reach us</h3>'+
+        '<div class="ph" style="margin-bottom:12px;">Add social media account</div>'+
+        '<div class="ph" style="margin-bottom:12px;">Add a contact form</div>'+
+        '<div class="ph muted">Donations — coming later</div></div>'+
+    '</div>'+
+  '</div>';
+}
+
+function calendarView(){
+  return '<div class="wrap view">'+
+    '<p class="eyebrow">Calendar</p><h1 class="page-title">Upcoming events</h1>'+
+    (can('calendar_edit') ? '<p><span class="pill">You can edit the calendar</span> <button class="btn btn-primary btn-sm" onclick="comingSoon()">＋ Add event</button> <button class="btn btn-ghost btn-sm" onclick="comingSoon()">🔗 Post meeting link</button></p>' : '')+
+    '<div class="card" style="margin-top:20px;">'+
+      '<h3 style="color:var(--green);">Next meeting</h3>'+
+      '<div class="ph" style="margin-bottom:16px;">Add the next meeting link</div>'+
+      '<h3 style="color:var(--green);">Events</h3>'+
+      '<div class="ph ph-box">No events yet — add one</div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ---- Admin Settings: role builder + profiles ---- */
+function adminView(){
+  // capability matrix (rows = capabilities, columns = roles)
+  const roleIds = Object.keys(roles);
+  let matrix = '<div style="overflow-x:auto;"><table class="table"><thead><tr><th>Permission</th>'+
+    roleIds.map(id=>'<th class="center">'+roles[id].name+(roles[id].locked?' 🔒':'')+'</th>').join('')+'</tr></thead><tbody>';
+  CAPS.forEach(cap=>{
+    matrix += '<tr><td>'+cap.label+'</td>'+
+      roleIds.map(id=>{
+        const checked = roles[id].caps[cap.id] ? 'checked' : '';
+        const disabled = roles[id].locked ? 'disabled' : '';
+        return '<td class="center"><label class="switch"><input type="checkbox" '+checked+' '+disabled+
+          ' onchange="toggleCap(\''+id+'\',\''+cap.id+'\',this.checked)"><span class="slider"></span></label></td>';
+      }).join('')+'</tr>';
+  });
+  matrix += '</tbody></table></div>';
+
+  // people table (assign roles / "check specific profiles")
+  let ppl = '<div style="overflow-x:auto;"><table class="table"><thead><tr><th>Member</th><th>Email</th><th>Role</th></tr></thead><tbody>'+
+    people.map(p=>'<tr><td>'+p.username+'</td><td class="muted">'+p.email+'</td><td>'+
+      '<select class="role-sel" onchange="setPersonRole('+p.id+',this.value)">'+
+        Object.keys(roles).map(id=>'<option value="'+id+'" '+(p.roleId===id?'selected':'')+'>'+roles[id].name+'</option>').join('')+
+      '</select></td></tr>').join('')+
+    '</tbody></table></div>';
+
+  return '<div class="wrap view">'+
+    '<p class="eyebrow">Admin</p><h1 class="page-title">Admin Settings</h1>'+
+    '<p class="page-intro">Create roles, set exactly what each one can do, and manage members. Changes here update the site live in this preview.</p>'+
+
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:28px 0 12px;">'+
+      '<h2 style="font-size:1.5rem;">Roles &amp; permissions</h2>'+
+      '<button class="btn btn-primary btn-sm" onclick="openCreateRole()">＋ Create New Role</button>'+
+    '</div>'+
+    matrix+
+    '<p class="muted" style="font-size:.85rem;">Owner always has every permission (that\'s you) and can\'t be changed.</p>'+
+
+    '<h2 style="font-size:1.5rem;margin:34px 0 12px;">Members</h2>'+
+    ppl+
+    '<p class="muted" style="font-size:.85rem;">Set anyone to Admin, Moderator, or any role you create.</p>'+
+  '</div>';
+}
+function toggleCap(roleId,capId,val){ if(roles[roleId].locked) return; roles[roleId].caps[capId]=val; render(); }
+function setPersonRole(id,roleId){ const p=people.find(x=>x.id===id); if(p){ p.roleId=roleId; toast(p.username+' → '+roles[roleId].name); } }
+function openCreateRole(){
+  openModal(
+    '<button class="x" onclick="closeModal()" aria-label="Close">×</button>'+
+    '<h3>Create a new role</h3>'+
+    '<p class="muted" style="font-size:.9rem;">Give it a name. It starts with no permissions — turn them on with the toggles.</p>'+
+    '<label for="nr">Role name</label><input id="nr" type="text" placeholder="e.g. Event Lead">'+
+    '<p class="err" id="nr-err"></p>'+
+    '<button class="btn btn-primary" style="margin-top:6px;width:100%" onclick="doCreateRole()">Create role</button>'
+  );
+}
+function doCreateRole(){
+  const name=document.getElementById('nr').value.trim();
+  if(!name){ document.getElementById('nr-err').textContent='Please enter a name.'; return; }
+  const key='role_'+Date.now();
+  roles[key]={name:name, caps:allCaps(false)};
+  closeModal(); render(); toast('Created role: '+name);
+}
+
+/* ==========================================================================
+   8) MAIN RENDER
+   ========================================================================== */
+function render(){
+  renderChrome();
+  let r = route();
+  if(!ROUTES.includes(r)){ r='home'; }
+  const app = document.getElementById('app');
+
+  if(!canView(r)){
+    const msg = (r==='calendar') ? 'The calendar opens up once you\'re signed in and it\'s switched on.'
+              : (r==='admin')    ? 'Admin Settings is for Admins and the Owner.'
+              : 'This section isn\'t open to everyone yet.';
+    app.innerHTML = deniedView(msg);
+    window.scrollTo(0,0);
+    return;
+  }
+
+  const views = {home:homeView,newsletter:newsletterView,programs:programsView,chapters:chaptersView,gallery:galleryView,contact:contactView,calendar:calendarView,admin:adminView};
+  app.innerHTML = views[r]();
+  window.scrollTo(0,0);
+
+  // (re)attach the dynamic sun on the home page
+  attachSun();
+}
+
+/* ==========================================================================
+   9) DYNAMIC SUN — moves opposite to scrolling (scroll down → sun drifts up)
+   ========================================================================== */
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function onScroll(){
+  const sun=document.getElementById('sun');
+  if(!sun || reduceMotion) return;
+  sun.style.transform = 'translateX(-50%) translateY('+(-window.scrollY*0.35)+'px)';
+}
+function attachSun(){ onScroll(); }
+window.addEventListener('scroll', ()=>requestAnimationFrame(onScroll), {passive:true});
+
+/* ==========================================================================
+   10) START
+   ========================================================================== */
+async function init(){
+  if(BACKEND){
+    await loadSession();                                   // restore a logged-in user on page load
+    sb.auth.onAuthStateChange(()=>{ loadSession().then(render); });  // keep in sync (login/logout in other tabs, token refresh)
+  }
+  if(!location.hash) location.hash = '#/home';
+  render();
+}
+init();
+</script>
 
 </body>
 </html>
