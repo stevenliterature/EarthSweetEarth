@@ -36,9 +36,11 @@
 
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
-  body{margin:0;overflow-x:hidden;font-family:"Inter",system-ui,-apple-system,sans-serif;
+  body{margin:0;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column;font-family:"Inter",system-ui,-apple-system,sans-serif;
     color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;
     transition:background .3s ease,color .3s ease;}
+  #app{flex:1 0 auto;}
+  footer{flex-shrink:0;}
   h1,h2,h3{font-family:"Fraunces",Georgia,serif;line-height:1.1;margin:0;color:var(--green);}
   p{margin:0 0 1rem;}
   a{color:var(--blue);}
@@ -59,6 +61,11 @@
   .btn-ghost:hover{background:var(--blue);color:#fff;transform:translateY(-2px);}
   .btn-sm{padding:8px 16px;font-size:.88rem;}
   .btn-xs{padding:5px 12px;font-size:.8rem;border-width:1.5px;}
+  .btn-danger{background:#c0392b;color:#fff;}
+  .btn-danger:hover{background:#a5301f;transform:translateY(-2px);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+  .mrow{display:flex;gap:10px;align-items:center;margin-bottom:16px;}
+  .mrow .search{flex:1;}
 
   /* preview bar */
   .proto{background:#20302a;color:#e7efe9;font-size:.84rem;}
@@ -71,7 +78,12 @@
   .proto .pv button.active{background:var(--sun);color:#20302a;border-color:var(--sun);font-weight:600;}
 
   /* top nav — sized so all tabs fit on one row at the same height for everyone */
-  .topbar{background:var(--bg);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50;transition:background .3s;}
+  .topbar{background:#F4D462;border-bottom:1px solid rgba(0,0,0,.14);position:sticky;top:0;z-index:50;transition:background .3s;}
+  [data-theme="dark"] .topbar{background:#2e2712;border-bottom:1px solid #1c1709;}
+  [data-theme="dark"] .topbar .tabs button{color:#eadfce;}
+  .topbar .brand{color:#0a4d0a;}
+  .topbar .tabs button{color:#33261a;}
+  [data-theme="dark"] .topbar .brand{color:var(--green);}
   .nav{display:flex;align-items:center;gap:14px;padding:12px 0;min-height:64px;}
   .brand{font-family:"Fraunces",serif;font-weight:600;font-size:1.15rem;color:var(--green);text-decoration:none;white-space:nowrap;}
   .brand .sw{color:var(--blue);font-style:italic;}
@@ -83,8 +95,8 @@
   .tabs button.admin{color:var(--blue);}
   .tabs button.admin.active{color:var(--blue);border-bottom-color:var(--blue);}
   .acct{display:flex;gap:8px;align-items:center;white-space:nowrap;}
-  .iconbtn{background:transparent;border:1.5px solid var(--line);color:var(--ink);width:38px;height:38px;border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s;}
-  .iconbtn:hover{border-color:var(--blue);color:var(--blue);}
+  .iconbtn{background:var(--blue);border:1.5px solid var(--blue);color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s;}
+  .iconbtn:hover{background:var(--blue-dk);border-color:var(--blue-dk);color:#fff;}
   .userbtn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid var(--line);border-radius:100px;padding:4px 12px 4px 4px;cursor:pointer;font-family:inherit;color:var(--ink);}
   .userbtn:hover{border-color:var(--blue);}
   .userbtn .uname{font-size:.9rem;font-weight:600;}
@@ -110,6 +122,7 @@
   .addbtn:hover{border-color:var(--green);color:var(--green);}
   .rowbtns{display:flex;gap:6px;margin-top:10px;}
   .sec{margin-bottom:52px;}
+  .home-stack{display:flex;flex-direction:column;gap:52px;padding:52px 0 8px;}
   .sechead{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
 
   /* info tooltip (ⓘ) — upright, and opens BELOW so it never gets clipped by the nav */
@@ -125,35 +138,35 @@
   .stars,.milky{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .4s;}
   .hero.night .stars,.hero.night .milky{opacity:1;}
   .milky{background:
-      radial-gradient(52% 22% at 60% 46%, rgba(120,150,235,.16), transparent 65%),
-      radial-gradient(30% 14% at 64% 30%, rgba(255,236,206,.10), transparent 70%),
-      linear-gradient(118deg, transparent 40%,
-        rgba(90,120,200,.10) 44%,
-        rgba(150,120,190,.14) 47%,
-        rgba(210,216,255,.26) 49%,
-        rgba(240,232,255,.34) 50.5%,
-        rgba(255,238,210,.16) 52%,
-        rgba(150,168,225,.16) 55%,
-        rgba(90,120,200,.10) 58%,
-        transparent 61%);
-    filter:blur(4px);mix-blend-mode:screen;}
+      radial-gradient(48% 32% at 56% 56%, rgba(255,246,226,.10), transparent 72%),
+      radial-gradient(30% 22% at 47% 66%, rgba(150,110,70,.17), transparent 72%),
+      radial-gradient(26% 20% at 62% 46%, rgba(170,120,72,.16), transparent 74%),
+      radial-gradient(22% 16% at 52% 60%, rgba(226,182,120,.17), transparent 72%),
+      radial-gradient(20% 15% at 68% 38%, rgba(234,194,132,.15), transparent 74%),
+      radial-gradient(18% 13% at 43% 70%, rgba(198,150,96,.14), transparent 74%),
+      radial-gradient(40% 30% at 42% 74%, rgba(200,210,255,.11), transparent 72%),
+      radial-gradient(30% 22% at 72% 30%, rgba(206,214,255,.10), transparent 76%),
+      radial-gradient(16% 12% at 79% 22%, rgba(210,216,255,.08), transparent 78%);
+    filter:blur(8px);mix-blend-mode:screen;}
   .milky::after{content:"";position:absolute;inset:0;opacity:.55;background:
-      radial-gradient(1.4px 1.4px at 55% 33%,#fff,transparent),
-      radial-gradient(1px 1px at 60% 46%,#d5ddff,transparent),
-      radial-gradient(1.4px 1.4px at 64% 37%,#fff,transparent),
-      radial-gradient(1px 1px at 58% 54%,#e9edff,transparent),
-      radial-gradient(1.2px 1.2px at 67% 27%,#fff,transparent),
-      radial-gradient(1px 1px at 52% 60%,#cfd8ff,transparent);}
-  .star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:blink 4s ease-in-out infinite;}
-  @keyframes blink{0%,100%{opacity:.25;}50%{opacity:1;}}
+      radial-gradient(1.3px 1.3px at 55% 33%,#fff,transparent),radial-gradient(1px 1px at 60% 46%,#d5ddff,transparent),
+      radial-gradient(1.3px 1.3px at 64% 37%,#fff,transparent),radial-gradient(1px 1px at 58% 54%,#e9edff,transparent),
+      radial-gradient(1px 1px at 52% 60%,#cfd8ff,transparent),radial-gradient(1.3px 1.3px at 49% 70%,#fff,transparent),
+      radial-gradient(1px 1px at 45% 76%,#ffe9cf,transparent),radial-gradient(1.2px 1.2px at 57% 44%,#fff5e6,transparent),
+      radial-gradient(1px 1px at 61% 40%,#ffe9cf,transparent),radial-gradient(1.1px 1.1px at 66% 50%,#fff,transparent),
+      radial-gradient(1px 1px at 50% 52%,#ffe0c0,transparent),radial-gradient(1.2px 1.2px at 70% 34%,#fff,transparent),
+      radial-gradient(1px 1px at 48% 64%,#f0e6ff,transparent),radial-gradient(1.1px 1.1px at 63% 58%,#fff,transparent),
+      radial-gradient(1px 1px at 54% 48%,#ffedd6,transparent),radial-gradient(1.2px 1.2px at 74% 28%,#fff,transparent);}
+  .star{position:absolute;border-radius:50%;background:#fff;}
+  .star.tw{box-shadow:0 0 4px 1px rgba(255,255,255,.9);}
   .celestial{position:absolute;left:50%;top:50%;z-index:1;transform:translate(-50%,-50%);pointer-events:none;}
   .sun-wrap{position:relative;width:150px;height:150px;}
   .sun-glow{position:absolute;left:50%;top:50%;width:280px;height:280px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(244,196,48,.6),rgba(244,196,48,0) 68%);}
   .sun-disk{position:absolute;left:50%;top:50%;width:120px;height:120px;transform:translate(-50%,-50%);border-radius:50%;background:var(--sun);box-shadow:0 0 46px rgba(244,196,48,.6);}
   .clouds{position:absolute;inset:0;z-index:2;pointer-events:none;}
   .cloud{position:absolute;fill:#ffffff;opacity:.9;}
-  .hills-back{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:auto;z-index:2;display:block;}
-  .hills-front{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:auto;z-index:4;display:block;}
+  .hills-back{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:34vh;z-index:2;display:block;}
+  .hills-front{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:23vh;z-index:4;display:block;}
   .tree{position:absolute;bottom:0;width:190px;height:44vh;max-height:420px;z-index:3;transform-origin:bottom center;pointer-events:none;}
   .tree-left{left:-6px;}
   .tree-right{right:-6px;transform:scaleX(-1);}
@@ -169,7 +182,8 @@
   .flower .petals{fill:#ffc0d8;}
   .flower .fcenter{fill:#ffdd66;}
   .flyleaf{position:absolute;width:16px;height:16px;z-index:4;pointer-events:none;overflow:visible;}
-  .hero-content{position:relative;z-index:5;min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px 190px;}
+  .pileg{opacity:0;}
+  .hero-content{position:relative;z-index:6;min-height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px 190px;}
   .wordmark{font-size:clamp(2.6rem,9vw,6rem);font-weight:900;letter-spacing:-.03em;color:var(--green);margin:0 0 20px;}
   [data-theme="dark"] .hero-content .wordmark{color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.5);}
   .wordmark .sw{color:var(--blue);font-style:italic;font-weight:600;}
@@ -178,6 +192,19 @@
   [data-theme="dark"] .hero-content .tagline{color:#dfe7ee;}
   .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
   .shooting{position:absolute;height:2px;width:120px;background:linear-gradient(90deg,rgba(255,255,255,0),#fff);border-radius:2px;z-index:1;pointer-events:none;}
+  /* birds: small silhouettes gliding across the top third, independent of scroll */
+  .birds{position:absolute;z-index:4;pointer-events:none;}
+  .bird{position:absolute;color:#333;}
+  [data-theme="dark"] .hero .bird{color:#9aa6b4;}
+  .bird svg{display:block;fill:currentColor;}
+  /* winter snow: falling flakes (hidden below the ground) + a cover on both hills */
+  .snow{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;}
+  .snow span{position:absolute;top:-6%;border-radius:50%;background:#fff;opacity:.9;animation:snowfall linear infinite;}
+  @keyframes snowfall{0%{transform:translate(0,-10%);}100%{transform:translate(var(--dx,10px),120vh);}}
+  .snowback{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:34vh;z-index:2;opacity:0;pointer-events:none;}
+  .snowground{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:26vh;z-index:5;opacity:0;pointer-events:none;}
+  .windgust{position:absolute;z-index:4;pointer-events:none;overflow:visible;}
+  .windgust path{fill:none;stroke:#ffffff;stroke-linecap:round;}
 
   /* team */
   .team-photo{width:96px;height:96px;border-radius:50%;margin:0 auto 14px;object-fit:cover;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;overflow:hidden;}
@@ -207,6 +234,12 @@
   details.cont summary::after{content:"+";color:var(--blue);}
   details.cont[open] summary::after{content:"\2013";}
   details.cont .body{padding:0 18px 16px;}
+  .chp-country{padding:8px 0;border-top:1px solid var(--line);}
+  .chp-country:first-child{border-top:none;}
+  .chp-cn{font-weight:600;margin-bottom:4px;}
+  .chp-list{list-style:none;margin:0;padding:0 0 0 4px;}
+  .chp-list li{padding:3px 0;color:var(--ink);}
+  .ed-select{width:100%;font-family:inherit;font-size:1rem;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);}
 
   /* calendar */
   .mtg-rect{display:block;background:var(--card);border:2px solid var(--green);border-radius:14px;padding:22px;text-align:center;font-weight:600;color:var(--green);text-decoration:none;margin-bottom:20px;}
@@ -262,20 +295,23 @@
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   /* footer */
-  footer{background:var(--green);color:#e4efe6;padding:44px 0 34px;text-align:center;font-size:.9rem;}
-  [data-theme="dark"] footer{background:#0a1219;border-top:1px solid var(--line);}
-  footer .fm{font-family:"Fraunces",serif;color:#fff;font-size:1.3rem;margin-bottom:14px;}
-  footer .fm .sw{color:var(--sun);font-style:italic;}
+  footer{background:#F4D462;color:#3a2f14;padding:44px 0 34px;text-align:center;font-size:.9rem;}
+  [data-theme="dark"] footer{background:#2e2712;color:#e8dcc0;border-top:1px solid #1c1709;}
+  footer .fm{font-family:"Fraunces",serif;font-size:1.3rem;margin-bottom:14px;color:var(--green);}
+  footer .fm .sw{color:var(--blue);font-style:italic;}
   footer .fcol{margin:14px 0;}
-  footer .flab{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;opacity:.75;margin-bottom:8px;}
+  footer .flab{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;opacity:.7;margin-bottom:8px;}
   footer .links{justify-content:center;}
-  footer .links a,footer .links .lk{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff;}
-  footer .addbtn{max-width:280px;margin:0 auto;color:#e4efe6;border-color:rgba(255,255,255,.4);}
-  footer .cpy{margin-top:20px;opacity:.8;}
+  footer .links a,footer .links .lk{background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.2);color:var(--blue-dk);}
+  [data-theme="dark"] footer .links a,[data-theme="dark"] footer .links .lk{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.25);color:var(--blue);}
+  footer .addbtn{max-width:280px;margin:0 auto;color:#3a2f14;border-color:rgba(0,0,0,.35);}
+  [data-theme="dark"] footer .addbtn{color:#e8dcc0;border-color:rgba(255,255,255,.4);}
+  footer .cpy{margin-top:20px;color:#000;}
+  [data-theme="dark"] footer .cpy{color:#fff;}
 
   @media (max-width:900px){.g4{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:1fr;}.g2{grid-template-columns:1fr;}}
   @media (max-width:640px){.view{padding:38px 0 60px;}.nav{flex-wrap:wrap;}.tabs{order:3;width:100%;justify-content:flex-start;}}
-  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none!important;}.foliage,.star{animation:none!important;}}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none!important;}.foliage,.star,.snow span{animation:none!important;}}
 </style>
 </head>
 <body>
@@ -283,7 +319,7 @@
 <a class="skip" href="#/home">Skip to content</a>
 
 <!-- Preview bar — stays available even after Supabase, so you can always view other perspectives -->
-<div class="proto" id="protoBar">
+<div class="proto" id="protoBar" style="display:none">
   <div class="wrap">
     <span>🔧 <b>Preview</b> — view the site as:</span>
     <span class="pv" id="previewBar"></span>
@@ -313,8 +349,9 @@
 /* ==========================================================================
    0) SUPABASE CONFIG — paste your two keys to switch on real accounts.
    ========================================================================== */
-const SUPABASE_URL      = "https://najuadikmuiojsmnylya.supabase.co";   // base project URL only — NO "/rest/v1" (supabase-js adds it)
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hanVhZGlrbXVpb2pzbW55bHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjAxNzUsImV4cCI6MjA5ODgzNjE3NX0.Y-ji-1eVcF8LHf9skBJhO8THzlALFSJ21h8TD6s0CQA";   // the long "anon public" key
+const SUPABASE_URL      = "https://najuadikmuiojsmnylya.supabase.co";   // base project URL only
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hanVhZGlrbXVpb2pzbW55bHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjAxNzUsImV4cCI6MjA5ODgzNjE3NX0.Y-ji-1eVcF8LHf9skBJhO8THzlALFSJ21h8TD6s0CQA";   // anon public key (safe in the browser)
+const DISCORD_URL       = "";   // paste your Discord invite link here (e.g. https://discord.gg/xxxxxxx) — used as a fallback if not set in-app
 let sb=null, BACKEND=false;
 if(SUPABASE_URL && SUPABASE_ANON_KEY && typeof supabase!=='undefined' && supabase.createClient){
   sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); BACKEND=true;
@@ -333,7 +370,7 @@ const CAPS = [
   {id:'calendar_edit',   label:'Add / edit events & the meeting link'},
   {id:'chapters_add',    label:'Add / approve chapters'},
   {id:'edit_content',    label:'Edit site content (team, contact links, footer)'},
-  {id:'admin_settings',  label:'Open Admin Settings & manage roles'},
+  {id:'admin_settings',  label:'Open Owner Settings & manage roles'},
 ];
 const allCaps=(v)=>Object.fromEntries(CAPS.map(c=>[c.id,v]));
 let roles = {
@@ -344,13 +381,21 @@ let roles = {
 };
 let people = [
   {id:1, username:'(you)', email:'owner@earthsweetearth.org', roleId:'owner'},
-  {id:2, username:'Add member', email:'—', roleId:'member'},
 ];
 // editable site content (empty to start; admins fill it, viewers only see what exists)
-let content = { team:[], socials:[], affiliations:[], doing:[], speakers:[], events:[], gallery:[], meetingLink:'' };
+let content = { mission:'', tagline:'', discord:'', team:[], socials:[], affiliations:[], doing:[], speakers:[], events:[], gallery:[], chapters:[], meetingLink:'' };
 let newsletters = [];   // {id,title,body,featured,reactions,myReaction}
-let session = null;     // {roleId, username, email, avatar}
+let account = null;     // the REAL logged-in account {roleId, username, email, avatar}
+let previewAs = null;   // owner's view override: null | 'public' | a roleId (does NOT change the real account)
+let session = null;     // the DISPLAY session (derived from account + previewAs)
 let theme = 'light';
+let editUI = true;      // owner's "viewing & filling out placeholders" switch
+// what the site should render as right now (owner can preview other roles without logging out)
+function recomputeSession(){
+  if(previewAs==='public'){ session=null; return; }
+  if(previewAs){ session=Object.assign({}, account||{username:'Preview',email:'',avatar:null}, {roleId:previewAs}); return; }
+  session=account;
+}
 
 /* ==========================================================================
    2) PERMISSIONS
@@ -362,20 +407,21 @@ function canView(r){
   if(r==='chapters') return can('view_chapters');
   if(r==='gallery')  return can('view_gallery');
   if(r==='calendar') return can('view_calendar');
-  if(r==='admin')    return can('admin_settings');
+  if(r==='admin')    return isLoggedIn() && session.roleId==='owner';
   return true;
 }
 // which permission controls editing each content kind
 const KIND_CAP = {team:'edit_content', social:'edit_content', affiliation:'edit_content',
   doing:'programs_update', speaker:'programs_update', event:'calendar_edit', meetingLink:'calendar_edit',
   gallery:'gallery_upload', newsletter:'newsletter_post'};
-const canEditKind=(k)=> can(KIND_CAP[k]);
+const canEditKind=(k)=> editUI && can(KIND_CAP[k]);
+const canEdit=(cap)=> editUI && can(cap);   // edit buttons also require the owner's "edit placeholders" switch to be on
 
 /* ==========================================================================
    3) ROUTER (no scroll-jump on in-page updates — only on real page changes)
    ========================================================================== */
 const ROUTES=['home','newsletter','programs','chapters','gallery','contact','calendar','admin'];
-const TAB={home:'Home',newsletter:'Newsletter',programs:'Programs',chapters:'Chapters',gallery:'Gallery',contact:'Contact',calendar:'Calendar',admin:'Admin Settings'};
+const TAB={home:'Home',newsletter:'Newsletter',programs:'Programs',chapters:'Chapters',gallery:'Gallery',contact:'Contact',calendar:'Calendar',admin:'Owner Settings'};
 const route=()=> (location.hash.replace('#/','')||'home');
 const go=(r)=>{ location.hash='#/'+r; };
 let lastRoute=null;
@@ -406,6 +452,7 @@ function openEditor(title, fields, values, onSave){
     const v=(values&&values[f.key]!=null)?values[f.key]:'';
     const lab='<label>'+esc(f.label)+'</label>';
     if(f.type==='textarea') return lab+'<textarea id="ed-'+f.key+'" rows="3" placeholder="'+escA(f.placeholder||'')+'">'+esc(v)+'</textarea>';
+    if(f.type==='select') return lab+'<select id="ed-'+f.key+'" class="ed-select">'+(f.options||[]).map(o=>'<option'+((v||f.options[0])===o?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select>';
     if(f.type==='image') return lab+'<input id="ed-'+f.key+'" type="file" accept="image/*"><div class="img-prev" id="edp-'+f.key+'">'+(v?'<img src="'+escA(v)+'">':'')+'</div>';
     const t=f.type==='date'?'date':f.type==='time'?'time':f.type==='url'?'url':'text';
     return lab+'<input id="ed-'+f.key+'" type="'+t+'" value="'+escA(v)+'" placeholder="'+escA(f.placeholder||'')+'">';
@@ -436,12 +483,14 @@ const FIELDS={
   speaker:[{key:'name',label:'Displayed — speaker name',type:'text'},{key:'details',label:'Details (shown when clicked)',type:'textarea'}],
   event:[{key:'name',label:'Displayed — event name',type:'text'},{key:'date',label:'Displayed — date',type:'date'},{key:'time',label:'Displayed — time',type:'time'},{key:'details',label:'Details (shown when clicked)',type:'textarea'}],
   gallery:[{key:'caption',label:'Caption',type:'text'},{key:'photo',label:'Photo',type:'image'}],
+  chapter:[{key:'continent',label:'Continent',type:'select',options:['Africa','Antarctica','Asia','Europe','North America','Oceania','South America']},{key:'country',label:'Country (any language)',type:'text',placeholder:'e.g. 日本 / México / Kenya'},{key:'name',label:'Chapter name',type:'text'}],
 };
-const COLL={team:'team',social:'socials',affiliation:'affiliations',doing:'doing',speaker:'speakers',event:'events',gallery:'gallery'};
-const ADD_TITLE={team:'Add team member',social:'Add social account',affiliation:'Add affiliation',doing:'Add activity',speaker:'Add guest speaker',event:'Add event',gallery:'Add photo'};
-function addItem(kind){ openEditor(ADD_TITLE[kind], FIELDS[kind], null, v=>{ v.id=uid(); content[COLL[kind]].push(v); toast('Added'); }); }
-function editItem(kind,id){ const arr=content[COLL[kind]]; const it=arr.find(x=>x.id===id); openEditor('Edit', FIELDS[kind], it, v=>{ Object.assign(it,v); toast('Saved'); }); }
-function deleteItem(kind,id){ const arr=content[COLL[kind]]; const i=arr.findIndex(x=>x.id===id); if(i>-1){arr.splice(i,1);toast('Removed');render();} }
+const COLL={team:'team',social:'socials',affiliation:'affiliations',doing:'doing',speaker:'speakers',event:'events',gallery:'gallery',chapter:'chapters'};
+const ADD_TITLE={team:'Add team member',social:'Add social account',affiliation:'Add affiliation',doing:'Add activity',speaker:'Add guest speaker',event:'Add event',gallery:'Add photo',chapter:'Add a chapter'};
+const PERSIST_KIND={social:1,affiliation:1,chapter:1};   // these are saved for everyone via site_content
+function addItem(kind){ openEditor(ADD_TITLE[kind], FIELDS[kind], null, v=>{ v.id=uid(); content[COLL[kind]].push(v); toast('Added'); if(PERSIST_KIND[kind])saveSiteContent(true); }); }
+function editItem(kind,id){ const arr=content[COLL[kind]]; const it=arr.find(x=>x.id===id); openEditor('Edit', FIELDS[kind], it, v=>{ Object.assign(it,v); toast('Saved'); if(PERSIST_KIND[kind])saveSiteContent(true); }); }
+function deleteItem(kind,id){ const arr=content[COLL[kind]]; const i=arr.findIndex(x=>x.id===id); if(i>-1){arr.splice(i,1);toast('Removed'); if(PERSIST_KIND[kind])saveSiteContent(true); render();} }
 function editMeetingLink(){ openEditor('Meeting link', [{key:'url',label:'Link for the next meeting',type:'url'}], {url:content.meetingLink}, v=>{ content.meetingLink=v.url; toast('Saved'); }); }
 function openDetails(kind,id){
   const it=content[COLL[kind]].find(x=>x.id===id); if(!it) return;
@@ -481,7 +530,7 @@ async function doSignup(){
     if(error){b.disabled=false;b.textContent='Create account';err.textContent=error.message;return;}
     if(!data.session){closeModal();popup('Almost there!','Check your email to confirm your account, then log in.');return;}
     await loadSession();closeModal();render();toast('Welcome, '+user+'!');
-  } else { session={roleId:'member',username:user,email,avatar:null};closeModal();render();toast('Signed up (preview) — welcome, '+user+'!'); }
+  } else { account={roleId:'member',username:user,email,avatar:null};previewAs=null;recomputeSession();closeModal();render();toast('Signed up (preview) — welcome, '+user+'!'); }
 }
 function openLogin(){
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Log in</h3>'+noteHtml()+
@@ -495,26 +544,31 @@ async function doLogin(){
   if(BACKEND){
     const b=document.getElementById('li-btn');b.disabled=true;b.textContent='Logging in…';err.textContent='';
     const {error}=await sb.auth.signInWithPassword({email,password:pass});
-    if(error){b.disabled=false;b.textContent='Log in';err.textContent=error.message;return;}
+    if(error){b.disabled=false;b.textContent='Log in';
+      err.innerHTML=/invalid login credentials/i.test(error.message)
+        ? 'We couldn’t find an account with those details. If you’re new, please <a href="#" onclick="closeModal();openSignup();return false;">sign up</a> first.'
+        : esc(error.message);
+      return;}
     await loadSession();closeModal();render();toast('Logged in');
-  } else { session={roleId:'member',username:email.split('@')[0],email,avatar:null};closeModal();render();toast('Logged in (preview)'); }
+  } else { account={roleId:'member',username:email.split('@')[0],email,avatar:null};previewAs=null;recomputeSession();closeModal();render();toast('Logged in (preview)'); }
 }
-async function logout(){ if(BACKEND){await sb.auth.signOut();} session=null;go('home');render();toast('Logged out'); }
+async function logout(){ if(BACKEND){await sb.auth.signOut();} account=null;previewAs=null;recomputeSession();go('home');render();toast('Logged out'); }
 async function loadSession(){
-  if(!BACKEND) return;
+  if(!BACKEND){ recomputeSession(); return; }
   const {data:{user}}=await sb.auth.getUser();
-  if(!user){session=null;return;}
+  if(!user){ account=null; recomputeSession(); return; }
   let role='member',username=user.email.split('@')[0];
   const {data:profile}=await sb.from('profiles').select('username, role').eq('id',user.id).single();
   if(profile){role=profile.role||'member';username=profile.username||username;}
-  session={roleId:role,username,email:user.email,avatar:(session&&session.avatar)||null};
+  account={roleId:role,username,email:user.email,avatar:(account&&account.avatar)||null};
+  recomputeSession();
 }
 function openProfile(){
-  const av=session&&session.avatar?'<img src="'+escA(session.avatar)+'">':'';
+  const av=account&&account.avatar?'<img src="'+escA(account.avatar)+'">':'';
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Your profile</h3>'+noteHtml()+
     '<label>Profile picture</label><input id="pf-av" type="file" accept="image/*"><div class="img-prev" id="pf-avp">'+av+'</div>'+
-    '<label>Username</label><input id="pf-user" type="text" value="'+escA(session?session.username:'')+'">'+
-    '<label>Email</label><input type="email" value="'+escA(session?session.email:'')+'" disabled>'+
+    '<label>Username</label><input id="pf-user" type="text" value="'+escA(account?account.username:'')+'">'+
+    '<label>Email</label><input type="email" value="'+escA(account?account.email:'')+'" disabled>'+
     '<label>New password</label><input id="pf-pass" type="password" placeholder="Leave blank to keep current">'+
     '<button class="btn btn-primary" style="width:100%;margin-top:14px" onclick="saveProfile()">Save changes</button>'+
     '<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="logout()">Log out</button>');
@@ -525,7 +579,7 @@ function openProfile(){
 let _pfAvatar=null;
 async function saveProfile(){
   const user=v('pf-user'),pass=document.getElementById('pf-pass').value;
-  if(session){ session.username=user||session.username; if(_pfAvatar)session.avatar=_pfAvatar; }
+  if(account){ account.username=user||account.username; if(_pfAvatar)account.avatar=_pfAvatar; } recomputeSession();
   if(BACKEND){
     const {data:{user:u}}=await sb.auth.getUser();
     if(u){await sb.from('profiles').update({username:user}).eq('id',u.id);}
@@ -539,31 +593,40 @@ function v(id){return document.getElementById(id).value.trim();}
    6) PREVIEW SWITCHER, DARK MODE, NAV
    ========================================================================== */
 const PREVIEWS=[{id:'public',label:'Public'},{id:'member',label:'Member'},{id:'moderator',label:'Moderator'},{id:'admin',label:'Admin'},{id:'owner',label:'Owner'}];
-function setPreview(id){ session=(id==='public')?null:{roleId:id,username:roles[id].name+' (preview)',email:'preview@ese.org',avatar:null}; if(!canView(route()))go('home'); render(); }
-const curPreview=()=> session?session.roleId:'public';
+function setPreview(id){ previewAs=id; recomputeSession(); if(!canView(route()))go('home'); render(); }
+const curPreview=()=> previewAs || (account?account.roleId:'public');
+// the preview bar is a private owner tool: only the real Owner sees it (or anyone in local preview mode before keys)
+const showPreviewBar=()=> (!BACKEND) || (account && account.roleId==='owner');
 function toggleTheme(){ theme=theme==='dark'?'light':'dark'; document.body.setAttribute('data-theme',theme); render(); }
 
 function renderChrome(){
-  document.getElementById('previewBar').innerHTML=PREVIEWS.map(p=>'<button class="'+(curPreview()===p.id?'active':'')+'" onclick="setPreview(\''+p.id+'\')">'+p.label+'</button>').join('');
-  document.getElementById('backendTag').textContent = BACKEND ? 'Accounts: live' : '';
+  const proto=document.getElementById('protoBar');
+  if(showPreviewBar()){
+    proto.style.display='';
+    document.getElementById('previewBar').innerHTML=PREVIEWS.map(p=>'<button class="'+(curPreview()===p.id?'active':'')+'" onclick="setPreview(\''+p.id+'\')">'+p.label+'</button>').join('');
+    document.getElementById('backendTag').textContent = BACKEND ? 'Accounts: live' : '';
+  } else {
+    proto.style.display='none';
+  }
   const r=route();
   document.getElementById('tabs').innerHTML=ROUTES.filter(canView).map(rt=>'<button class="'+(rt==='admin'?'admin ':'')+(r===rt?'active':'')+'" onclick="go(\''+rt+'\')">'+TAB[rt]+'</button>').join('');
   const moon='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg>';
   const suni='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>';
   const themeBtn='<button class="iconbtn" title="Toggle dark mode" aria-label="Toggle dark mode" onclick="toggleTheme()">'+(theme==='dark'?suni:moon)+'</button>';
   let acct;
-  if(isLoggedIn()){
-    const av=session.avatar?'<span class="avatar"><img src="'+escA(session.avatar)+'" style="width:100%;height:100%;object-fit:cover"></span>':'<span class="avatar">'+esc((session.username||'?').charAt(0).toUpperCase())+'</span>';
-    acct=themeBtn+'<button class="userbtn" onclick="openProfile()">'+av+'<span class="uname">'+esc(session.username)+'</span></button>';
+  // top-right always reflects the REAL account (you stay logged in while previewing other roles)
+  if(account){
+    const av=account.avatar?'<span class="avatar"><img src="'+escA(account.avatar)+'" style="width:100%;height:100%;object-fit:cover"></span>':'<span class="avatar">'+esc((account.username||'?').charAt(0).toUpperCase())+'</span>';
+    acct=themeBtn+'<button class="userbtn" onclick="openProfile()">'+av+'<span class="uname">'+esc(account.username)+'</span></button>';
   } else {
-    acct=themeBtn+'<button class="btn btn-ghost btn-sm" onclick="openLogin()">Log in</button><button class="btn btn-primary btn-sm" onclick="openSignup()">Sign up</button>';
+    acct=themeBtn+'<button class="btn btn-blue btn-sm" onclick="openLogin()">Log in</button><button class="btn btn-primary btn-sm" onclick="openSignup()">Sign up</button>';
   }
   document.getElementById('acct').innerHTML=acct;
   renderFooter();
 }
 
 function renderFooter(){
-  const ed=can('edit_content');
+  const ed=canEdit('edit_content');
   const socials=content.socials, affs=content.affiliations;
   let s='';
   if(socials.length||ed){ s='<div class="fcol"><div class="flab">Follow us</div>'+ (socials.length?'<div class="links">'+socials.map(x=>'<a href="'+escA(safeUrl(x.url))+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>').join('')+'</div>':'') + (ed?'<div style="margin-top:10px"><button class="addbtn" onclick="addItem(\'social\')">+ Add social account</button></div>':'')+'</div>'; }
@@ -584,7 +647,7 @@ function homeView(){
     return '<div class="card team-card">'+ph+'<h3>'+esc(m.name)+'</h3>'+(m.desc?'<p class="muted">'+esc(m.desc)+'</p>':'')+(canEditKind('team')?editDel('team',m.id):'')+'</div>';
   }).join('')+'</div>';
   const teamSection = (content.team.length||canEditKind('team'))
-    ? '<section class="sec"><p class="eyebrow">Our team</p><h2 style="font-size:2rem;margin-bottom:6px">The people behind ESE</h2><p class="muted" style="margin-bottom:18px">Our founding members — and soon, our board.</p>'+teamCards+(canEditKind('team')?'<div style="margin-top:14px"><button class="addbtn" onclick="addItem(\'team\')">+ Add team member</button></div>':'')+'</section>'
+    ? '<section><p class="eyebrow">Our team</p><h2 style="font-size:2rem;margin-bottom:6px">The people behind ESE</h2><p class="muted" style="margin-bottom:18px">Our founding members — and soon, our board.</p>'+teamCards+(canEditKind('team')?'<div style="margin-top:14px"><button class="addbtn" onclick="addItem(\'team\')">+ Add team member</button></div>':'')+'</section>'
     : '';
 
   return ''+
@@ -601,83 +664,134 @@ function homeView(){
       cloudSVG(150,'50%','46%',0)+cloudSVG(190,'40%','30%',2)+cloudSVG(170,'15%','72%',1)+
     '</div>'+
     treeSVG('left')+treeSVG('right')+
-    '<svg class="hills-back" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">'+
-      '<path fill="#007600" opacity="0.28" d="M0,214 C240,150 480,182 720,198 C960,214 1200,166 1440,190 L1440,320 L0,320 Z"/>'+
-      '<path fill="#007600" opacity="0.5" d="M0,256 C280,208 520,256 760,240 C1000,224 1220,272 1440,248 L1440,320 L0,320 Z"/>'+
+    '<svg class="hills-back" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">'+
+      '<path fill="#007600" opacity="0.28" d="M0,34 C240,10 480,24 720,30 C960,36 1200,14 1440,26 L1440,100 L0,100 Z"/>'+
+      '<path fill="#007600" opacity="0.5" d="M0,52 C280,30 520,52 760,46 C1000,40 1220,60 1440,50 L1440,100 L0,100 Z"/>'+
     '</svg>'+
-    '<svg class="hills-front" viewBox="0 0 1440 320" preserveAspectRatio="none" aria-hidden="true">'+
-      '<path fill="#005800" d="M0,278 C300,250 620,286 900,278 C1140,271 1320,284 1440,278 L1440,320 L0,320 Z"/>'+
+    '<svg class="snowback" id="snowback" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">'+
+      '<path fill="#eef4f8" d="M0,36 C240,14 480,28 720,32 C960,38 1200,18 1440,28 L1440,100 L0,100 Z"/>'+
+      '<path fill="#ffffff" d="M0,54 C280,34 520,54 760,48 C1000,42 1220,62 1440,52 L1440,100 L0,100 Z"/>'+
     '</svg>'+
+    '<svg class="hills-front" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">'+
+      '<path fill="#005800" d="M0,30 C300,14 620,34 900,28 C1140,23 1320,32 1440,28 L1440,100 L0,100 Z"/>'+
+    '</svg>'+
+    '<svg class="snowground" id="snowground" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">'+
+      '<path fill="#ffffff" d="M0,30 C210,18 470,36 760,28 C1030,21 1270,36 1440,28 L1440,100 L0,100 Z"/>'+
+      '<path fill="#eaf1f6" opacity="0.7" d="M0,42 C210,30 470,48 760,40 C1030,33 1270,48 1440,40 L1440,100 L0,100 Z"/>'+
+    '</svg>'+
+    snowLayer()+
     '<div class="hero-content">'+
       '<h1 class="wordmark">Earth <span class="sw">Sweet</span> Earth</h1>'+
-      '<p class="tagline">A youth-led project growing a greener, kinder planet — one neighborhood at a time.</p>'+
+      '<p class="tagline">'+esc(content.tagline||'A youth-led project growing a greener, kinder planet — one neighborhood at a time.')+'</p>'+
+      (canEdit('edit_content')?'<div style="margin-bottom:14px"><button class="btn btn-ghost btn-xs" onclick="editText(\'tagline\')">✎ Edit subtitle</button></div>':'')+
       '<div class="cta-row"><button class="btn btn-primary" onclick="go(\'programs\')">See our programs</button><button class="btn btn-blue" onclick="go(\'contact\')">Get in touch</button></div>'+
     '</div>'+
   '</header>'+
-  '<div class="wrap" style="padding-top:20px">'+
-    '<section class="sec"><p class="eyebrow">Our mission</p><div class="card"><p class="muted" style="margin:0;font-size:1.15rem">Mission statement</p></div></section>'+
+  '<div class="wrap home-stack">'+
+    '<section><p class="eyebrow">Our mission</p><div class="card"><p style="margin:0;font-size:1.15rem'+(content.mission?'':';color:var(--muted)')+'">'+esc(content.mission||'Mission statement')+'</p>'+(canEdit('edit_content')?'<button class="btn btn-ghost btn-xs" style="margin-top:12px" onclick="editText(\'mission\')">✎ Edit mission</button>':'')+'</div></section>'+
     teamSection+
-    '<section class="discord card"><h2>Join our Discord server!</h2><p class="muted">Our Discord server is where we discuss, plan events, and just chat!</p><button class="btn btn-blue" onclick="joinDiscord()">Join our Discord server!</button></section>'+
+    '<section class="discord card"><h2>Join our Discord server!</h2><p class="muted">Our Discord server is where we discuss, plan events, and just chat!</p><button class="btn btn-blue" onclick="joinDiscord()">Join our Discord server!</button>'+(canEdit('edit_content')?' <button class="btn btn-ghost btn-xs" onclick="editText(\'discord\')">✎ '+((content.discord||DISCORD_URL)?'Change':'Set')+' Discord link</button>':'')+'</section>'+
   '</div>';
 }
-function joinDiscord(){ if(!isLoggedIn()){popup('Almost there!','You have to make an account before you can join the Discord!');return;} comingSoon(); }
+function joinDiscord(){
+  if(!isLoggedIn()){ popup('Almost there!','You have to make an account before you can join the Discord!'); return; }
+  const url=content.discord||DISCORD_URL;
+  if(url){ window.open(safeUrl(url),'_blank','noopener'); } else { comingSoon(); }
+}
+// winter snow: a field of flakes (deterministic) with per-flake size, drift, speed
+function snowLayer(){
+  let s='';
+  for(let i=0;i<38;i++){
+    const x=(fr(i*1.3)*100).toFixed(1), sz=(fr(i*2.7)*3+2).toFixed(1), dur=(fr(i*3.1)*5+6).toFixed(1),
+          del=(fr(i*4.9)*-11).toFixed(1), dx=((fr(i*5.3)-0.5)*80).toFixed(0), op=(fr(i*6.1)*0.5+0.5).toFixed(2);
+    s+='<span style="left:'+x+'%;width:'+sz+'px;height:'+sz+'px;--dx:'+dx+'px;opacity:'+op+';animation-duration:'+dur+'s;animation-delay:'+del+'s"></span>';
+  }
+  return '<div class="snow" id="snow">'+s+'</div>';
+}
 function cloudSVG(w,top,left,variant){
   const shapes=[
     '<ellipse cx="34" cy="46" rx="30" ry="16"/><ellipse cx="64" cy="36" rx="30" ry="22"/><ellipse cx="94" cy="42" rx="26" ry="18"/><ellipse cx="120" cy="48" rx="20" ry="13"/>',
     '<ellipse cx="40" cy="48" rx="26" ry="14"/><ellipse cx="66" cy="34" rx="24" ry="20"/><ellipse cx="90" cy="30" rx="24" ry="20"/><ellipse cx="114" cy="46" rx="24" ry="15"/>',
-    '<ellipse cx="30" cy="44" rx="24" ry="15"/><ellipse cx="56" cy="38" rx="26" ry="20"/><ellipse cx="84" cy="32" rx="30" ry="24"/><ellipse cx="112" cy="40" rx="24" ry="17"/><ellipse cx="134" cy="50" rx="16" ry="11"/>'
+    '<ellipse cx="24" cy="46" rx="20" ry="12"/><ellipse cx="52" cy="36" rx="24" ry="22"/><ellipse cx="84" cy="32" rx="30" ry="26"/><ellipse cx="116" cy="40" rx="24" ry="18"/><ellipse cx="138" cy="48" rx="16" ry="10"/>'
   ];
   return '<svg class="cloud" data-cloud style="top:'+top+';left:'+left+';width:'+w+'px" width="'+w+'" height="'+(w*0.48)+'" viewBox="0 0 150 72">'+shapes[variant%shapes.length]+'</svg>';
 }
 function treeSVG(side){
-  const leaves=LEAF_POS.map(l=>'<path class="leaf" data-x="'+l.x+'" data-y="'+l.y+'" data-a="'+l.r+'" data-d="'+l.d+'" transform="translate('+l.x+','+l.y+') rotate('+l.r+')" d="'+LEAF_PATH+'"/>').join('');
+  const leaves=LEAF_POS.map(l=>'<path class="leaf" data-x="'+l.x+'" data-y="'+l.y+'" data-a="'+l.r+'" data-d="'+l.d+'" data-lx="'+l.lx+'" data-ly="'+l.ly+'" data-lr="'+l.lr+'" transform="translate('+l.x+','+l.y+') rotate('+l.r+')" d="'+LEAF_PATH+'"/>').join('');
   const flowers=FLOWER_POS.map(f=>'<g class="flower" data-d="'+f.d+'" transform="translate('+f.x+','+f.y+')"><circle class="bud" r="2"/><g class="bloom" transform="scale(0)"><path class="petals" d="'+FLOWER_PATH+'"/><circle class="fcenter" r="1.15"/></g></g>').join('');
   return '<svg class="tree tree-'+side+'" id="tree-'+side+'" viewBox="0 0 200 320" preserveAspectRatio="xMidYMax meet" aria-hidden="true">'+
-    '<path class="trunk" d="M80,320 C84,296 90,250 94,188 C95,172 97,158 98,150 L102,150 C103,158 105,172 106,188 C110,250 116,296 120,320 Z"/>'+
+    // thick, gently tapered trunk (single stem, then forks in its upper region — like the reference)
+    '<path class="trunk" d="M80,320 C86,282 82,228 91,180 C93,168 95,160 97,152 L103,152 C105,160 107,168 109,180 C118,228 114,282 120,320 Z"/>'+
     '<g class="barkg">'+
-      '<path class="bark" style="stroke-width:7" d="M100,158 C100,128 100,90 100,60"/>'+
-      '<path class="bark" style="stroke-width:7" d="M99,168 C86,150 70,126 54,96"/>'+
-      '<path class="bark" style="stroke-width:7" d="M101,168 C114,150 130,126 146,96"/>'+
-      '<path class="bark" style="stroke-width:5" d="M100,150 C92,128 88,104 86,86"/>'+
-      '<path class="bark" style="stroke-width:5" d="M100,150 C108,128 112,104 114,86"/>'+
-      '<path class="bark" style="stroke-width:5" d="M96,142 C86,116 78,92 74,68"/>'+
-      '<path class="bark" style="stroke-width:5" d="M104,142 C114,116 122,92 126,68"/>'+
-      '<path class="bark" style="stroke-width:4" d="M99,172 C84,150 72,130 66,114"/>'+
-      '<path class="bark" style="stroke-width:4" d="M101,172 C116,150 128,130 134,114"/>'+
-      '<path class="bark" style="stroke-width:4" d="M97,176 C74,158 52,132 40,114"/>'+
-      '<path class="bark" style="stroke-width:4" d="M103,176 C126,158 148,132 160,114"/>'+
-      '<path class="bark" style="stroke-width:4" d="M100,162 C100,146 100,134 100,128"/>'+
+      // PRIMARY branches — fork from the upper trunk only, thickest
+      '<path class="bark" style="stroke-width:7"   d="M100,160 C90,146 80,130 72,110"/>'+
+      '<path class="bark" style="stroke-width:7"   d="M100,160 C110,146 120,130 128,110"/>'+
+      '<path class="bark" style="stroke-width:7"   d="M100,154 C97,134 93,112 91,90"/>'+
+      '<path class="bark" style="stroke-width:7"   d="M100,154 C103,134 107,112 109,90"/>'+
+      '<path class="bark" style="stroke-width:6.5" d="M99,176 C86,169 74,164 63,158 C56,155 51,152 47,148"/>'+
+      '<path class="bark" style="stroke-width:6.5" d="M101,180 C114,173 126,168 137,163"/>'+
+      // SECONDARY branches — split off the primaries
+      '<path class="bark" style="stroke-width:4"   d="M72,110 C66,99 60,90 55,80"/>'+
+      '<path class="bark" style="stroke-width:4"   d="M85,137 C79,126 73,117 68,107"/>'+
+      '<path class="bark" style="stroke-width:4"   d="M128,110 C134,99 140,90 145,80"/>'+
+      '<path class="bark" style="stroke-width:4"   d="M115,137 C121,126 127,117 132,107"/>'+
+      '<path class="bark" style="stroke-width:4"   d="M91,90 C88,80 86,72 85,62"/>'+
+      '<path class="bark" style="stroke-width:4"   d="M109,90 C112,80 114,72 115,62"/>'+
+      '<path class="bark" style="stroke-width:4"   d="M47,148 C43,141 41,136 40,129"/>'+
+      '<path class="bark" style="stroke-width:4"   d="M137,163 C144,158 149,154 154,149"/>'+
+      // TIPS — thin, tapering twigs into the canopy
+      '<path class="bark" style="stroke-width:2.5" d="M55,80 C51,72 48,66 46,59"/>'+
+      '<path class="bark" style="stroke-width:2.5" d="M145,80 C149,72 152,66 154,59"/>'+
+      '<path class="bark" style="stroke-width:2.5" d="M85,62 C83,55 82,50 81,43"/>'+
+      '<path class="bark" style="stroke-width:2.5" d="M115,62 C117,55 118,50 119,43"/>'+
+      '<path class="bark" style="stroke-width:2.5" d="M68,107 C63,100 60,94 58,88"/>'+
+      '<path class="bark" style="stroke-width:2.5" d="M132,107 C137,100 140,94 142,88"/>'+
+      '<path class="bark" style="stroke-width:2.5" d="M100,154 C100,134 100,116 100,100"/>'+
     '</g>'+
     '<g class="foliage" id="fo-'+side+'">'+leaves+'</g>'+
     '<g class="flowers" id="fl-'+side+'">'+flowers+'</g>'+
   '</svg>';
 }
 function moonSVG(){
-  return '<svg class="moon" id="moon" width="180" height="180" viewBox="0 0 180 180" aria-hidden="true" style="display:none">'+
+  return '<svg class="moon" id="moon" width="184" height="184" viewBox="0 0 184 184" aria-hidden="true" style="display:none">'+
     '<defs>'+
-      '<radialGradient id="mglow"><stop offset="55%" stop-color="rgba(220,228,255,.28)"/><stop offset="100%" stop-color="rgba(220,228,255,0)"/></radialGradient>'+
-      '<mask id="mphase"><rect width="180" height="180" fill="black"/><circle cx="90" cy="90" r="52" fill="white"/><circle id="mshadow" cx="90" cy="90" r="52" fill="black"/></mask>'+
+      '<radialGradient id="mglow"><stop offset="55%" stop-color="rgba(220,228,255,.30)"/><stop offset="100%" stop-color="rgba(220,228,255,0)"/></radialGradient>'+
+      '<radialGradient id="mshade" cx="42%" cy="40%" r="66%"><stop offset="0%" stop-color="#f7f9ff"/><stop offset="72%" stop-color="#e6eaf6"/><stop offset="100%" stop-color="#ccd3e8"/></radialGradient>'+
+      '<clipPath id="litclip"><path id="litpath" d="M92,38 A54,54 0 1,1 92,146 A54,54 0 1,1 92,38 Z"/></clipPath>'+
     '</defs>'+
-    '<circle cx="90" cy="90" r="88" fill="url(#mglow)"/>'+
-    '<circle cx="90" cy="90" r="52" fill="#232a45"/>'+
-    '<g mask="url(#mphase)">'+
-      '<circle cx="90" cy="90" r="52" fill="#e9edf7"/>'+
-      '<circle cx="74" cy="76" r="9"  fill="#d2d8ea"/>'+
-      '<circle cx="105" cy="99" r="12" fill="#d6dbec"/>'+
-      '<circle cx="96" cy="69" r="5"  fill="#ccd3e5"/>'+
-      '<circle cx="113" cy="75" r="4" fill="#d2d8ea"/>'+
-      '<circle cx="80" cy="105" r="6" fill="#cfd5e7"/>'+
-      '<circle cx="66" cy="93" r="4"  fill="#d5dbeb"/>'+
-      '<circle cx="99" cy="112" r="4" fill="#d2d8ea"/>'+
+    '<circle cx="92" cy="92" r="90" fill="url(#mglow)"/>'+
+    '<circle cx="92" cy="92" r="54" fill="#232a45"/>'+
+    '<g clip-path="url(#litclip)">'+
+      '<circle cx="92" cy="92" r="54" fill="url(#mshade)"/>'+
+      '<ellipse cx="78" cy="74" rx="16" ry="12" fill="#c3cbe0" opacity="0.5"/>'+
+      '<ellipse cx="106" cy="86" rx="18" ry="15" fill="#c7cee2" opacity="0.45"/>'+
+      '<ellipse cx="88" cy="106" rx="13" ry="17" fill="#c1c9de" opacity="0.45"/>'+
+      '<ellipse cx="114" cy="108" rx="9" ry="8" fill="#c9d0e4" opacity="0.45"/>'+
+      '<ellipse cx="70" cy="98" rx="8" ry="7" fill="#c5cce0" opacity="0.4"/>'+
+      '<circle cx="118" cy="70" r="4" fill="#b6bed6" opacity="0.55"/>'+
+      '<circle cx="72" cy="60" r="3.2" fill="#bcc4da" opacity="0.55"/>'+
+      '<circle cx="98" cy="120" r="3.6" fill="#bcc4da" opacity="0.5"/>'+
+      '<circle cx="60" cy="112" r="2.6" fill="#c0c8dc" opacity="0.5"/>'+
+      '<circle cx="128" cy="94" r="2.6" fill="#c0c8dc" opacity="0.5"/>'+
+      '<circle cx="92" cy="92" r="53" fill="none" stroke="#ffffff" stroke-width="1.6" opacity="0.5"/>'+
     '</g>'+
   '</svg>';
+}
+// correct lunar terminator: new → crescent → quarter → gibbous → full → … (gibbous reads as gibbous, not a fat crescent)
+function moonLitPath(f){
+  const R=54,cx=92,cy=92;
+  const rx=Math.abs(R*Math.cos(f*2*Math.PI)).toFixed(2);
+  const T=cx+','+(cy-R), B=cx+','+(cy+R);
+  const limb=f<0.5?1:0;
+  const term=(f<0.25||f>0.75)?limb:1-limb;
+  return 'M'+T+' A'+R+','+R+' 0 0,'+limb+' '+B+' A'+rx+','+R+' 0 0,'+term+' '+T+' Z';
 }
 
 function newsletterView(){
   const feat=newsletters.find(n=>n.featured);
   const list=newsletters.filter(n=>!n.featured);
-  let h='<div class="wrap view"><p class="eyebrow">Newsletter</p><h1 class="page-title">News &amp; updates</h1><p class="page-intro">Read the latest from Earth Sweet Earth.</p>';
-  if(can('newsletter_post')){
+  let h='<div class="wrap view"><h1 class="page-title">News &amp; updates</h1><p class="page-intro">Read the latest from Earth Sweet Earth.</p>';
+  if(canEdit('newsletter_post')){
     h+='<div class="card composer" style="margin:22px 0;background:rgba(0,118,0,.04)"><h3 style="font-size:1.2rem;margin-bottom:12px">+ New post <span class="pill">you can post</span></h3>'+
       '<input id="np-title" type="text" placeholder="Post title"><textarea id="np-body" rows="4" placeholder="Write anything — no word limit"></textarea>'+
       '<div class="tools"><button class="btn btn-ghost btn-sm" onclick="comingSoon()">📎 Attach file</button><button class="btn btn-ghost btn-sm" onclick="comingSoon()">🔗 Attach link</button><span style="flex:1"></span><button class="btn btn-primary btn-sm" onclick="publishPost()">Publish</button></div></div>';
@@ -685,14 +799,14 @@ function newsletterView(){
   // Featured section — exists only when a post is featured
   if(feat){
     h+='<div class="card featured" style="margin-bottom:22px"><span class="pill">Featured</span><h2 style="font-size:1.7rem;margin:10px 0">'+esc(feat.title)+'</h2><p style="white-space:pre-wrap">'+esc(feat.body)+'</p>'+reactionsBar(feat)+
-      (can('newsletter_post')?'<div class="rowbtns"><button class="btn btn-ghost btn-xs" onclick="toggleFeature('+feat.id+')">Remove from Featured</button></div>':'')+'</div>';
+      (canEdit('newsletter_post')?'<div class="rowbtns"><button class="btn btn-ghost btn-xs" onclick="toggleFeature('+feat.id+')">Remove from Featured</button></div>':'')+'</div>';
   }
   if(list.length){
     h+='<h3 style="color:var(--green);margin:8px 0 12px">'+(feat?'More posts':'Posts')+'</h3>';
     list.forEach(n=>{ h+='<div class="postcard"><span class="t" onclick="openPost('+n.id+')">'+esc(n.title)+'</span>'+
-      (can('newsletter_post')?'<button class="btn btn-ghost btn-xs" onclick="toggleFeature('+n.id+')">Feature</button>':'')+'</div>'; });
+      (canEdit('newsletter_post')?'<button class="btn btn-ghost btn-xs" onclick="toggleFeature('+n.id+')">Feature</button>':'')+'</div>'; });
   }
-  if(!newsletters.length && !can('newsletter_post')) h+='';  // viewers see nothing when empty
+  if(!newsletters.length && !canEdit('newsletter_post')) h+='';  // viewers see nothing when empty
   return h+'</div>';
 }
 function reactionsBar(n){
@@ -722,7 +836,7 @@ function programsView(){
   const doingItems=content.doing.map(x=>'<div class="evt" onclick="openDetails(\'doing\','+x.id+')"><div class="en">'+esc(x.name)+'</div>'+(canEditKind('doing')?editDel('doing',x.id):'<div class="ed2">Click for details</div>')+'</div>').join('');
   const spItems=content.speakers.map(x=>'<div class="evt" onclick="openDetails(\'speaker\','+x.id+')"><div class="en">'+esc(x.name)+'</div>'+(canEditKind('speaker')?editDel('speaker',x.id):'<div class="ed2">Click for details</div>')+'</div>').join('');
   return '<div class="wrap view">'+
-    '<div class="sechead"><div><p class="eyebrow">Programs</p><h1 class="page-title" style="margin:0">What we\'ve been doing</h1></div>'+
+    '<div class="sechead"><div><h1 class="page-title" style="margin:0">What we\'ve been doing</h1></div>'+
       '<div><button class="btn btn-primary" onclick="createChapter()">Create Chapter</button><span class="info" tabindex="0">i<span class="tip">A chapter is a regional branch of ESE. To learn more, visit <a href="#/chapters">Chapters</a>.</span></span></div></div>'+
     section('doing','What we\'re doing', doingItems, 'Add activity')+
     section('speaker','Guest speakers', spItems, 'Add guest speaker')+
@@ -732,44 +846,63 @@ function createChapter(){ if(!isLoggedIn()){popup('Become a member','Become a me
 
 function chaptersView(){
   const conts=['Africa','Antarctica','Asia','Europe','North America','Oceania','South America'];
-  return '<div class="wrap view"><p class="eyebrow">Chapters</p><h1 class="page-title">ESE chapters</h1>'+
+  const manage=canEdit('chapters_add');
+  const byCont={};
+  content.chapters.forEach(ch=>{ const c=conts.indexOf(ch.continent)>-1?ch.continent:'Other'; (byCont[c]=byCont[c]||{}); const co=ch.country||'—'; (byCont[c][co]=byCont[c][co]||[]).push(ch); });
+  const body=conts.map(c=>{
+    const countries=byCont[c]?Object.keys(byCont[c]).sort((a,b)=>a<b?-1:a>b?1:0):[];    // sort by Unicode code units
+    let inner;
+    if(countries.length){
+      inner=countries.map(co=>'<div class="chp-country"><div class="chp-cn">'+esc(co)+'</div><ul class="chp-list">'+
+        byCont[c][co].slice().sort((a,b)=>(a.name||'')<(b.name||'')?-1:1).map(ch=>'<li>'+esc(ch.name)+(manage?' <button class="btn btn-ghost btn-xs" style="padding:0 6px" title="Remove" onclick="deleteItem(\'chapter\','+ch.id+')">×</button>':'')+'</li>').join('')+'</ul></div>').join('');
+    } else { inner='<p class="muted">No chapters here yet — check back soon!</p>'; }
+    return '<details class="cont"><summary>'+c+'</summary><div class="body">'+inner+'</div></details>';
+  }).join('');
+  return '<div class="wrap view"><h1 class="page-title">ESE chapters</h1>'+
     '<p class="page-intro">Chapters are regional branches of ESE. People can apply to start one in their area.</p>'+
-    (can('chapters_add')?'<p><button class="btn btn-primary btn-sm" onclick="comingSoon()">+ Add chapter</button> <span class="muted" style="font-size:.85rem">Approvals come through the application form (coming soon).</span></p>':'')+
-    '<input class="search" type="search" placeholder="🔎 Search for a chapter…" oninput="toast(\'No chapters yet to search\')">'+
-    conts.map(c=>'<details class="cont"><summary>'+c+'</summary><div class="body"><p class="muted">No chapters here yet — check back soon!</p></div></details>').join('')+
+    '<p style="margin-bottom:0"><button class="btn btn-primary btn-sm" onclick="createChapter()">Start your own chapter</button></p>'+
+    '<p class="muted" style="font-size:.9rem;margin-top:16px">Fill out the application form to start a chapter — the ESE team reviews each one and, once approved, adds it here.</p>'+
+    (manage?'<div class="card" style="margin:18px 0"><strong style="color:var(--green)">Chapter admin</strong><p class="muted" style="margin:6px 0 10px">Add an approved chapter. Country and chapter names can be written in any language or script.</p><button class="btn btn-primary btn-sm" onclick="addItem(\'chapter\')">+ Add a chapter</button></div>':'<div style="height:8px"></div>')+
+    body+
   '</div>';
 }
 
 function galleryView(){
   const items=content.gallery.map(g=>'<figure class="gitem">'+(g.photo?'<img src="'+escA(g.photo)+'">':'')+'<figcaption>'+esc(g.caption)+(canEditKind('gallery')?editDel('gallery',g.id):'')+'</figcaption></figure>').join('');
-  let h='<div class="wrap view"><p class="eyebrow">Gallery</p><h1 class="page-title">Moments from the field</h1><p class="page-intro">Photos of clean-ups, plantings, and events.</p>';
+  let h='<div class="wrap view"><h1 class="page-title">Moments from the field</h1><p class="page-intro">Photos of clean-ups, plantings, and events.</p>';
   if(content.gallery.length) h+='<div class="grid g3" style="margin-top:18px">'+items+'</div>';
   if(canEditKind('gallery')) h+='<div style="margin-top:14px"><button class="addbtn" onclick="addItem(\'gallery\')">+ Add photo</button></div>';
   return h+'</div>';
 }
 
 function contactView(){
-  const ed=can('edit_content');
-  let socials='';
-  if(content.socials.length||ed){
-    socials='<div class="card"><h3 style="color:var(--green)">Find us online</h3>'+
-      (content.socials.length?'<div class="links" style="margin-top:8px">'+content.socials.map(x=>'<a href="'+escA(safeUrl(x.url))+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>').join('')+'</div>':'')+
-      (ed?'<div style="margin-top:12px"><button class="addbtn" onclick="addItem(\'social\')">+ Add social account</button></div>':'')+'</div>';
+  const ed=canEdit('edit_content');
+  const socialsInline = content.socials.map(x=>'<span style="display:inline-flex;align-items:center;gap:1px"><a href="'+escA(safeUrl(x.url))+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>'+(ed?'<button class="btn btn-ghost btn-xs" style="padding:1px 6px" title="Remove" onclick="deleteItem(\'social\','+x.id+')">×</button>':'')+'</span>').join(' ');
+  let findLine;
+  if(content.socials.length || ed){
+    findLine='<p style="font-size:1.1rem">You can find us at '+
+      (content.socials.length?'<span class="links" style="display:inline-flex;gap:8px;vertical-align:middle">'+socialsInline+'</span> ':'')+
+      (ed?'<button class="btn btn-ghost btn-xs" onclick="addItem(\'social\')">+ Add social account</button> ':'')+
+      'or just <a href="mailto:hello@earthsweetearth.org">email us</a>!</p>';
+  } else {
+    findLine='<p style="font-size:1.1rem">Reach us any time — just <a href="mailto:hello@earthsweetearth.org">email us</a>!</p>';
   }
-  return '<div class="wrap view"><p class="eyebrow">Contact</p><h1 class="page-title">Get in touch</h1><p class="page-intro">We\'d love to hear from you.</p>'+
-    '<div class="grid g2" style="margin-top:22px">'+
-      '<div class="card"><h3 style="color:var(--green)">Email us</h3><p class="muted">Reach the team directly:</p><p><a href="mailto:hello@earthsweetearth.org">hello@earthsweetearth.org</a></p><a class="btn btn-primary" href="mailto:hello@earthsweetearth.org">Say hello</a></div>'+
-      socials+
+  return '<div class="wrap view"><h1 class="page-title">Get in touch</h1>'+
+    '<div class="card" style="max-width:640px;margin-top:8px">'+
+      '<h3 style="color:var(--green)">Email us</h3>'+
+      findLine+
+      '<a class="btn btn-primary" href="mailto:hello@earthsweetearth.org">Say hello</a>'+
+      '<p class="muted" style="margin:14px 0 0">Contact us especially if you find a bug or have comments on our website!</p>'+
     '</div></div>';
 }
 
 function calendarView(){
-  const canE=can('calendar_edit');
+  const canE=canEdit('calendar_edit');
   let mtg='';
   if(content.meetingLink){ mtg='<a class="mtg-rect" href="'+escA(safeUrl(content.meetingLink))+'" target="_blank" rel="noopener">Join the next meeting ↗</a>'+(canE?'<div class="rowbtns" style="margin-top:-8px;margin-bottom:16px"><button class="btn btn-ghost btn-xs" onclick="editMeetingLink()">Edit link</button></div>':''); }
   else if(canE){ mtg='<button class="addbtn" onclick="editMeetingLink()" style="padding:20px;margin-bottom:20px">+ Add the next meeting link</button>'; }
   const evts=content.events.map(e=>'<div class="evt" onclick="openDetails(\'event\','+e.id+')"><div class="en">'+esc(e.name)+'</div><div class="ed2">'+esc(fmtDate(e.date))+(e.time?' · '+esc(e.time):'')+'</div>'+(canE?editDel('event',e.id):'')+'</div>').join('');
-  let h='<div class="wrap view"><p class="eyebrow">Calendar</p><h1 class="page-title">Upcoming events</h1>';
+  let h='<div class="wrap view"><h1 class="page-title">Upcoming events</h1>';
   h+=mtg;
   if(content.events.length) h+='<h3 style="color:var(--green);margin:6px 0 12px">Events</h3>'+evts;
   if(canE) h+='<div style="margin-top:8px"><button class="addbtn" onclick="addItem(\'event\')">+ Add event</button></div>';
@@ -784,28 +917,87 @@ function adminView(){
     return '<td class="c"><label class="switch"><input type="checkbox" '+ck+' '+dis+' onchange="toggleCap(\''+id+'\',\''+cap.id+'\',this.checked)"><span class="slider"></span></label></td>';
   }).join('')+'</tr>'; });
   matrix+='</tbody></table></div>';
-  let ppl='<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Member</th><th>Email</th><th>Role</th></tr></thead><tbody>'+
-    people.map(p=>'<tr><td>'+esc(p.username)+'</td><td class="muted">'+esc(p.email)+'</td><td><select class="rsel" onchange="setPersonRole('+p.id+',this.value)">'+Object.keys(roles).map(id=>'<option value="'+id+'" '+(p.roleId===id?'selected':'')+'>'+esc(roles[id].name)+'</option>').join('')+'</select></td></tr>').join('')+'</tbody></table></div>';
-  return '<div class="wrap view"><p class="eyebrow">Admin</p><h1 class="page-title">Admin Settings</h1><p class="page-intro">Create roles, set exactly what each one can do, and manage members. Changes here update the site live.</p>'+
+  let memberBlock;
+  if(memberResults===null){ memberBlock='<p class="muted">Search for a member by email to view and manage them.</p>'; }
+  else if(!memberResults.length){ memberBlock='<p class="muted">No members found for “'+esc(memberQuery)+'”.</p>'; }
+  else {
+    memberBlock='<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Member</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody>'+
+      memberResults.map(p=>{ const cur=p._newRole||p.roleId; const dirty=p._newRole&&p._newRole!==p.roleId;
+        return '<tr><td>'+esc(p.username)+'</td><td class="muted">'+esc(p.email)+'</td>'+
+          '<td><select class="rsel" onchange="stageMemberRole(\''+String(p.id)+'\',this.value)">'+Object.keys(roles).map(id=>'<option value="'+id+'" '+(cur===id?'selected':'')+'>'+esc(roles[id].name)+'</option>').join('')+'</select></td>'+
+          '<td style="white-space:nowrap"><button class="btn btn-primary btn-xs" '+(dirty?'':'disabled')+' onclick="saveMemberRole(\''+String(p.id)+'\')">Save</button> <button class="btn btn-danger btn-xs" onclick="confirmDeleteUser(\''+String(p.id)+'\')">Delete</button></td></tr>';
+      }).join('')+'</tbody></table></div>';
+  }
+  return '<div class="wrap view"><h1 class="page-title">Owner Settings</h1><p class="page-intro">Set what each role can do, and manage members. Changes here update the site live.</p>'+
+    '<div class="card" style="margin-bottom:22px"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><strong>Viewing &amp; filling out placeholders</strong><p class="muted" style="margin:4px 0 0;font-size:.85rem">When on, you see the ✎ edit and “+ Add” buttons across the whole site. Turn it off to preview the site the way visitors see it.</p></div><label class="switch"><input type="checkbox" '+(editUI?'checked':'')+' onchange="toggleEditUI(this.checked)"><span class="slider"></span></label></div><button class="btn btn-primary btn-sm" style="margin-top:14px" onclick="saveSiteContent()">Save changes</button></div>'+
     '<div class="sechead" style="margin:26px 0 10px"><h2 style="font-size:1.5rem">Roles &amp; permissions</h2><button class="btn btn-primary btn-sm" onclick="openCreateRole()">+ Create New Role</button></div>'+matrix+
     '<p class="muted" style="font-size:.85rem">Owner always has every permission and can\'t be changed.</p>'+
-    '<h2 style="font-size:1.5rem;margin:32px 0 10px">Members</h2>'+ppl+
-    '<p class="muted" style="font-size:.85rem">Set anyone to Admin, Moderator, or any role you create.</p></div>';
+    '<h2 style="font-size:1.5rem;margin:32px 0 8px">Members</h2>'+
+    '<p class="muted" style="font-size:.85rem;margin-bottom:12px">New members appear automatically when they sign up. Search by email to give someone a role or remove them.</p>'+
+    '<div class="mrow"><input id="mem-q" class="search" style="margin-bottom:0" type="search" placeholder="🔎 Search members by email…" value="'+escA(memberQuery)+'" onkeydown="if(event.key===\'Enter\'){event.preventDefault();searchMembers();}"><button class="btn btn-primary btn-sm" onclick="searchMembers()">Search</button></div>'+
+    memberBlock+'</div>';
 }
 function toggleCap(id,cap,val){ if(roles[id].locked)return; roles[id].caps[cap]=val; render(); }
-function setPersonRole(id,rid){ const p=people.find(x=>x.id===id); if(p){p.roleId=rid;toast(p.username+' → '+roles[rid].name);} }
+function toggleEditUI(on){ editUI=!!on; render(); }
 function openCreateRole(){ openEditor('Create a new role',[{key:'name',label:'Role name',type:'text',placeholder:'e.g. Event Lead'}],null,v=>{ roles['role_'+uid()]={name:v.name,caps:allCaps(false)}; toast('Created role: '+v.name); }); }
+
+/* ---- member management (search / role save / delete) ---- */
+let memberResults=null, memberQuery='';
+async function searchMembers(){
+  const el=document.getElementById('mem-q'); const q=el?el.value.trim():'';
+  memberQuery=q;
+  if(!q){ memberResults=null; render(); return; }
+  if(!BACKEND){ memberResults=people.filter(p=>(p.email||'').toLowerCase().includes(q.toLowerCase())); render(); return; }
+  try{
+    const {data,error}=await sb.from('profiles').select('id,username,email,role').ilike('email','%'+q+'%').limit(30);
+    if(error){ toast('Search error: '+error.message); memberResults=[]; }
+    else memberResults=(data||[]).map(r=>({id:r.id,username:r.username||'(member)',email:r.email||'',roleId:r.role||'member'}));
+  }catch(e){ memberResults=[]; toast('Search failed — is the profiles table set up?'); }
+  render();
+}
+function stageMemberRole(id,rid){ const m=(memberResults||[]).find(x=>String(x.id)===String(id)); if(m){ m._newRole=rid; render(); } }
+async function saveMemberRole(id){
+  const m=(memberResults||[]).find(x=>String(x.id)===String(id)); if(!m)return;
+  const rid=m._newRole||m.roleId; const rn=roles[rid]?roles[rid].name:rid;
+  if(!BACKEND){ m.roleId=rid; delete m._newRole; toast('Saved (preview): '+m.email+' → '+rn); render(); return; }
+  try{ const {error}=await sb.from('profiles').update({role:rid}).eq('id',m.id);
+    if(error) toast('Save failed: '+error.message);
+    else { m.roleId=rid; delete m._newRole; toast('Saved: '+m.email+' is now '+rn); }
+  }catch(e){ toast('Save failed'); }
+  render();
+}
+function confirmDeleteUser(id){
+  const m=(memberResults||[]).find(x=>String(x.id)===String(id)); if(!m)return;
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Delete account</h3>'+
+    '<p>Are you sure you want to delete <strong>'+esc(m.email)+'</strong>’s account?</p>'+
+    '<div class="ed"><label>Reason (this is emailed to them)</label><textarea id="del-reason" rows="3" placeholder="Let them know why the account is being removed…"></textarea></div>'+
+    '<p class="muted" style="font-size:.8rem">They can still sign up again later. Deleting sends them an email with your reason.</p>'+
+    '<div class="rowbtns" style="margin-top:12px;justify-content:flex-end"><button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancel</button> <button class="btn btn-danger btn-sm" onclick="doDeleteUser(\''+String(m.id)+'\')">Delete account</button></div>');
+}
+async function doDeleteUser(id){
+  const m=(memberResults||[]).find(x=>String(x.id)===String(id)); if(!m)return;
+  const rEl=document.getElementById('del-reason'); const reason=rEl?rEl.value.trim():'';
+  closeModal();
+  if(!BACKEND){ toast('Deleted (preview): '+m.email); memberResults=memberResults.filter(x=>x!==m); render(); return; }
+  try{
+    const {error}=await sb.functions.invoke('delete-user',{body:{userId:m.id,email:m.email,reason:reason}});
+    if(error) toast('Delete needs the delete-user server function — see setup notes.');
+    else { toast('Account deleted and email sent.'); memberResults=memberResults.filter(x=>x!==m); }
+  }catch(e){ toast('Delete needs the delete-user Edge Function deployed.'); }
+  render();
+}
 
 /* ==========================================================================
    8) MAIN RENDER
    ========================================================================== */
 function render(){
+  recomputeSession();
   renderChrome();
   let r=route(); if(!ROUTES.includes(r))r='home';
   const app=document.getElementById('app');
   if(r!=='home') stopHero();
   if(!canView(r)){
-    const msg=r==='calendar'?'The calendar opens up once you\'re signed in and it\'s switched on.':r==='admin'?'Admin Settings is for Admins and the Owner.':'This section isn\'t open to everyone yet.';
+    const msg=r==='calendar'?'The calendar opens up once you\'re signed in and it\'s switched on.':r==='admin'?'Owner Settings is only for the site owner.':'This section isn\'t open to everyone yet.';
     app.innerHTML=deniedView(msg);
   } else {
     const views={home:homeView,newsletter:newsletterView,programs:programsView,chapters:chaptersView,gallery:galleryView,contact:contactView,calendar:calendarView,admin:adminView};
@@ -819,12 +1011,14 @@ function render(){
 /* ==========================================================================
    9) HERO ANIMATION ENGINE
    Scroll-driven: sun/sky/season (light), moon phase (dark), cloud drift, leaf-fall, tree sway.
-   Time-driven (independent of scroll): leaf rustle (CSS), star blink (CSS),
+   Time-driven (independent of scroll): leaf rustle (CSS), a few stars twinkling (JS),
    shooting stars, and occasional leaves breaking off in the wind.
    ========================================================================== */
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let heroTimers=[];
-function stopHero(){ heroTimers.forEach(clearInterval); heroTimers=[]; }
+let heroTimersBird=[], birdOccupied=[];   // birds: up to 2 groups, each in a distinct layer of 4
+function stopBirds(){ heroTimersBird.forEach(clearTimeout); heroTimersBird=[]; birdOccupied=[]; document.querySelectorAll('.birds').forEach(b=>b.remove()); }
+function stopHero(){ heroTimers.forEach(clearInterval); heroTimers=[]; stopBirds(); document.querySelectorAll('.windgust').forEach(e=>e.remove()); activeBreezes=0; }
 function lerp(a,b,t){return a+(b-a)*t;}
 function hex(c){ if(c[0]==='r'){const m=c.match(/\d+/g);return [+m[0],+m[1],+m[2]];} c=c.replace('#','');return [parseInt(c.slice(0,2),16),parseInt(c.slice(2,4),16),parseInt(c.slice(4,6),16)];}
 function mix(a,b,t){const A=hex(a),B=hex(b);return 'rgb('+Math.round(lerp(A[0],B[0],t))+','+Math.round(lerp(A[1],B[1],t))+','+Math.round(lerp(A[2],B[2],t))+')';}
@@ -833,10 +1027,31 @@ function mix(a,b,t){const A=hex(a),B=hex(b);return 'rgb('+Math.round(lerp(A[0],B
 const LEAF_PATH='M0,-8 C4,-6 5,-1 3,5 C2,7.5 -2,7.5 -3,5 C-5,-1 -4,-6 0,-8 Z';
 const FLOWER_PATH=(function(){let d='';for(let k=0;k<5;k++){const a=k*72*Math.PI/180;const R=(x,y)=>[(x*Math.cos(a)-y*Math.sin(a)).toFixed(2),(x*Math.sin(a)+y*Math.cos(a)).toFixed(2)];const p0=R(0,0),c1=R(2.7,-5.4),c2=R(-2.7,-5.4);d+='M'+p0[0]+','+p0[1]+' C'+c1[0]+','+c1[1]+' '+c2[0]+','+c2[1]+' '+p0[0]+','+p0[1]+' ';}return d;})();
 
-// leaves grow in clusters at the branch tips; clusters fill a rounded canopy wider than the trunk
-const CLUSTERS=[{x:100,y:56,s:22},{x:74,y:66,s:22},{x:126,y:66,s:22},{x:52,y:90,s:24},{x:148,y:90,s:24},{x:86,y:84,s:20},{x:114,y:84,s:20},{x:66,y:112,s:22},{x:134,y:112,s:22},{x:100,y:104,s:22},{x:38,y:112,s:20},{x:162,y:112,s:20},{x:100,y:128,s:18}];
-const LEAF_POS=(function(){const a=[];let k=0;CLUSTERS.forEach(c=>{const N=12;for(let i=0;i<N;i++){const ang=k*2.39996;const rad=c.s*Math.sqrt((i+0.5)/N);const x=c.x+Math.cos(ang)*rad;const y=c.y+Math.sin(ang)*rad*0.9;const d=Math.min(0.34,Math.max(0,(y-45)/95*0.28+(k%5)*0.015));a.push({x:+x.toFixed(1),y:+y.toFixed(1),r:Math.round((k*47)%360),d:+d.toFixed(2)});k++;}});return a;})();
-const FLOWER_POS=(function(){const a=[];let k=0;CLUSTERS.forEach(c=>{const N=4;for(let i=0;i<N;i++){const ang=k*2.39996+1.3;const rad=c.s*0.78*Math.sqrt((i+0.6)/N);const x=c.x+Math.cos(ang)*rad;const y=c.y+Math.sin(ang)*rad*0.9;a.push({x:+x.toFixed(1),y:+y.toFixed(1),d:+(((k%7)/7)*0.28).toFixed(2)});k++;}});return a;})();
+// deterministic pseudo-random so the canopy is identical every load
+function fr(x){x=Math.sin(x)*43758.5453;return x-Math.floor(x);}
+// leaves densely fill a rounded crown (no floating gaps); a ragged edge keeps it natural
+const LEAF_POS=(function(){const a=[];const cx=100,cy=82,rx=72,ry=58,step=8;let k=0;
+  for(let gy=cy-ry;gy<=cy+ry;gy+=step){for(let gx=cx-rx;gx<=cx+rx;gx+=step){
+    const jx=(fr(k*1.7)-0.5)*step*1.0, jy=(fr(k*3.3+1)-0.5)*step*1.0;
+    const x=gx+jx, y=gy+jy, nx=(x-cx)/rx, ny=(y-cy)/ry, dist=nx*nx+ny*ny;
+    if(dist<=1 && !(dist>0.9 && fr(k*5.1)<0.3)){                          // dense fill, lightly ragged edge
+      const lx=100+(fr(k*8.1)-0.5)*118;                                  // land spread across a mound at the base
+      const mt=151-14*Math.max(0,1-Math.pow(Math.abs(lx-100)/56,1.4));   // mound profile (peak center, low edges)
+      const ly=mt+fr(k*9.3)*(151-mt);                                    // fill the mound; sits on the dark-green edge
+      a.push({x:+x.toFixed(1),y:+y.toFixed(1),r:Math.round(fr(k*2.2)*360),d:Math.min(0.34,Math.max(0,(y-(cy-ry))/(2*ry)*0.32)),lx:+lx.toFixed(1),ly:+ly.toFixed(1),lr:Math.round(fr(k*3.7)*160-80)});
+    }
+    k++;
+  }}
+  return a;})();
+// flowers scatter more sparsely through the same crown, in front of the leaves
+const FLOWER_POS=(function(){const a=[];const cx=100,cy=82,rx=64,ry=50,step=15;let k=0;
+  for(let gy=cy-ry;gy<=cy+ry;gy+=step){for(let gx=cx-rx;gx<=cx+rx;gx+=step){
+    const jx=(fr(k*4.1+7)-0.5)*step, jy=(fr(k*6.7+3)-0.5)*step;
+    const x=gx+jx, y=gy+jy, nx=(x-cx)/rx, ny=(y-cy)/ry;
+    if(nx*nx+ny*ny<=1){ a.push({x:+x.toFixed(1),y:+y.toFixed(1),d:+(fr(k*2.9)*0.28).toFixed(2)}); }
+    k++;
+  }}
+  return a;})();
 
 // sun/moon vertical placement, measured from the real horizon (hills) so it sits right on any screen
 let sunStartT=120, sunRise=380, moonY=120;
@@ -854,20 +1069,20 @@ function measureHero(){
 // moon runs a touch slower — full phase cycle finishes right as the banner scrolls out of view
 function moonP(){ const h=document.getElementById('hero'); if(!h)return 0; return Math.min(Math.max(window.scrollY/Math.max(h.offsetHeight,500),0),1); }
 
-function seasonColor(p){ return p<0.45 ? mix('#3f8f4f','#c9a227',p/0.45) : mix('#c9a227','#c0472b',(p-0.45)/0.55); }
+function seasonColor(p){ return p<0.32 ? mix('#3f8f4f','#c9a227',p/0.32) : mix('#c9a227','#c0472b',Math.min(1,(p-0.32)/0.22)); }
 function currentLeafColor(){ return theme==='dark' ? '#2c5d3a' : seasonColor(scrollP()); }
 
 let leavesFalling=false;
 function setTreeLeafVar(col){ ['tree-left','tree-right'].forEach(id=>{const t=document.getElementById(id);if(t)t.style.setProperty('--leaf',col);}); }
 function setRustle(on){ ['fo-left','fo-right'].forEach(id=>{const g=document.getElementById(id);if(g)g.classList.toggle('still',!on);}); }
-function resetLeaves(){ ['tree-left','tree-right'].forEach(id=>{const t=document.getElementById(id);if(!t)return;t.querySelectorAll('.leaf').forEach(l=>{l.setAttribute('transform','translate('+l.dataset.x+','+l.dataset.y+') rotate('+l.dataset.a+')');l.style.fill='';});}); }
-
-// colour/position every leaf. Before winter they share one colour (cheap). In winter each leaf
-// detaches and falls ONCE to the ground, browning; once fallen it rests and no longer sways.
+function resetLeaves(){ ['tree-left','tree-right'].forEach(id=>{const t=document.getElementById(id);if(!t)return;t.querySelectorAll('.leaf').forEach(l=>{l.setAttribute('transform','translate('+l.dataset.x+','+l.dataset.y+') rotate('+l.dataset.a+')');l.style.fill='';l.style.opacity='1';});}); }
+// colour/position every leaf. Through autumn each leaf detaches and falls ONCE, landing in a
+// mound at the dark-green ground edge; the landed leaves then fade away together as winter arrives.
 function paintLeaves(p,night){
-  const fs=0.7;
+  const fs=0.42, fe=0.64;                                     // faster autumn, done before deep winter
   const base=night?'#2c5d3a':seasonColor(p);
-  const f=(!night && p>fs)?(p-fs)/(1-fs):0;
+  const f=(!night && p>fs)?Math.min(1,(p-fs)/(fe-fs)):0;
+  const winter=(!night && p>fe)?Math.min(1,(p-fe)/0.14):0;    // the landed mound fades as snow covers it
   if(f<=0){
     setTreeLeafVar(base); setRustle(true);
     if(leavesFalling){ resetLeaves(); leavesFalling=false; }
@@ -877,10 +1092,15 @@ function paintLeaves(p,night){
   ['tree-left','tree-right'].forEach(id=>{ const t=document.getElementById(id); if(!t)return;
     t.querySelectorAll('.leaf').forEach((leaf,i)=>{
       const bx=+leaf.dataset.x, by=+leaf.dataset.y, ba=+leaf.dataset.a, bd=+leaf.dataset.d;
-      const lf=Math.min(1,Math.max(0,(f-bd)/(1-0.34)));               // per-leaf progress, capped at 1
-      const dx=Math.sin(i*1.3)*26*lf, dy=(305-by)*lf, rot=ba+lf*170;
-      leaf.setAttribute('transform','translate('+(bx+dx).toFixed(1)+','+(by+dy).toFixed(1)+') rotate('+rot.toFixed(0)+')');
-      leaf.style.fill=mix(base,'#6e4423',Math.min(1,lf*1.25));         // browns as it lands
+      const lx=+leaf.dataset.lx, ly=+leaf.dataset.ly, lr=+leaf.dataset.lr;
+      const t2=Math.min(1,Math.max(0,(f-bd*0.85)/0.55));      // staggered so leaves fall throughout autumn
+      if(t2<=0){ leaf.setAttribute('transform','translate('+bx+','+by+') rotate('+ba+')'); leaf.style.opacity='1'; leaf.style.fill=base; return; }
+      const sway=Math.sin(i*1.7+t2*7)*16*(1-t2*0.4);          // drifts around the tree as it falls
+      const px=bx+(lx-bx)*t2+sway, py=by+(ly-by)*t2;          // settles onto the mound (stops at the ground edge)
+      const rot=ba+(lr-ba)*t2+Math.sin(t2*10)*40*(1-t2);
+      leaf.setAttribute('transform','translate('+px.toFixed(1)+','+py.toFixed(1)+') rotate('+rot.toFixed(0)+')');
+      leaf.style.fill=mix(base,'#8a4a24',Math.min(1,t2*1.2));
+      leaf.style.opacity=(1-winter).toFixed(2);               // landed leaves stay, then fade away in winter
     });
   });
 }
@@ -912,18 +1132,32 @@ function initHero(){
   const starBox=document.getElementById('stars');
   if(night && !starBox.dataset.built){
     let s='';
-    for(let i=0;i<80;i++){ const x=(Math.random()*100).toFixed(1),y=(Math.random()*72).toFixed(1),d=(Math.random()*4).toFixed(2),sz=(Math.random()*1.5+1).toFixed(1); s+='<span class="star" style="left:'+x+'%;top:'+y+'%;width:'+sz+'px;height:'+sz+'px;animation-delay:'+d+'s"></span>'; }
-    for(let i=0;i<40;i++){ const t=Math.random(); const x=(48+t*26+(Math.random()-0.5)*10).toFixed(1),y=(72-t*64+(Math.random()-0.5)*8).toFixed(1),d=(Math.random()*4).toFixed(2),sz=(Math.random()*1.3+0.8).toFixed(1); s+='<span class="star" style="left:'+x+'%;top:'+y+'%;width:'+sz+'px;height:'+sz+'px;animation-delay:'+d+'s"></span>'; }
-    for(let i=0;i<44;i++){ const t=Math.random()*0.55; const x=(48+t*26+(Math.random()-0.5)*13).toFixed(1),y=(72-t*64+(Math.random()-0.5)*7).toFixed(1),d=(Math.random()*4).toFixed(2),sz=(Math.random()*1.2+0.7).toFixed(1); const col=Math.random()<0.28?'#cfe0ff':(Math.random()<0.28?'#fff0d8':'#ffffff'); s+='<span class="star" style="left:'+x+'%;top:'+y+'%;width:'+sz+'px;height:'+sz+'px;background:'+col+';animation-delay:'+d+'s"></span>'; }
+    const star=(x,y,sz,op,col)=>'<span class="star" data-o="'+op+'" style="left:'+x+'%;top:'+y+'%;width:'+sz+'px;height:'+sz+'px;opacity:'+op+';background:'+col+'"></span>';
+    for(let i=0;i<95;i++){ const x=(fr(i*1.1)*100).toFixed(1),y=(fr(i*2.3+5)*74).toFixed(1),sz=(fr(i*3.7)*1.4+0.8).toFixed(1),op=(0.35+fr(i*4.9)*0.5).toFixed(2); s+=star(x,y,sz,op,'#ffffff'); }
+    for(let i=0;i<300;i++){ const t=Math.pow(fr(i*5.1+2),0.8); const x=(46+t*28+(fr(i*6.3)-0.5)*15).toFixed(1),y=(74-t*66+(fr(i*7.7)-0.5)*10).toFixed(1),sz=(fr(i*8.9)*1.2+0.6).toFixed(1),op=(0.4+fr(i*9.1)*0.55).toFixed(2); const r=fr(i*2.7); const col=r<0.22?'#cfe0ff':(r<0.5?'#ffe4c0':(r<0.66?'#e8c79a':'#ffffff')); s+=star(x,y,sz,op,col); }
+    for(let i=0;i<120;i++){ const t=fr(i*3.3+9)*0.55; const x=(46+t*28+(fr(i*4.1)-0.5)*17).toFixed(1),y=(74-t*66+(fr(i*5.9)-0.5)*9).toFixed(1),sz=(fr(i*6.1)*1+0.5).toFixed(1),op=(0.4+fr(i*7.3)*0.5).toFixed(2); const r=fr(i*8.3); const col=r<0.5?'#ffffff':(r<0.78?'#ffe9cf':'#e6c398'); s+=star(x,y,sz,op,col); }
     starBox.innerHTML=s; starBox.dataset.built='1';
   }
   measureHero();
   updateHero();
   if(reduceMotion) return;
   // time-driven extras
-  if(night){ heroTimers.push(setInterval(shootingStar, 5400)); }
+  if(night){ heroTimers.push(setInterval(shootingStar, 2400)); heroTimers.push(setInterval(twinkle, 480)); }
+  heroTimers.push(setInterval(windGust, 4200));          // wind swirls — all seasons, both modes
   heroTimers.push(setInterval(()=>breakLeaf('left'), 5200));
   heroTimers.push(setInterval(()=>breakLeaf('right'), 6800));
+  if(!night){ heroTimersBird[0]=setTimeout(()=>birdStream(0), 600); heroTimersBird[1]=setTimeout(()=>birdStream(1), 2000); }   // daytime only
+}
+// a few stars twinkle at a time (never fully disappearing); which ones is random
+function twinkle(){
+  const box=document.getElementById('stars'); if(!box||!box.children.length)return;
+  const n=1+Math.floor(Math.random()*2);
+  for(let j=0;j<n;j++){
+    const st=box.children[Math.floor(Math.random()*box.children.length)];
+    const base=+st.dataset.o||0.6;
+    st.classList.add('tw');
+    st.animate([{opacity:base},{opacity:1,offset:0.5},{opacity:base}],{duration:1100,easing:'ease-in-out'}).onfinish=()=>st.classList.remove('tw');
+  }
 }
 
 function updateHero(){
@@ -932,30 +1166,39 @@ function updateHero(){
   const sky=document.getElementById('sky');
   if(night){
     sky.style.background='linear-gradient(#060a16,#0c1730 66%,#101d38)';
-    // moon stays put; cycles phases with a slightly slower progress
-    const mp=moonP(), R=52, cx=90; let s,dark;
-    if(mp<=0.5){ s=4*R*mp; dark=cx-s; } else { s=4*R*(1-mp); dark=cx+s; }
-    const sh=document.getElementById('mshadow'); if(sh) sh.setAttribute('cx',dark.toFixed(1));
+    const lit=document.getElementById('litpath'); if(lit) lit.setAttribute('d', moonLitPath(moonP()));
     const moon=document.getElementById('moon'); if(moon) moon.style.transform='translateY('+moonY.toFixed(0)+'px)';
     swayTrees(Math.sin(p*Math.PI*5)*1.4);   // gentler sway
     paintFlowers(0);
+    setSnow(0);
     paintLeaves(p,true);
   } else {
-    const top=mix('#a9d1f2','#2f86d4',p), bot=mix('#f7d9a6','#bfe3f6',p);
-    sky.style.background='linear-gradient(to bottom,'+top+' 0%,'+bot+' 78%)';
+    // dawn: pink-tinged sky at sunrise -> clear daytime blue as the sun climbs
+    const top=mix('#a9d1f2','#2f86d4',p), mid=mix('#f7bcce','#7fb4e4',p), bot=mix('#ffcbb0','#c3e4f6',p);
+    sky.style.background='linear-gradient(to bottom,'+top+' 0%,'+mid+' 52%,'+bot+' 82%)';
     const sw=document.getElementById('sunWrap'); if(sw) sw.style.transform='translateY('+(sunStartT-p*sunRise).toFixed(0)+'px)';
-    document.querySelectorAll('#clouds .cloud').forEach((c,i)=>{ const dir=i%2?1:-1; c.style.transform='translateX('+(dir*(1-p)*190).toFixed(0)+'px)'; c.style.opacity=(0.28+p*0.62).toFixed(2); });
-    const bloom = p<0.12 ? p/0.12 : p<0.4 ? 1 : Math.max(0,1-(p-0.4)/0.16);
+    document.querySelectorAll('#clouds .cloud').forEach((c,i)=>{ const dir=i%2?1:-1; c.style.transform='translateX('+(dir*(1-p)*190).toFixed(0)+'px)'; c.style.opacity=(0.72+p*0.28).toFixed(2); });
+    const bloom = p<0.1 ? p/0.1 : p<0.32 ? 1 : Math.max(0,1-(p-0.32)/0.12);
     paintFlowers(bloom);
     swayTrees(0);
+    setSnow(p>0.6?(p-0.6)/0.18:0);   // winter arrives sooner and is clearly visible
     paintLeaves(p,false);
   }
+}
+// snow: falling flakes + a cover over both the near and far hills
+function setSnow(w){
+  w=Math.max(0,Math.min(1,w));
+  const s=document.getElementById('snow'), g=document.getElementById('snowground'), b=document.getElementById('snowback');
+  if(s) s.style.opacity=w.toFixed(2);
+  if(g) g.style.opacity=w.toFixed(2);
+  if(b) b.style.opacity=(w*0.92).toFixed(2);
 }
 function swayTrees(deg){ const l=document.getElementById('tree-left'),r=document.getElementById('tree-right'); if(l)l.style.transform='rotate('+deg+'deg)'; if(r)r.style.transform='scaleX(-1) rotate('+(deg)+'deg)'; }
 
 // a leaf breaks off and rides the wind sideways + gently down (not tied to scrolling)
 function breakLeaf(side){
   const hero=document.getElementById('hero'); if(!hero)return;
+  if(theme!=='dark' && scrollP()>0.5) return;   // daytime: no break-off once the tree is shedding/bare
   const tree=document.getElementById('tree-'+side); if(!tree)return;
   const rect=tree.getBoundingClientRect(), hrect=hero.getBoundingClientRect();
   const startX=rect.left-hrect.left + rect.width*(side==='left'?0.6:0.4);
@@ -973,23 +1216,142 @@ function breakLeaf(side){
     {transform:'translate('+dx+'px,'+dy+'px) rotate(320deg)',opacity:0}
   ],{duration:4200,easing:'ease-in'}).onfinish=()=>leaf.remove();
 }
+// a faint curved wind gust (with a little spiral) drifts across and fades — all seasons, both modes
+let activeBreezes=0;
+function windGust(){
+  if(activeBreezes>=2) return;                                  // no more than two breezes at once
+  const hero=document.getElementById('hero'); if(!hero)return;
+  const NS='http://www.w3.org/2000/svg';
+  const w=hero.offsetWidth, h=hero.offsetHeight;
+  activeBreezes++;
+  const dir=Math.random()<0.5?1:-1;
+  const y0=(0.34+Math.random()*0.5)*h;                          // spawn baseline: bottom two-thirds
+  const span=w+140, amp=11+Math.random()*6, swirlDir=Math.random()<0.5?1:-1, loopR=15+Math.random()*7;
+  const startX=dir>0?-70:w+70;
+  const col=theme==='dark'?'rgba(210,220,255,.6)':'rgba(255,255,255,.7)';
+  const svg=document.createElementNS(NS,'svg');
+  svg.setAttribute('class','windgust'); svg.setAttribute('width',w); svg.setAttribute('height',h);
+  svg.setAttribute('viewBox','0 0 '+w+' '+h); svg.style.left='0px'; svg.style.top='0px';
+  svg.innerHTML='<path fill="none" style="stroke:'+col+';stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round"/>';
+  hero.appendChild(svg);
+  const path=svg.querySelector('path');
+  // tree-canopy zones (hero coords) for leaf pickup — upper part of each tree
+  const zones=['tree-left','tree-right'].map(id=>{const t=document.getElementById(id); if(!t)return null; const r=t.getBoundingClientRect(), hr=hero.getBoundingClientRect(); return {x0:r.left-hr.left,x1:r.right-hr.left,y0:r.top-hr.top,y1:r.top-hr.top+r.height*0.62};}).filter(Boolean);
+  const seasonCol=currentLeafColor();
+  const dur=4200+Math.random()*1800, t0=performance.now();
+  const trail=[], maxTrail=42; let carried=null, cAng=Math.random()*360;
+  const swS=0.40, swE=0.56;
+  function lead(u){
+    const wy=Math.sin(u*9+1)*amp; let x,y;
+    if(u<swS){ x=startX+dir*(u/swS)*(span*0.40); y=y0+wy; }
+    else if(u>swE){ x=startX+dir*(span*0.53+((u-swE)/(1-swE))*(span*0.47)); y=y0+wy; }
+    else { const s=(u-swS)/(swE-swS), a=s*2*Math.PI; x=startX+dir*(span*0.40+s*(span*0.13)+Math.sin(a)*loopR); y=y0+wy-swirlDir*(1-Math.cos(a))*loopR; }
+    return [x,y];
+  }
+  function frame(now){
+    if(!document.body.contains(svg)){ if(carried)carried.remove(); activeBreezes=Math.max(0,activeBreezes-1); return; }
+    const u=(now-t0)/dur;
+    if(u>=1){ svg.remove(); if(carried)carried.remove(); activeBreezes=Math.max(0,activeBreezes-1); return; }
+    const lp=lead(u); trail.push(lp); if(trail.length>maxTrail) trail.shift();
+    path.setAttribute('d','M'+trail.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' L'));
+    svg.style.opacity=(u<0.1?u/0.1:u>0.85?(1-u)/0.15:1).toFixed(2);
+    if(!carried){ for(const z of zones){ if(lp[0]>=z.x0&&lp[0]<=z.x1&&lp[1]>=z.y0&&lp[1]<=z.y1){ carried=document.createElementNS(NS,'svg'); carried.setAttribute('class','flyleaf'); carried.setAttribute('viewBox','-9 -9 18 18'); carried.innerHTML='<path d="'+LEAF_PATH+'" fill="'+seasonCol+'"/>'; hero.appendChild(carried); break; } } }
+    if(carried){ const ahead=lead(Math.min(1,u+0.03)); cAng+=10; carried.style.left=ahead[0].toFixed(1)+'px'; carried.style.top=ahead[1].toFixed(1)+'px'; carried.style.transform='translate(-50%,-50%) rotate('+cAng+'deg)'; }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
 function shootingStar(){
   const hero=document.getElementById('hero'); if(!hero||theme!=='dark')return;
+  const w=hero.offsetWidth, h=hero.offsetHeight;
+  const dir=Math.random()<0.5?1:-1;                            // down-right or down-left
+  const ang=22+Math.random()*16;                               // degrees below horizontal (a sane angle)
+  const rot=dir>0?ang:180-ang;
+  const dist=200+Math.random()*180;
+  const dx=dir*Math.cos(ang*Math.PI/180)*dist, dy=Math.sin(ang*Math.PI/180)*dist;
   const s=document.createElement('div'); s.className='shooting';
-  const y=Math.random()*hero.offsetHeight*0.4, x=Math.random()*hero.offsetWidth*0.5;
-  s.style.top=y+'px'; s.style.left=x+'px'; s.style.transform='rotate(20deg)';
+  s.style.top=(Math.random()*h*0.32).toFixed(0)+'px'; s.style.left=((0.1+Math.random()*0.8)*w).toFixed(0)+'px';
   hero.appendChild(s);
-  s.animate([{transform:'translate(0,0) rotate(20deg)',opacity:0},{opacity:1,offset:0.2},{transform:'translate(260px,120px) rotate(20deg)',opacity:0}],{duration:900,easing:'ease-out'}).onfinish=()=>s.remove();
+  s.animate([
+    {transform:'translate(0,0) rotate('+rot.toFixed(0)+'deg)',opacity:0},
+    {opacity:1,offset:0.2},
+    {transform:'translate('+dx.toFixed(0)+'px,'+dy.toFixed(0)+'px) rotate('+rot.toFixed(0)+'deg)',opacity:0}
+  ],{duration:Math.round(750+Math.random()*350),easing:'ease-out'}).onfinish=()=>s.remove();
+}
+// small bird silhouette; two wings flap via SMIL (rotate around the body)
+function birdSVG(flapDur){
+  return '<svg viewBox="-13 -9 26 18" width="26" height="18">'+
+    '<path d="M0,1 C-5,-5 -9,-4 -12,-1 C-8,-1 -4,0 0,2 Z"><animateTransform attributeName="transform" type="rotate" values="-14 0 1;14 0 1;-14 0 1" dur="'+flapDur+'s" repeatCount="indefinite"/></path>'+
+    '<path d="M0,1 C5,-5 9,-4 12,-1 C8,-1 4,0 0,2 Z"><animateTransform attributeName="transform" type="rotate" values="14 0 1;-14 0 1;14 0 1" dur="'+flapDur+'s" repeatCount="indefinite"/></path>'+
+  '</svg>';
+}
+// two independent streams keep at most 2 groups on screen; each group takes a distinct layer (of 4) so they never collide
+function birdStream(streamId){
+  const hero=document.getElementById('hero');
+  if(!hero || route()!=='home' || theme==='dark'){ return; }        // birds sleep at night
+  const w=hero.offsetWidth, h=hero.offsetHeight;
+  const layers=[0.08,0.24,0.40,0.56];                                // four lanes across the top two-thirds
+  const free=[0,1,2,3].filter(l=>birdOccupied.indexOf(l)<0);
+  if(!free.length){ heroTimersBird[streamId]=setTimeout(()=>birdStream(streamId),700); return; }
+  const layer=free[Math.floor(Math.random()*free.length)]; birdOccupied.push(layer);
+  const count=Math.random()<0.5?2:3;                                 // 2 or 3, 50/50, independent per group
+  const dir=Math.random()<0.5?1:-1;                                  // side 50/50
+  const y=layers[layer]*h, speed=0.13, dist=w+300, dur=Math.round(dist/speed);   // ~2x the falling-leaf speed
+  const flapDur=Math.max(0.42,(dur/1000)*0.75/14).toFixed(2);
+  const group=document.createElement('div'); group.className='birds'; group.style.top=y.toFixed(0)+'px';
+  for(let i=0;i<count;i++){
+    const b=document.createElement('div'); b.className='bird';
+    b.style.left=(-i*30*dir).toFixed(0)+'px';
+    b.style.top=((i%2?1:-1)*i*8).toFixed(0)+'px';
+    b.style.transform='scaleX('+dir+')';
+    b.innerHTML=birdSVG(flapDur);
+    group.appendChild(b);
+  }
+  const from=dir>0?-150:w+50, to=dir>0?(w+150):-150;
+  group.style.left=from.toFixed(0)+'px';
+  hero.appendChild(group);
+  group.animate([{transform:'translateX(0)'},{transform:'translateX('+(to-from).toFixed(0)+'px)'}],{duration:dur,easing:'linear'}).onfinish=()=>{
+    group.remove(); const k=birdOccupied.indexOf(layer); if(k>-1)birdOccupied.splice(k,1);
+    heroTimersBird[streamId]=setTimeout(()=>birdStream(streamId), 500+Math.random()*1500);
+  };
 }
 window.addEventListener('scroll',()=>{ if(document.getElementById('hero')) requestAnimationFrame(updateHero); },{passive:true});
 window.addEventListener('resize',()=>{ if(document.getElementById('hero')){ measureHero(); updateHero(); } });
+
+/* ---- shared site content persisted for everyone via the site_content row ---- */
+const SITE_KEYS=['mission','tagline','discord'];
+const SITE_ARRAYS=['socials','affiliations','chapters'];
+async function loadSiteContent(){
+  if(!BACKEND) return;
+  try{
+    const {data}=await sb.from('site_content').select('data').eq('id',1).single();
+    if(data&&data.data){
+      SITE_KEYS.forEach(k=>{ if(data.data[k]!=null) content[k]=data.data[k]; });
+      SITE_ARRAYS.forEach(k=>{ if(Array.isArray(data.data[k])) content[k]=data.data[k]; });
+    }
+  }catch(e){ /* table may not exist yet — falls back to defaults */ }
+}
+async function saveSiteContent(silent){
+  if(!BACKEND){ if(!silent)toast('Saved (preview)'); return; }
+  const payload={}; SITE_KEYS.forEach(k=>payload[k]=content[k]); SITE_ARRAYS.forEach(k=>payload[k]=content[k]);
+  try{
+    const {error}=await sb.from('site_content').upsert({id:1,data:payload});
+    if(!silent) toast(error?('Couldn\'t save: '+error.message):'Saved for everyone');
+    else if(error) toast('Couldn\'t save: '+error.message);
+  }catch(e){ toast('Save failed — is the site_content table set up?'); }
+}
+function editText(kind){
+  const map={mission:{title:'Mission statement',label:'Mission statement',type:'textarea'},tagline:{title:'Home subtitle',label:'Subtitle under “Earth Sweet Earth”',type:'text'},discord:{title:'Discord invite link',label:'Discord invite URL',type:'url'}};
+  const m=map[kind];
+  openEditor(m.title,[{key:'val',label:m.label,type:m.type,placeholder:kind==='discord'?'https://discord.gg/…':''}],{val:content[kind]},v=>{ content[kind]=v.val; saveSiteContent(); });
+}
 
 /* ==========================================================================
    10) START
    ========================================================================== */
 async function init(){
   document.body.setAttribute('data-theme',theme);
-  if(BACKEND){ await loadSession(); sb.auth.onAuthStateChange(()=>{loadSession().then(render);}); }
+  if(BACKEND){ try{ await loadSession(); await loadSiteContent(); }catch(e){} sb.auth.onAuthStateChange(()=>{loadSession().then(render).catch(()=>{});}); }
   if(!location.hash) location.hash='#/home';
   render();
 }

@@ -6,4 +6,8 @@ Thumbs.db
 
 # Common editor scratch files
 *.swp
-.vscode/
+
+# VS Code — ignore personal editor state but keep the shared project config
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json

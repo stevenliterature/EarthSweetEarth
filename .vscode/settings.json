@@ -1,0 +1,7 @@
+{
+  "//": "Turn on Deno ONLY for the Supabase Edge Functions folder (not the rest of the site).",
+  "//2": "This is what stops the red squiggly errors on Deno.serve / Deno.env / the https:// import.",
+  "//3": "You also need the 'Deno' VS Code extension installed (VS Code will offer it — see .vscode/extensions.json).",
+  "deno.enablePaths": ["./supabase/functions"],
+  "deno.lint": true
+}
