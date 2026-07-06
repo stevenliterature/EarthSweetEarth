@@ -388,6 +388,7 @@ let roles = {
   admin:     {name:'Admin',     caps:allCaps(true)},
   moderator: {name:'Moderator', caps:{...allCaps(false), newsletter_post:true, programs_update:true}},
   member:    {name:'Member',    caps:allCaps(false)},
+  public:    {name:'Public',    caps:allCaps(false)},   // logged-out visitors — set what anonymous people can see
 };
 let people = [
   {id:1, username:'(you)', email:'owner@earthsweetearth.org', roleId:'owner'},
@@ -411,8 +412,8 @@ function recomputeSession(){
    2) PERMISSIONS
    ========================================================================== */
 const isLoggedIn=()=> session!==null;
-const myRole=()=> session ? (roles[session.roleId]||roles.member) : null;
-const can=(cap)=> isLoggedIn() && !!myRole().caps[cap];
+const myRole=()=> session ? (roles[session.roleId]||roles.member) : (roles.public||null);   // logged out → Public
+const can=(cap)=>{ const r=myRole(); return r ? !!r.caps[cap] : false; };
 function canView(r){
   if(r==='chapters') return can('view_chapters');
   if(r==='gallery')  return can('view_gallery');
@@ -1540,6 +1541,13 @@ async function loadSiteContent(){
         roles=data.data.roles;
         if(!roles.owner) roles.owner={name:'Owner',locked:true,caps:allCaps(true)};
         roles.owner.locked=true; roles.owner.caps=allCaps(true);   // owner always keeps every permission
+        // Canonical built-in "Public" role = logged-out visitors. If an earlier custom
+        // role was named "Public", adopt its toggles and drop the duplicate (one-time).
+        if(!roles.public){
+          const legacy=Object.keys(roles).find(k=>(((roles[k]||{}).name)||'').trim().toLowerCase()==='public');
+          roles.public={name:'Public',caps:Object.assign(allCaps(false),(legacy&&roles[legacy].caps)||{})};
+          if(legacy) delete roles[legacy];
+        }
       }
     }
   }catch(e){ /* table may not exist yet — falls back to defaults */ }
@@ -1564,7 +1572,19 @@ function editText(kind){
    ========================================================================== */
 async function init(){
   document.body.setAttribute('data-theme',theme);
-  if(BACKEND){ try{ await loadSession(); await loadSiteContent(); }catch(e){} sb.auth.onAuthStateChange(()=>{loadSession().then(render).catch(()=>{});}); }
+  if(BACKEND){
+    try{ await loadSession(); await loadSiteContent(); }catch(e){}
+    sb.auth.onAuthStateChange(()=>{loadSession().then(render).catch(()=>{});});
+    // Live sync: when an owner/admin saves content or permissions, refresh every open tab
+    // (including logged-out visitors) with no manual reload. Needs the site_content table
+    // in the supabase_realtime publication — see the REALTIME section of supabase-setup.sql.
+    try{
+      sb.channel('site_content_live')
+        .on('postgres_changes', {event:'*', schema:'public', table:'site_content'},
+            ()=>{ loadSiteContent().then(render).catch(()=>{}); })
+        .subscribe();
+    }catch(e){}
+  }
   if(!location.hash) location.hash='#/home';
   render();
 }

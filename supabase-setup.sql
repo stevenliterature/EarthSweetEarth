@@ -118,3 +118,26 @@ create policy "admins update profiles" on public.profiles for update using (publ
 -- To promote someone else later, do the same with 'admin' or 'moderator'
 -- and their email address.
 -- ============================================================================
+
+
+-- ============================================================================
+-- REALTIME: let already-open tabs update instantly when an owner/admin saves
+-- ----------------------------------------------------------------------------
+-- The website subscribes to changes on public.site_content and re-renders live
+-- (including for logged-out visitors), so permission/content changes appear
+-- without a manual refresh. That requires the table to be in Supabase's
+-- realtime publication. Safe to run more than once; does nothing if the
+-- site_content table doesn't exist yet.
+-- ============================================================================
+do $$
+begin
+  if to_regclass('public.site_content') is not null
+     and not exists (
+       select 1 from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename  = 'site_content'
+     ) then
+    alter publication supabase_realtime add table public.site_content;
+  end if;
+end $$;
