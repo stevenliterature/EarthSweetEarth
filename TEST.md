@@ -147,3 +147,160 @@ Prerequisites on Supabase (do once): run `supabase-setup.sql` (creates `profiles
 
 ### Notes / found issues
 - (add anything that fails here, with steps to reproduce)
+
+---
+
+## 14. Header, branding & theming (installment 1)
+- [ ] Top-left shows the **butterfly logo** (not text), left-justified, square, within the nav height (not spilling above/below)
+- [ ] Logo has a transparent background — looks right in **both** light (yellow) and dark (brown) headers
+- [ ] Browser tab shows the real **favicon** (requires favicon.ico, favicon-16/32, apple-touch-icon, android-chrome-192/512, site.webmanifest committed to the repo root next to index.html)
+- [ ] Center nav **scrolls horizontally** when tabs don't all fit — on every width, phone through desktop
+- [ ] When tabs *do* fit, they're **centered**; when they don't, you can still reach the leftmost tab (not clipped under the logo)
+- [ ] Logo (left) and the toggle+Log In group (right) never overlap the center tabs
+- [ ] Dark mode: header + footer are the lighter brown (#80471c), not the old near-black brown; text stays readable
+- [ ] Top-right is a **single "Log In"** button (no separate Sign up); the login modal has a "Create an account" link
+- [ ] Signed-in **account button** has a visible blue outline at rest; on hover the interior tints (not the outline)
+- [ ] Left/right **page padding** present on all pages (text no longer runs to the screen edge)
+
+## 15. Home hero (installment 1 — quick wins)
+- [ ] Tagline reads "If not us, who?" / "If not now, when?" on **two lines**
+- [ ] Buttons are **See Our Activities** (→ Activities) and **Start a Chapter** (→ Chapters)
+- [ ] The "scroll ↓" hint is gone
+- [ ] Sun is a warmer **yellow**; its glow is **yellowish** (never a dark halo)
+- [ ] Mission box is editable in owner mode (✎ Edit mission)
+- [ ] Equal spacing: mission box ↔ Discord box ↔ yellow footer
+
+## 15b. Home hero (installment 2 — clouds + proportional scaling)
+- [ ] Each word — Earth / Sweet / Earth — sits on its own **distinct white cloud**; the blue "Sweet" is clearly readable against the sky (no squinting)
+- [ ] Word-clouds fully contain each word and never touch the tagline below
+- [ ] Word-clouds disappear in **dark mode** (night sky needs no white puffs behind white text)
+- [ ] No drifting cloud has a **flat vertical edge** — all are fully rounded
+- [ ] On a **laptop** (~1280px+) the scene looks exactly as before (full size)
+- [ ] On **iPad / phone widths** the sun, trees, clouds, birds, leaf pile, and their spacing all **scale down proportionally** — nothing looks oversized/too close
+- [ ] Trees stay **planted at the grass line** at every width (crown visible above the hills; they don't sink behind the front hill)
+- [ ] Trunk stays a **fixed distance from the screen edge** as trees scale
+- [ ] Fallen-leaf pile lands on the grass (not floating/behind the hill) at small sizes; wind still plucks leaves from the (scaled) canopy
+- [ ] Resize the window slowly across sizes — everything rescales smoothly with no misalignment
+
+## 16. Chapters / Gallery text (installment 1)
+- [ ] Chapters heading reads "Flip the page. **Take** the pen. Start *your* chapter today." and **scales to fit one line** at any width
+- [ ] Chapter application: the "shown as an image on purpose" line is gone; the 5-member Discord note now says they must be ESE members + have (or make) a Discord, or use a parent's if under 13
+- [ ] Gallery heading reads "An Impact You Can *See*" with no subtext
+
+---
+
+## 17. Under Construction, Privacy/Terms, Activities redesign (installment 3)
+
+### Under Construction
+- [ ] Category "Explore" buttons that aren't built (Speakers, Contests, Fundraising) land on the **Under Construction page**
+- [ ] The page has the 🚧 art, a friendly message, and a Back to Home button
+- [ ] A "dead" button (e.g., MyGreenSchools "Coming soon") shows the **hover tooltip** "Under construction — coming soon!" and a popup on click
+
+### Privacy & Terms
+- [ ] Footer shows **Privacy Policy · Terms & Conditions** on every page
+- [ ] Each opens its own page (hidden from the nav bar) and reads cleanly
+- [ ] Both mention: minors/under-13 + parent consent, media release, and that **ESE is not affiliated with Discord**
+- [ ] ⚠️ These are drafts — an adult/attorney should review before relying on them
+
+### Activities (was Programs)
+- [ ] Nav tab is **Activities**; the URL is `#/activities`; the old `#/programs` is retired
+- [ ] "See Our Activities" (home) lands on the new Activities page
+- [ ] **Featured** section at top shows one activity with a Read more/less toggle
+- [ ] Owner sees "✎ Edit featured"; editing name/description/image saves and persists after reload **(live)**
+- [ ] **Category grid** (2×2, 1-wide on mobile): Speakers / Challenges / Contests / Fundraising, each a distinct color, laid out name → image → description → button
+- [ ] **Challenges** "Explore" opens the Challenges page; the others open Under Construction
+- [ ] Challenges page shows placeholder challenge cards (Read more/less) + **MyGreenSchools** (coming soon)
+- [ ] Read more/less expands and re-collapses each card's description
+
+---
+
+## 18. About page, Youth Leadership form, signup country (installment 4)
+
+### Signup / profile country
+- [ ] Sign-up form has an optional **Country** dropdown (can be left blank)
+- [ ] Country saves to the profile and shows preselected when you reopen your profile **(live)**
+- [ ] Country is editable later from the profile **(live)**
+- [ ] Run the updated `supabase-setup.sql` (adds the `country` column + `ese_stats()` function)
+
+### About page
+- [ ] "About" appears in the nav; opens the About page
+- [ ] Intro shows the live "**X people across Y countries**" stat (needs `ese_stats()`; falls back to friendly text otherwise)
+- [ ] Three sections in order: Board of Directors, Advisory Council, Youth Leadership Team
+- [ ] Each section: a note, then a button, then a gallery of profile cards (circular pic + text), **1-wide on mobile**, multi-column on desktop
+- [ ] Board & Advisory buttons = "Interested? Reach out!" → opens email to hello@earthsweetearth.org
+- [ ] Youth button = "Apply for a Position" → opens the youth application form
+- [ ] Placeholder cards show when a section is empty; owner can add/edit/remove real people (persists) **(live)**
+
+### Youth Leadership application
+- [ ] Reachable from About (not shown in the nav)
+- [ ] Collects name, Discord, email, grade, school, country (+ conditional state/province), like the chapter form
+- [ ] "I'm under 13" checkbox reveals the parent-email note
+- [ ] Role checkboxes (President / VP / Treasurer / Secretary); picking one **reveals its responsibilities & qualifications**
+- [ ] Discord **reputation threshold** shows; only the **owner** sees an Edit button, and it persists **(live)**
+- [ ] Two 500-word essays + one 150-word nomination, each with a live word counter that flags going over
+- [ ] reCAPTCHA stand-in (real one when a site key is added)
+- [ ] Submit validates, stores to `youth_applications`, and shows a success modal **(live)**
+- [ ] ⚠️ Emailing submissions to hello@earthsweetearth.org still needs an Edge Function/trigger (pairs with Owner Analytics) — not wired yet
+
+---
+
+## 19. Gallery redesign (installment 5)
+- [ ] Heading "An Impact You Can *See*"; intro line; **~25 placeholder tiles** show for testing when the gallery is empty
+- [ ] **Featured** section at top; "More moments" grid below
+- [ ] Grid is responsive squares: **1 per row on mobile**, 3–5 columns on desktop
+- [ ] **Reactions (LinkedIn-style):** top-3 emojis show clustered; on hover they spread apart and reveal counts; your own reaction is highlighted
+- [ ] "Add reaction" (🙂+) opens a floating **emoji picker**; picking one sets your reaction (one per photo per account); clicking it again removes it
+- [ ] Reacting/commenting while logged out prompts you to log in
+- [ ] **Comments** open in a modal (so the grid never shifts): avatar + username + body + time, chronological
+- [ ] Each comment is **reactable** with its own mini reaction bar
+- [ ] Logged-in members can post a comment; the tile's comment count updates
+- [ ] Owner (edit mode) sees per-tile **Feature/Unfeature, Edit, ×** and a top "**+ Add a photo**"; featuring moves a tile into the Featured section
+- [ ] Bottom "**Submit yours on Discord**" button shows the under-construction tooltip on hover (not clickable)
+- [ ] ⚠️ Reactions/comments are in-memory for now (reset on reload); durable per-account persistence + photo storage (Supabase Storage) is the backend follow-up
+
+---
+
+## 20. Newsletter list + Calendar (installment 6)
+
+### Newsletter
+- [ ] Posts are full-width rounded cards, **newest first**, each showing a **timestamp + title**
+- [ ] Ships with 4 seed posts (2 short, 2 long) for testing
+- [ ] Clicking a **short** post expands it in place (with a "Show less" collapse); the arrow flips
+- [ ] Clicking a **long** post opens its **own page** (▾ vs ↗ arrow signals which)
+- [ ] Owner can Publish (adds to top with the current time), Edit, and Delete posts
+- [ ] The post page has a Back-to-Newsletter link and the full body
+
+### Calendar
+- [ ] Owner can **Connect a calendar** (paste a Google Calendar ID/email); it embeds the live Google Calendar (month view)
+- [ ] Without an ID, a friendly placeholder shows (owner sees how to add it)
+- [ ] Meeting link still works (owner add/edit)
+- [ ] **Upcoming events** list is color-coded (Green/Blue/Amber/Rose/Purple/Gray), sorted by date
+- [ ] An event with a link opens it on click (↗); one without opens its details
+- [ ] Owner can Add / Edit / Delete events, including color + optional link
+- [ ] Ships with 3 seed events for testing
+- [ ] ⚠️ Newsletter posts + events are in-memory for now (seeded each load); the Google Calendar ID does persist
+
+---
+
+## 21. Owner Analytics + backend (installment 7)
+
+### Sign-up validation
+- [ ] Username with spaces/symbols → clear "letters and numbers only" error
+- [ ] Username already taken → "already taken, pick another" (pre-checked via `username_available`) **(live)**
+- [ ] Email already registered → "account exists, log in instead?" with a link **(live)**
+
+### Owner Analytics (owner-only tab)
+- [ ] "Owner Analytics" tab shows only for the owner (blue, like Owner Settings)
+- [ ] Stat cards: members, countries, chapter & leadership applications (total + how many need review), chapters, posts, events, gallery
+- [ ] **Needs review** lists each unreviewed application with a **red dot**; clicking one opens its details and clears the dot; "Mark reviewed" also clears it **(live)**
+- [ ] A **red dot appears on the Owner Analytics tab** whenever anything needs review, and clears once everything is reviewed
+- [ ] Traffic: total views, views this week, and a 7-day bar chart (needs `ese_traffic` + page_views) **(live)**
+
+### Emailing
+- [ ] After a chapter/leadership application is submitted, a summary emails to hello@earthsweetearth.org — **needs the `notify-application` Edge Function deployed + a Resend API key**
+
+### Database
+- [ ] Re-run `supabase-setup.sql` (adds: username unique index, `username_available()`, `reviewed` columns, `page_views` table, `ese_traffic()`)
+
+### Still pending (final backend piece)
+- [ ] Durable per-account persistence for **gallery reactions/comments**, **newsletter posts**, and **calendar events** (needs member-writable tables + Supabase Storage for images/avatars) — currently in-memory/seeded

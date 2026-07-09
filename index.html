@@ -7,11 +7,16 @@
 <meta name="description" content="Earth Sweet Earth — a youth-led project growing a greener, kinder planet, one neighborhood at a time.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Earth Sweet Earth">
-<meta property="og:description" content="We have everything we need to pick up the pen without the will to pick up our hands. Let's write our own ending.">
+<meta property="og:description" content="A youth-led project growing a greener, kinder planet — one neighborhood at a time.">
 <meta property="og:url" content="https://earthsweetearth.org">
 <meta property="og:image" content="https://earthsweetearth.org/social.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23007600'/%3E%3Ccircle cx='16' cy='19' r='7' fill='%23F4C430'/%3E%3Cpath d='M17 18c0-6 5-9 9-9 0 6-4 9-9 9z' fill='%23ffffff'/%3E%3C/svg%3E">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#F4D462">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,7 +50,7 @@
   p{margin:0 0 1rem;}
   a{color:var(--blue);}
   img{max-width:100%;display:block;}
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(18px,3.5vw,40px);}
 
   a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:6px;}
   .skip{position:absolute;left:16px;top:-60px;background:var(--green);color:#fff;padding:10px 18px;border-radius:8px;font-weight:600;z-index:200;transition:top .2s;}
@@ -79,26 +84,28 @@
 
   /* top nav — sized so all tabs fit on one row at the same height for everyone */
   .topbar{background:#F4D462;border-bottom:1px solid rgba(0,0,0,.14);position:sticky;top:0;z-index:50;transition:background .3s;}
-  [data-theme="dark"] .topbar{background:#2e2712;border-bottom:1px solid #1c1709;}
+  [data-theme="dark"] .topbar{background:#80471c;border-bottom:1px solid #5c3214;}
   [data-theme="dark"] .topbar .tabs button{color:#eadfce;}
   .topbar .brand{color:#0a4d0a;}
   .topbar .tabs button{color:#33261a;}
   [data-theme="dark"] .topbar .brand{color:var(--green);}
-  .nav{display:flex;align-items:center;gap:14px;padding:12px 0;min-height:64px;}
-  .brand{font-family:"Fraunces",serif;font-weight:600;font-size:1.15rem;color:var(--green);text-decoration:none;white-space:nowrap;}
-  .brand .sw{color:var(--blue);font-style:italic;}
-  .tabs{display:flex;gap:2px;flex:1;justify-content:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
+  .nav{display:flex;flex-wrap:nowrap;align-items:center;gap:12px;padding:8px 0;min-height:60px;}
+  .brand{display:inline-flex;align-items:center;flex:none;text-decoration:none;}
+  .brand-logo{height:clamp(34px,5.4vw,48px);width:clamp(34px,5.4vw,48px);object-fit:contain;display:block;}
+  .tabs{flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .tabsInner{display:flex;gap:2px;width:max-content;margin:0 auto;padding:0 4px;}
   .tabs::-webkit-scrollbar{display:none;}
   .tabs button{background:transparent;border:none;font-family:inherit;font-size:.92rem;font-weight:500;color:var(--ink);cursor:pointer;padding:7px 11px;border-radius:8px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s;}
   .tabs button:hover{color:var(--green);}
   .tabs button.active{color:var(--green);border-bottom-color:var(--green);font-weight:600;}
   .tabs button.admin{color:var(--blue);}
   .tabs button.admin.active{color:var(--blue);border-bottom-color:var(--blue);}
-  .acct{display:flex;gap:8px;align-items:center;white-space:nowrap;}
+  .acct{display:flex;gap:8px;align-items:center;white-space:nowrap;flex:none;}
   .iconbtn{background:var(--blue);border:1.5px solid var(--blue);color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s;}
   .iconbtn:hover{background:var(--blue-dk);border-color:var(--blue-dk);color:#fff;}
-  .userbtn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid var(--line);border-radius:100px;padding:4px 12px 4px 4px;cursor:pointer;font-family:inherit;color:var(--ink);}
-  .userbtn:hover{border-color:var(--blue);}
+  .userbtn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1.5px solid var(--blue);border-radius:100px;padding:4px 12px 4px 4px;cursor:pointer;font-family:inherit;color:var(--ink);transition:background .2s;}
+  .userbtn:hover{background:rgba(32,131,196,.12);}
+  [data-theme="dark"] .userbtn:hover{background:rgba(92,179,234,.18);}
   .userbtn .uname{font-size:.9rem;font-weight:600;}
   .avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;display:inline-flex;align-items:center;justify-content:center;background:var(--green);color:#fff;font-weight:700;font-size:.85rem;overflow:hidden;}
 
@@ -122,12 +129,12 @@
   .addbtn:hover{border-color:var(--green);color:var(--green);}
   .rowbtns{display:flex;gap:6px;margin-top:10px;}
   .sec{margin-bottom:52px;}
-  .home-stack{display:flex;flex-direction:column;gap:52px;padding:52px 0 8px;}
+  .home-stack{display:flex;flex-direction:column;gap:52px;padding:52px 0 52px;}
   .sechead{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
 
   /* info tooltip (ⓘ) — upright, and opens BELOW so it never gets clipped by the nav */
   .info{position:relative;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;font-size:.72rem;font-weight:700;cursor:help;margin-left:6px;font-style:normal;vertical-align:middle;}
-  .info .tip{visibility:hidden;opacity:0;position:absolute;top:150%;left:50%;transform:translateX(-50%);background:#20302a;color:#eef;padding:10px 12px;border-radius:8px;font-size:.82rem;font-weight:400;width:240px;line-height:1.4;z-index:60;transition:opacity .15s;box-shadow:0 8px 24px rgba(0,0,0,.25);}
+  .info .tip{visibility:hidden;opacity:0;position:absolute;top:150%;left:50%;transform:translateX(-50%);background:#20302a;color:#eef;padding:10px 12px;border-radius:8px;font-size:.82rem;font-weight:400;white-space:normal;width:240px;line-height:1.4;z-index:60;transition:opacity .15s;box-shadow:0 8px 24px rgba(0,0,0,.25);}
   .info .tip::after{content:"";position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:#20302a;}
   .info .tip a{color:var(--sun);}
   .info:hover .tip,.info:focus .tip,.info:focus-within .tip{visibility:visible;opacity:1;}
@@ -165,9 +172,9 @@
   .cstar{fill:#ffffff;opacity:.4;filter:drop-shadow(0 0 3px rgba(200,220,255,.8));}
   .celestial{position:absolute;inset:0;z-index:1;pointer-events:none;}
   .sun-wrap{position:absolute;left:0;top:0;width:150px;height:150px;will-change:transform;}
-  .sun-glow{position:absolute;left:50%;top:50%;width:320px;height:320px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(244,196,48,.6),rgba(244,196,48,0) 68%);mix-blend-mode:screen;}
-  .sun-disk{position:absolute;left:50%;top:50%;width:120px;height:120px;transform:translate(-50%,-50%);border-radius:50%;background:var(--sun);box-shadow:0 0 46px rgba(244,196,48,.55);}
-  .moon{position:absolute;left:50%;top:8%;transform:translateX(-50%);filter:drop-shadow(0 0 18px rgba(200,215,255,.4));}
+  .sun-glow{position:absolute;left:50%;top:50%;width:340px;height:340px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(244,212,98,.72),rgba(244,212,98,0) 70%);mix-blend-mode:screen;}
+  .sun-disk{position:absolute;left:50%;top:50%;width:120px;height:120px;transform:translate(-50%,-50%);border-radius:50%;background:var(--sun);box-shadow:0 0 46px rgba(244,212,98,.6);}
+  .moon{position:absolute;left:50%;top:8%;transform:translateX(-50%) scale(var(--hs,1));transform-origin:top center;filter:drop-shadow(0 0 18px rgba(200,215,255,.4));}
   .clouds{position:absolute;inset:0;z-index:2;pointer-events:none;}
   .cloud{position:absolute;fill:#ffffff;opacity:.9;}
   .hills-back{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:34vh;z-index:2;display:block;}
@@ -175,7 +182,7 @@
   .ground-shadows{position:absolute;left:0;right:0;bottom:0;width:100%;height:52vh;z-index:2;pointer-events:none;}
   .tshadow{position:absolute;left:0;top:0;width:120px;height:24px;border-radius:50%;background:radial-gradient(closest-side,rgba(8,38,14,.5),rgba(8,38,14,0));z-index:6;pointer-events:none;opacity:0;transform-origin:center;will-change:transform,opacity;}
   .leaf-pile{position:absolute;inset:0;width:100%;height:100%;z-index:6;pointer-events:none;opacity:0;overflow:visible;}
-  .tree{position:absolute;bottom:0;width:190px;height:44vh;z-index:3;transform-origin:bottom center;pointer-events:none;}
+  .tree{position:absolute;bottom:0;width:190px;height:44vh;z-index:3;transform-origin:50% 62.3%;pointer-events:none;}
   .tree-left{left:-6px;}
   .tree-right{right:-6px;transform:scaleX(-1);}
   .trunk{fill:#7a5636;transition:fill .3s;}
@@ -189,18 +196,22 @@
   .flower .bud{fill:#a9c98d;}
   .flower .petals{fill:#ffc0d8;}
   .flower .fcenter{fill:#ffdd66;}
-  .flyleaf{position:absolute;width:16px;height:16px;z-index:12;pointer-events:none;overflow:visible;}
+  .flyleaf{position:absolute;width:calc(16px*var(--hs,1));height:calc(16px*var(--hs,1));z-index:12;pointer-events:none;overflow:visible;}
   .zzz{position:absolute;left:0;top:0;z-index:6;pointer-events:none;}
   .zzz span{position:absolute;font-family:"Fraunces",serif;font-weight:700;color:#eef4ff;text-shadow:0 1px 6px rgba(0,0,0,.4);will-change:transform,opacity;}
   .scroll-hint{margin-top:20px;font-size:.8rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);opacity:.8;animation:hintbob 1.8s ease-in-out infinite;}
   [data-theme="dark"] .hero-content .scroll-hint{color:#bcc7d6;}
   @keyframes hintbob{0%,100%{transform:translateY(0);opacity:.5;}50%{transform:translateY(5px);opacity:.9;}}
   .hero-content{position:relative;z-index:7;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px 190px;}
-  .wordmark{font-size:clamp(2.6rem,9vw,6rem);font-weight:900;letter-spacing:-.03em;color:var(--green);margin:0 0 20px;}
+  .wordmark{font-size:clamp(2.6rem,9vw,6rem);font-weight:900;letter-spacing:-.03em;color:var(--green);margin:0 0 50px;position:relative;z-index:0;}
+  .wordmark .cw{position:relative;display:inline-block;}
+  .wordmark .cwsvg{position:absolute;left:50%;top:50%;width:174%;height:214%;transform:translate(-50%,-56%);z-index:-1;pointer-events:none;overflow:visible;}
+  [data-theme="dark"] .wordmark .cwsvg{display:none;}
+
   [data-theme="dark"] .hero-content .wordmark{color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.5);}
   .wordmark .sw{color:var(--blue);font-style:italic;font-weight:600;}
   [data-theme="dark"] .hero-content .wordmark .sw{color:var(--sun);}
-  .tagline{font-size:clamp(1.05rem,2.2vw,1.4rem);color:var(--ink);max-width:600px;margin:0 auto 30px;}
+  .tagline{font-size:clamp(1.55rem,3.5vw,2.4rem);color:var(--ink);max-width:640px;margin:0 auto 30px;}
   [data-theme="dark"] .hero-content .tagline{color:#dfe7ee;}
   .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
   .shooting{position:absolute;height:2px;width:120px;background:linear-gradient(90deg,rgba(255,255,255,0),#fff);border-radius:2px;z-index:1;pointer-events:none;}
@@ -249,6 +260,33 @@
   .chp-cn{font-weight:600;margin-bottom:4px;}
   .chp-list{list-style:none;margin:0;padding:0 0 0 4px;}
   .chp-list li{padding:3px 0;color:var(--ink);}
+  .chaphead{color:var(--green);font-size:1.5rem;margin:30px 0 14px;}
+  .chapreqs{margin:0 0 8px;padding-left:20px;line-height:1.7;}
+  .chapreqs li{margin-bottom:9px;color:var(--ink);padding-left:4px;}
+  .chapreqs li::marker{color:var(--green);}
+  .chapreqs a{color:var(--blue);font-weight:600;}
+  /* chapter application form */
+  .apply-card{max-width:100%;}
+  .ca-fld{margin-bottom:20px;}
+  .ca-label{display:block;font-weight:600;color:var(--ink);margin-bottom:7px;font-size:.98rem;}
+  .ca-label .muted{font-weight:400;}
+  .apply .in{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font-family:inherit;font-size:.95rem;box-sizing:border-box;}
+  .apply textarea.in{resize:vertical;line-height:1.5;}
+  .apply select.in{cursor:pointer;}
+  .ca-five{display:grid;gap:8px;}
+  .ca-hint{margin:6px 0 0;font-size:.82rem;color:var(--muted);}
+  .ca-hint.bad{color:#c0392b;}
+  .ca-hint.ok{color:var(--green);}
+  .ca-check{display:flex;gap:10px;align-items:flex-start;margin:6px 0 20px;font-size:.92rem;line-height:1.45;cursor:pointer;}
+  .ca-check input{margin-top:3px;flex:none;width:17px;height:17px;}
+  .consent-img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fbfaf5;margin-bottom:10px;-webkit-user-select:none;user-select:none;pointer-events:none;}
+  [data-theme="dark"] .consent-img{background:#20241d;}
+  .sig-wrap{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+  .sigpad{width:100%;max-width:420px;height:150px;border:1px dashed var(--line);border-radius:10px;background:#fbfaf5;touch-action:none;cursor:crosshair;}
+  [data-theme="dark"] .sigpad{background:#20241d;}
+  .ca-recap{border:1px solid var(--line);border-radius:10px;padding:14px;display:inline-flex;align-items:center;gap:12px;background:var(--card);}
+  .ca-recap input{width:26px;height:26px;flex:none;cursor:pointer;}
+  .ca-note{font-size:.82rem;color:var(--muted);margin:6px 0 0;}
   .ed-select{width:100%;font-family:inherit;font-size:1rem;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);}
 
   /* calendar */
@@ -306,7 +344,7 @@
 
   /* footer */
   footer{background:#F4D462;color:#3a2f14;padding:44px 0 34px;text-align:center;font-size:.9rem;}
-  [data-theme="dark"] footer{background:#2e2712;color:#e8dcc0;border-top:1px solid #1c1709;}
+  [data-theme="dark"] footer{background:#80471c;color:#f3e7d8;border-top:1px solid #5c3214;}
   footer .fm{font-family:"Fraunces",serif;font-size:1.3rem;margin-bottom:14px;color:var(--green);}
   footer .fm .sw{color:var(--blue);font-style:italic;}
   footer .fcol{margin:14px 0;}
@@ -320,8 +358,167 @@
   [data-theme="dark"] footer .cpy{color:#fff;}
 
   @media (max-width:900px){.g4{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:1fr;}.g2{grid-template-columns:1fr;}}
-  @media (max-width:640px){.view{padding:38px 0 60px;}.nav{flex-wrap:wrap;}.tabs{order:3;width:100%;justify-content:flex-start;}}
+  @media (max-width:640px){.view{padding:38px 0 60px;}}
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none!important;}.foliage,.star,.snow span{animation:none!important;}}
+  /* activities */
+  .acts-sub{font-family:"Fraunces",serif;font-size:1.5rem;color:var(--green);margin:34px 0 14px;}
+  .cat-grid,.act-list{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .acard{border-radius:18px;padding:22px;display:flex;flex-direction:column;box-shadow:0 8px 22px rgba(20,48,42,.10);}
+  [data-theme="dark"] .acard{box-shadow:0 8px 22px rgba(0,0,0,.32);}
+  .acard-color{color:#fff;}
+  .acard-plain{background:var(--card);border:1px solid var(--line);color:var(--ink);}
+  .acard-plain .acard-name{color:var(--green);}
+  .acard-name{font-family:"Fraunces",serif;font-size:1.45rem;font-weight:600;margin-bottom:12px;line-height:1.15;}
+  .acard-img{width:100%;height:148px;border-radius:12px;margin-bottom:14px;object-fit:cover;background:rgba(255,255,255,.16);}
+  .acard-plain .acard-img{background:rgba(0,118,0,.07);}
+  .acard-noimg{display:flex;align-items:center;justify-content:center;font-size:2.6rem;}
+  .acard-desc{font-size:.97rem;line-height:1.55;margin-bottom:16px;flex:1;}
+  .acard-desc.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .acard-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .acard-btn{align-self:flex-start;background:rgba(255,255,255,.95);color:#20302a;border:none;font-weight:600;}
+  .acard-btn:hover{background:#fff;transform:translateY(-2px);}
+  .acard-plain .acard-btn{background:var(--green);color:#fff;}
+  .acard-plain .acard-btn:hover{background:var(--green-dk);}
+  .featured-act{display:grid;grid-template-columns:minmax(0,340px) 1fr;gap:24px;background:var(--card);border:1px solid var(--line);border-left:5px solid var(--green);border-radius:18px;padding:22px;box-shadow:0 8px 22px rgba(20,48,42,.08);}
+  [data-theme="dark"] .featured-act{box-shadow:0 8px 22px rgba(0,0,0,.3);}
+  .fa-img img,.fa-img .acard-noimg{width:100%;height:210px;border-radius:12px;object-fit:cover;background:rgba(0,118,0,.07);display:flex;align-items:center;justify-content:center;font-size:3.2rem;}
+  .fa-body h3{font-size:1.7rem;color:var(--green);margin-bottom:8px;}
+  .fa-desc{font-size:1.02rem;line-height:1.6;margin-bottom:14px;}
+  .fa-desc.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+  @media (max-width:700px){.cat-grid,.act-list,.featured-act{grid-template-columns:1fr;}}
+  /* under construction */
+  .uc-page{text-align:center;max-width:560px;margin:30px auto;}
+  .uc-emoji{font-size:3.6rem;margin-bottom:6px;}
+  .uc-wrap{position:relative;display:inline-flex;}
+  .uc-wrap .uc-tip{visibility:hidden;opacity:0;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#20302a;color:#eef;padding:8px 12px;border-radius:8px;font-size:.8rem;font-weight:500;white-space:normal;max-width:220px;text-align:center;z-index:80;transition:opacity .15s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.28);}
+  .uc-wrap:hover .uc-tip,.uc-wrap:focus-within .uc-tip{visibility:visible;opacity:1;}
+  /* legal docs */
+  .legal{max-width:760px;}
+  .legal .lg-h{font-family:"Fraunces",serif;font-size:1.25rem;color:var(--green);margin:22px 0 6px;}
+  /* footer legal */
+  .flegal{margin:16px 0 4px;font-size:.85rem;}
+  .flegal a{color:var(--blue-dk);text-decoration:none;margin:0 4px;}
+  [data-theme="dark"] .flegal a{color:var(--blue);}
+  .flegal a:hover{text-decoration:underline;}
+  /* about / profile cards */
+  .about-sec{margin-bottom:38px;}
+  .about-note{max-width:65ch;margin:0 0 14px;}
+  .about-btnrow{margin-bottom:20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;}
+  .pcard{display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 14px;border-radius:16px;background:transparent;}
+  .pc-pic{width:104px;height:104px;border-radius:50%;object-fit:cover;margin-bottom:12px;background:var(--green);}
+  .pc-noimg{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:2.2rem;font-family:"Fraunces",serif;}
+  .pc-body{width:100%;}
+  .pc-name{font-family:"Fraunces",serif;font-weight:600;font-size:1.15rem;color:var(--ink);line-height:1.2;}
+  .pc-role{color:var(--blue-dk);font-size:.88rem;font-weight:600;margin-top:3px;}
+  [data-theme="dark"] .pc-role{color:var(--blue);}
+  .pc-bio{color:var(--muted);font-size:.9rem;margin:8px 0 0;line-height:1.45;}
+  /* youth leadership form */
+  .yl-rep{background:rgba(32,131,196,.1);border:1px solid rgba(32,131,196,.3);border-radius:10px;padding:12px 14px;font-size:.92rem;margin-bottom:18px;color:var(--blue-dk);}
+  [data-theme="dark"] .yl-rep{color:var(--blue);}
+  .yl-role{border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px;background:var(--card);}
+  .yl-role > label{display:flex;align-items:center;gap:9px;font-weight:600;cursor:pointer;margin:0;}
+  .yl-role-info{margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:.9rem;color:var(--muted);line-height:1.5;}
+  .yl-role-info p{margin:0 0 6px;}
+  .yl-role-info strong{color:var(--green);}
+  .yl-under-note{background:rgba(244,196,48,.16);border:1px solid rgba(244,196,48,.5);border-radius:8px;padding:9px 12px;font-size:.85rem;margin-top:8px;color:var(--ink);}
+  /* gallery */
+  .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;}
+  .gfeat{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));margin-bottom:10px;}
+  @media (max-width:560px){.ggrid,.gfeat{grid-template-columns:1fr;}}
+  .gtile{margin:0;display:flex;flex-direction:column;}
+  .gphoto{position:relative;width:100%;aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--card);border:1px solid var(--line);}
+  .gphoto img{width:100%;height:100%;object-fit:cover;display:block;}
+  .g-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+  .g-ph span{font-size:2.8rem;opacity:.65;}
+  .gcap{font-size:.95rem;color:var(--ink);margin:11px 2px 7px;line-height:1.4;}
+  .rx{display:flex;align-items:center;gap:7px;margin:0 2px;min-height:30px;}
+  .rx-shown{display:inline-flex;align-items:center;}
+  .rx-chip{display:inline-flex;align-items:center;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:100px;padding:2px 7px;margin-left:-9px;cursor:pointer;transition:margin .18s,border-color .15s,background .15s;}
+  .rx-chip:first-child{margin-left:0;}
+  .rx-chip:hover{border-color:var(--green);}
+  .rx-chip.on{border-color:var(--green);background:rgba(0,118,0,.12);}
+  [data-theme="dark"] .rx-chip.on{background:rgba(73,183,110,.2);}
+  .rx-e{font-size:.98rem;line-height:1;}
+  .rx-c{font-size:.76rem;color:var(--muted);max-width:0;overflow:hidden;opacity:0;transition:max-width .18s,opacity .18s;}
+  .rx-shown:hover .rx-chip{margin-left:5px;}
+  .rx-shown:hover .rx-chip:first-child{margin-left:0;}
+  .rx-shown:hover .rx-c{max-width:36px;opacity:1;}
+  .rx-add{background:var(--card);border:1px solid var(--line);border-radius:100px;min-width:32px;height:27px;cursor:pointer;font-size:.85rem;line-height:1;color:var(--muted);transition:border-color .15s,color .15s;padding:0 6px;}
+  .rx-add:hover{border-color:var(--green);color:var(--green);}
+  .rx-add.sm{min-width:28px;height:23px;font-size:.75rem;}
+  .rx-total{font-size:.8rem;color:var(--muted);}
+  .gfoot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:9px 2px 0;flex-wrap:wrap;}
+  .gcomment{background:transparent;border:none;color:var(--blue-dk);font-family:inherit;font-size:.86rem;font-weight:600;cursor:pointer;padding:0;}
+  [data-theme="dark"] .gcomment{color:var(--blue);}
+  .gcomment:hover{text-decoration:underline;}
+  .gadmin{display:inline-flex;gap:4px;flex-wrap:wrap;}
+  .emoji-picker{position:absolute;z-index:400;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:0 12px 32px rgba(0,0,0,.28);display:grid;grid-template-columns:repeat(6,1fr);gap:2px;width:246px;}
+  .emoji-picker button{background:transparent;border:none;font-size:1.3rem;cursor:pointer;padding:5px;border-radius:8px;line-height:1;}
+  .emoji-picker button:hover{background:rgba(0,118,0,.12);}
+  .cthread{max-height:46vh;overflow-y:auto;margin-bottom:14px;}
+  .crow{display:flex;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);}
+  .crow:last-child{border-bottom:none;}
+  .cav{flex:none;}
+  .cav img,.cinit{width:38px;height:38px;border-radius:50%;object-fit:cover;display:flex;align-items:center;justify-content:center;}
+  .cinit{background:var(--green);color:#fff;font-weight:700;}
+  .cbody{flex:1;min-width:0;}
+  .cmeta{font-size:.88rem;}
+  .ctime{color:var(--muted);font-size:.78rem;margin-left:7px;}
+  .ctext{font-size:.94rem;margin:2px 0 7px;line-height:1.45;overflow-wrap:break-word;}
+  .crx{display:flex;align-items:center;gap:6px;}
+  .cmp{display:flex;gap:8px;align-items:flex-end;}
+  .cmp textarea{flex:1;font-family:inherit;font-size:.95rem;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);resize:vertical;}
+  /* newsletter list */
+  .nl-list{display:flex;flex-direction:column;gap:12px;}
+  .nl-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .15s;}
+  .nl-card:hover{border-color:var(--green);}
+  .nl-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;cursor:pointer;}
+  .nl-meta{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .nl-time{font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .nl-title{font-family:"Fraunces",serif;font-size:1.2rem;font-weight:600;color:var(--green);line-height:1.25;}
+  .nl-arrow{flex:none;color:var(--blue);font-size:1rem;transition:transform .2s;}
+  .nl-card.open .nl-arrow{transform:rotate(180deg);}
+  .nl-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+  .nl-body.open{max-height:1600px;}
+  .nl-inner{padding:2px 20px 18px;color:var(--ink);line-height:1.6;}
+  .nl-admin{display:flex;gap:6px;padding:0 20px 14px;}
+  /* calendar */
+  .gcal-wrap{width:100%;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--card);}
+  .gcal{width:100%;height:600px;display:block;}
+  @media (max-width:640px){.gcal{height:460px;}}
+  .cev-list{display:flex;flex-direction:column;gap:10px;}
+  .cev{display:flex;align-items:stretch;justify-content:space-between;gap:8px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--green);border-radius:12px;overflow:hidden;}
+  .cev-main{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;flex:1;min-width:0;}
+  .cev-dot{width:11px;height:11px;border-radius:50%;flex:none;}
+  .cev-name{font-weight:600;color:var(--ink);}
+  .cev-link{color:var(--blue);font-size:.85rem;}
+  .cev-date{font-size:.85rem;color:var(--muted);margin-top:2px;}
+  .cev-admin{display:flex;align-items:center;padding-right:12px;}
+  /* owner analytics */
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:8px;}
+  .stat-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;}
+  .stat-val{font-family:"Fraunces",serif;font-size:2rem;font-weight:700;color:var(--green);line-height:1;}
+  .stat-lab{font-size:.85rem;color:var(--ink);margin-top:6px;}
+  .stat-sub{font-size:.76rem;color:var(--muted);margin-top:3px;}
+  .ndot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e0403a;vertical-align:middle;}
+  .tabdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e0403a;margin-left:2px;vertical-align:top;}
+  .notif-list{display:flex;flex-direction:column;gap:10px;}
+  .notif{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
+  .notif .ndot{flex:none;}
+  .notif-main{flex:1;min-width:0;cursor:pointer;}
+  .notif-title{font-weight:600;color:var(--ink);}
+  .notif-when{font-size:.8rem;color:var(--muted);margin-top:2px;}
+  .ad-list{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;margin:4px 0;}
+  .ad-row{display:flex;gap:12px;font-size:.92rem;border-bottom:1px solid var(--line);padding-bottom:7px;}
+  .ad-k{flex:none;width:130px;font-weight:600;color:var(--green);}
+  .ad-v{flex:1;min-width:0;color:var(--ink);overflow-wrap:break-word;}
+  .tchart{display:flex;align-items:flex-end;gap:10px;height:170px;padding:12px 6px;background:var(--card);border:1px solid var(--line);border-radius:14px;}
+  .tbar{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;}
+  .tbar-n{font-size:.78rem;color:var(--muted);}
+  .tbar-track{flex:1;width:100%;display:flex;align-items:flex-end;}
+  .tbar-fill{width:100%;max-width:44px;margin:0 auto;background:linear-gradient(var(--green),var(--green-dk));border-radius:6px 6px 0 0;min-height:3px;}
+  .tbar-lab{font-size:.72rem;color:var(--muted);white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -341,7 +538,7 @@
 <div class="topbar">
   <div class="wrap">
     <nav class="nav" aria-label="Primary">
-      <a class="brand" href="#/home">Earth <span class="sw">Sweet</span> Earth</a>
+      <a class="brand" href="#/home" aria-label="Earth Sweet Earth — home"><img class="brand-logo" src="data:image/png;base64,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" alt="Earth Sweet Earth"></a>
       <div class="tabs" id="tabs"></div>
       <div class="acct" id="acct"></div>
     </nav>
@@ -361,7 +558,8 @@
    ========================================================================== */
 const SUPABASE_URL      = "https://najuadikmuiojsmnylya.supabase.co";   // base project URL only
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5hanVhZGlrbXVpb2pzbW55bHlhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNjAxNzUsImV4cCI6MjA5ODgzNjE3NX0.Y-ji-1eVcF8LHf9skBJhO8THzlALFSJ21h8TD6s0CQA";   // anon public key (safe in the browser)
-const DISCORD_URL       = "https://discord.gg/uAaaQ7XZKJ";   // paste your Discord invite link here (e.g. https://discord.gg/xxxxxxx) — used as a fallback if not set in-app
+const DISCORD_URL       = "";   // paste your Discord invite link here (e.g. https://discord.gg/xxxxxxx) — used as a fallback if not set in-app
+const APPLY_FORM_URL    = "";   // paste your chapter application form link here (e.g. a Google Form) — fallback if not set in-app
 let sb=null, BACKEND=false;
 if(SUPABASE_URL && SUPABASE_ANON_KEY && typeof supabase!=='undefined' && supabase.createClient){
   sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); BACKEND=true;
@@ -388,13 +586,14 @@ let roles = {
   admin:     {name:'Admin',     caps:allCaps(true)},
   moderator: {name:'Moderator', caps:{...allCaps(false), newsletter_post:true, programs_update:true}},
   member:    {name:'Member',    caps:allCaps(false)},
-  public:    {name:'Public',    caps:allCaps(false)},   // logged-out visitors — set what anonymous people can see
+  public:    {name:'Public',    caps:{...allCaps(false), view_chapters:true, view_gallery:true, view_calendar:true}},   // logged-out visitors
 };
+const DEFAULT_PUBLIC=()=>({name:'Public', caps:{...allCaps(false), view_chapters:true, view_gallery:true, view_calendar:true}});
 let people = [
   {id:1, username:'(you)', email:'owner@earthsweetearth.org', roleId:'owner'},
 ];
 // editable site content (empty to start; admins fill it, viewers only see what exists)
-let content = { mission:'', tagline:'', discord:'', team:[], socials:[], affiliations:[], doing:[], speakers:[], events:[], gallery:[], chapters:[], meetingLink:'' };
+let content = { mission:'', tagline:'', discord:'', applyForm:'', team:[], socials:[], affiliations:[], doing:[], speakers:[], events:[], gallery:[], chapters:[], meetingLink:'', featured:{}, board:[], advisory:[], youth:[], repThreshold:50, gcalId:'' };
 let newsletters = [];   // {id,title,body,featured,reactions,myReaction}
 let account = null;     // the REAL logged-in account {roleId, username, email, avatar}
 let previewAs = null;   // owner's view override: null | 'public' | a roleId (does NOT change the real account)
@@ -412,17 +611,17 @@ function recomputeSession(){
    2) PERMISSIONS
    ========================================================================== */
 const isLoggedIn=()=> session!==null;
-const myRole=()=> session ? (roles[session.roleId]||roles.member) : (roles.public||null);   // logged out → Public
+const myRole=()=> session ? (roles[session.roleId]||roles.member) : (roles.public||null);   // logged out → the Public role
 const can=(cap)=>{ const r=myRole(); return r ? !!r.caps[cap] : false; };
 function canView(r){
-  if(r==='chapters') return can('view_chapters');
+  if(r==='chapters'||r==='chapterslist') return can('view_chapters');
   if(r==='gallery')  return can('view_gallery');
   if(r==='calendar') return can('view_calendar');
-  if(r==='admin')    return isLoggedIn() && session.roleId==='owner';
+  if(r==='admin' || r==='analytics') return isLoggedIn() && session.roleId==='owner';
   return true;
 }
 // which permission controls editing each content kind
-const KIND_CAP = {team:'edit_content', social:'edit_content', affiliation:'edit_content',
+const KIND_CAP = {team:'edit_content', social:'edit_content', affiliation:'edit_content', board:'edit_content', advisory:'edit_content', youth:'edit_content',
   doing:'programs_update', speaker:'programs_update', event:'calendar_edit', meetingLink:'calendar_edit',
   gallery:'gallery_upload', newsletter:'newsletter_post'};
 const canEditKind=(k)=> editUI && can(KIND_CAP[k]);
@@ -431,8 +630,9 @@ const canEdit=(cap)=> editUI && can(cap);   // edit buttons also require the own
 /* ==========================================================================
    3) ROUTER (no scroll-jump on in-page updates — only on real page changes)
    ========================================================================== */
-const ROUTES=['home','newsletter','programs','chapters','gallery','contact','calendar','admin'];
-const TAB={home:'Home',newsletter:'Newsletter',programs:'Programs',chapters:'Chapters',gallery:'Gallery',contact:'Contact',calendar:'Calendar',admin:'Owner Settings'};
+const ROUTES=['home','about','newsletter','activities','chapters','chapterslist','chapterapply','youthapply','gallery','contact','calendar','admin','challenges','construction','privacy','terms','analytics','post'];
+const TAB={home:'Home',about:'About',newsletter:'Newsletter',activities:'Activities',youthapply:'Apply for a leadership position',chapters:'Chapters',chapterslist:'Our Chapters',chapterapply:'Apply for a chapter',gallery:'Gallery',contact:'Contact',calendar:'Calendar',admin:'Owner Settings',challenges:'Challenges',construction:'Under Construction',privacy:'Privacy Policy',terms:'Terms & Conditions',analytics:'Owner Analytics',post:'Post'};
+const NAV_HIDDEN=['chapterslist','chapterapply','youthapply','challenges','construction','privacy','terms','post'];   // reachable by link/URL, but not shown as a top-bar tab
 const route=()=> (location.hash.replace('#/','')||'home');
 const go=(r)=>{ location.hash='#/'+r; };
 let lastRoute=null;
@@ -493,13 +693,16 @@ const FIELDS={
   affiliation:[{key:'label',label:'Affiliation name',type:'text'},{key:'url',label:'Link (optional)',type:'url'}],
   doing:[{key:'name',label:'Displayed — title',type:'text'},{key:'details',label:'Details (shown when clicked)',type:'textarea'}],
   speaker:[{key:'name',label:'Displayed — speaker name',type:'text'},{key:'details',label:'Details (shown when clicked)',type:'textarea'}],
-  event:[{key:'name',label:'Displayed — event name',type:'text'},{key:'date',label:'Displayed — date',type:'date'},{key:'time',label:'Displayed — time',type:'time'},{key:'details',label:'Details (shown when clicked)',type:'textarea'}],
+  event:[{key:'name',label:'Event name',type:'text'},{key:'date',label:'Date',type:'date'},{key:'time',label:'Time',type:'time'},{key:'link',label:'Link (optional — e.g. a Zoom or Meet URL)',type:'url'},{key:'color',label:'Color',type:'select',options:['Green','Blue','Amber','Rose','Purple','Gray']},{key:'details',label:'Details (shown when clicked, if there is no link)',type:'textarea'}],
   gallery:[{key:'caption',label:'Caption',type:'text'},{key:'photo',label:'Photo',type:'image'}],
   chapter:[{key:'continent',label:'Continent',type:'select',options:['Africa','Antarctica','Asia','Europe','North America','Oceania','South America']},{key:'country',label:'Country (any language)',type:'text',placeholder:'e.g. 日本 / México / Kenya'},{key:'name',label:'Chapter name',type:'text'}],
+  board:[{key:'name',label:'Name',type:'text'},{key:'role',label:'Role / title',type:'text'},{key:'bio',label:'Short bio (optional)',type:'textarea'},{key:'photo',label:'Photo',type:'image'}],
+  advisory:[{key:'name',label:'Name',type:'text'},{key:'role',label:'Role / title',type:'text'},{key:'bio',label:'Short bio (optional)',type:'textarea'},{key:'photo',label:'Photo',type:'image'}],
+  youth:[{key:'name',label:'Name',type:'text'},{key:'role',label:'Role / title',type:'text'},{key:'bio',label:'Short bio (optional)',type:'textarea'},{key:'photo',label:'Photo',type:'image'}],
 };
-const COLL={team:'team',social:'socials',affiliation:'affiliations',doing:'doing',speaker:'speakers',event:'events',gallery:'gallery',chapter:'chapters'};
-const ADD_TITLE={team:'Add team member',social:'Add social account',affiliation:'Add affiliation',doing:'Add activity',speaker:'Add guest speaker',event:'Add event',gallery:'Add photo',chapter:'Add a chapter'};
-const PERSIST_KIND={social:1,affiliation:1,chapter:1};   // these are saved for everyone via site_content
+const COLL={team:'team',social:'socials',affiliation:'affiliations',doing:'doing',speaker:'speakers',event:'events',gallery:'gallery',chapter:'chapters',board:'board',advisory:'advisory',youth:'youth'};
+const ADD_TITLE={team:'Add team member',social:'Add social account',affiliation:'Add affiliation',doing:'Add activity',speaker:'Add guest speaker',event:'Add event',gallery:'Add photo',chapter:'Add a chapter',board:'Add a board member',advisory:'Add an advisor',youth:'Add a youth leader'};
+const PERSIST_KIND={social:1,affiliation:1,chapter:1,board:1,advisory:1,youth:1};   // these are saved for everyone via site_content
 function addItem(kind){ openEditor(ADD_TITLE[kind], FIELDS[kind], null, v=>{ v.id=uid(); content[COLL[kind]].push(v); toast('Added'); if(PERSIST_KIND[kind])saveSiteContent(true); }); }
 function editItem(kind,id){ const arr=content[COLL[kind]]; const it=arr.find(x=>x.id===id); openEditor('Edit', FIELDS[kind], it, v=>{ Object.assign(it,v); toast('Saved'); if(PERSIST_KIND[kind])saveSiteContent(true); }); }
 function deleteItem(kind,id){ const arr=content[COLL[kind]]; const i=arr.findIndex(x=>x.id===id); if(i>-1){arr.splice(i,1);toast('Removed'); if(PERSIST_KIND[kind])saveSiteContent(true); render();} }
@@ -527,28 +730,32 @@ function noteHtml(){return BACKEND?'':'<div class="modal-note">Preview mode: not
 function openSignup(){
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Sign up</h3>'+noteHtml()+
     '<label>Email</label><input id="su-email" type="email" placeholder="you@example.com">'+
-    '<label>Username</label><input id="su-user" type="text" placeholder="Pick a username">'+
+    '<label>Username</label><input id="su-user" type="text" placeholder="e.g. Soliphilia">'+
     '<label>Password</label><input id="su-pass" type="password" placeholder="Create a password">'+
+    '<label>Country <span style="font-weight:400;color:var(--muted)">(optional — you can add it later)</span></label><select id="su-country"><option value="">Select a country</option>'+CA_COUNTRIES.map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+'</select>'+
     '<p class="err" id="su-err"></p><button class="btn btn-primary" id="su-btn" style="width:100%;margin-top:6px" onclick="doSignup()">Create account</button>');
 }
 async function doSignup(){
   const email=v('su-email'),user=v('su-user'),pass=document.getElementById('su-pass').value,err=document.getElementById('su-err');
+  const country=(document.getElementById('su-country')||{}).value||'';
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Please enter a valid email.';return;}
   if(!user){err.textContent='Please pick a username.';return;}
+  if(!/^[A-Za-z0-9]+$/.test(user)){err.textContent='Usernames can only contain letters and numbers \u2014 no spaces or symbols.';return;}
   if(pass.length<6){err.textContent='Password should be at least 6 characters.';return;}
   if(BACKEND){
     const b=document.getElementById('su-btn');b.disabled=true;b.textContent='Creating…';err.textContent='';
-    const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{username:user}}});
-    if(error){b.disabled=false;b.textContent='Create account';err.textContent=error.message;return;}
+    try{ const av=await sb.rpc('username_available',{name:user}); if(!av.error && av.data===false){ b.disabled=false;b.textContent='Create account'; err.textContent='That username is already taken \u2014 please pick another.'; return; } }catch(e){}
+    const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{username:user,country:country}}});
+    if(error){b.disabled=false;b.textContent='Create account'; err.innerHTML=/already registered|already exists|already been registered|user_already/i.test(error.message)?'An account with that email already exists. <a href="#" onclick="closeModal();openLogin();return false;">Log in instead?</a>':(/duplicate|unique|username/i.test(error.message)?'That username is already taken \u2014 please pick another.':esc(error.message)); return;}
     if(!data.session){closeModal();popup('Almost there!','Check your email to confirm your account, then log in.');return;}
     await loadSession();closeModal();render();toast('Welcome, '+user+'!');
-  } else { account={roleId:'member',username:user,email,avatar:null};previewAs=null;recomputeSession();closeModal();render();toast('Signed up (preview) — welcome, '+user+'!'); }
+  } else { account={roleId:'member',username:user,email,avatar:null,country:country};previewAs=null;recomputeSession();closeModal();render();toast('Signed up (preview) — welcome, '+user+'!'); }
 }
 function openLogin(){
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Log in</h3>'+noteHtml()+
     '<label>Email</label><input id="li-email" type="email" placeholder="you@example.com">'+
     '<label>Password</label><input id="li-pass" type="password" placeholder="Your password">'+
-    '<p class="err" id="li-err"></p><button class="btn btn-primary" id="li-btn" style="width:100%;margin-top:6px" onclick="doLogin()">Log in</button>');
+    '<p class="err" id="li-err"></p><button class="btn btn-primary" id="li-btn" style="width:100%;margin-top:6px" onclick="doLogin()">Log in</button>'+'<p class="muted" style="text-align:center;margin:14px 0 0;font-size:.9rem">New to ESE? <a href="#" onclick="closeModal();openSignup();return false;">Create an account</a></p>');
 }
 async function doLogin(){
   const email=v('li-email'),pass=document.getElementById('li-pass').value,err=document.getElementById('li-err');
@@ -570,9 +777,9 @@ async function loadSession(){
   const {data:{user}}=await sb.auth.getUser();
   if(!user){ account=null; recomputeSession(); return; }
   let role='member',username=user.email.split('@')[0];
-  const {data:profile}=await sb.from('profiles').select('username, role').eq('id',user.id).single();
-  if(profile){role=profile.role||'member';username=profile.username||username;}
-  account={roleId:role,username,email:user.email,avatar:(account&&account.avatar)||null};
+  const {data:profile}=await sb.from('profiles').select('username, role, country').eq('id',user.id).single();
+  let country=''; if(profile){role=profile.role||'member';username=profile.username||username;country=profile.country||'';}
+  account={roleId:role,username,email:user.email,avatar:(account&&account.avatar)||null,country:country};
   recomputeSession();
 }
 function openProfile(){
@@ -581,6 +788,7 @@ function openProfile(){
     '<label>Profile picture</label><input id="pf-av" type="file" accept="image/*"><div class="img-prev" id="pf-avp">'+av+'</div>'+
     '<label>Username</label><input id="pf-user" type="text" value="'+escA(account?account.username:'')+'">'+
     '<label>Email</label><input type="email" value="'+escA(account?account.email:'')+'" disabled>'+
+    '<label>Country <span style="font-weight:400;color:var(--muted)">(optional)</span></label><select id="pf-country"><option value="">Select a country</option>'+CA_COUNTRIES.map(function(c){return '<option'+((account&&account.country===c)?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select>'+
     '<label>New password</label><input id="pf-pass" type="password" placeholder="Leave blank to keep current">'+
     '<button class="btn btn-primary" style="width:100%;margin-top:14px" onclick="saveProfile()">Save changes</button>'+
     '<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="logout()">Log out</button>');
@@ -591,10 +799,10 @@ function openProfile(){
 let _pfAvatar=null;
 async function saveProfile(){
   const user=v('pf-user'),pass=document.getElementById('pf-pass').value;
-  if(account){ account.username=user||account.username; if(_pfAvatar)account.avatar=_pfAvatar; } recomputeSession();
+  const pfCountry=(document.getElementById('pf-country')||{}).value||''; if(account){ account.username=user||account.username; account.country=pfCountry; if(_pfAvatar)account.avatar=_pfAvatar; } recomputeSession();
   if(BACKEND){
     const {data:{user:u}}=await sb.auth.getUser();
-    if(u){await sb.from('profiles').update({username:user}).eq('id',u.id);}
+    if(u){await sb.from('profiles').update({username:user,country:pfCountry}).eq('id',u.id);}
     if(pass){await sb.auth.updateUser({password:pass});}
   }
   _pfAvatar=null;closeModal();render();toast(BACKEND?'Saved':'Saved (preview)');
@@ -621,7 +829,7 @@ function renderChrome(){
     proto.style.display='none';
   }
   const r=route();
-  document.getElementById('tabs').innerHTML=ROUTES.filter(canView).map(rt=>'<button class="'+(rt==='admin'?'admin ':'')+(r===rt?'active':'')+'" onclick="go(\''+rt+'\')">'+TAB[rt]+'</button>').join('');
+  document.getElementById('tabs').innerHTML='<div class="tabsInner">'+ROUTES.filter(rt=>!NAV_HIDDEN.includes(rt)&&canView(rt)).map(rt=>'<button class="'+((rt==='admin'||rt==='analytics')?'admin ':'')+(r===rt?'active':'')+'" onclick="go(\''+rt+'\')">'+TAB[rt]+(rt==='analytics'&&notifCount>0?' <span class="tabdot"></span>':'')+'</button>').join('')+'</div>';
   const moon='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg>';
   const suni='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>';
   const themeBtn='<button class="iconbtn" title="Toggle dark mode" aria-label="Toggle dark mode" onclick="toggleTheme()">'+(theme==='dark'?suni:moon)+'</button>';
@@ -631,7 +839,7 @@ function renderChrome(){
     const av=account.avatar?'<span class="avatar"><img src="'+escA(account.avatar)+'" style="width:100%;height:100%;object-fit:cover"></span>':'<span class="avatar">'+esc((account.username||'?').charAt(0).toUpperCase())+'</span>';
     acct=themeBtn+'<button class="userbtn" onclick="openProfile()">'+av+'<span class="uname">'+esc(account.username)+'</span></button>';
   } else {
-    acct=themeBtn+'<button class="btn btn-blue btn-sm" onclick="openLogin()">Log in</button><button class="btn btn-primary btn-sm" onclick="openSignup()">Sign up</button>';
+    acct=themeBtn+'<button class="btn btn-blue btn-sm" onclick="openLogin()">Log In</button>';
   }
   document.getElementById('acct').innerHTML=acct;
   renderFooter();
@@ -644,7 +852,7 @@ function renderFooter(){
   if(socials.length||ed){ s='<div class="fcol"><div class="flab">Follow us</div>'+ (socials.length?'<div class="links">'+socials.map(x=>'<a href="'+escA(safeUrl(x.url))+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>').join('')+'</div>':'') + (ed?'<div style="margin-top:10px"><button class="addbtn" onclick="addItem(\'social\')">+ Add social account</button></div>':'')+'</div>'; }
   let a='';
   if(affs.length||ed){ a='<div class="fcol"><div class="flab">Affiliations</div>'+ (affs.length?'<div class="links">'+affs.map(x=>x.url?'<a href="'+escA(safeUrl(x.url))+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>':'<span class="lk">'+esc(x.label)+'</span>').join('')+'</div>':'') + (ed?'<div style="margin-top:10px"><button class="addbtn" onclick="addItem(\'affiliation\')">+ Add affiliation</button></div>':'')+'</div>'; }
-  document.getElementById('footer').innerHTML='<div class="wrap"><div class="fm">Earth <span class="sw">Sweet</span> Earth</div>'+s+a+'<div class="cpy">© 2026 Earth Sweet Earth</div></div>';
+  document.getElementById('footer').innerHTML='<div class="wrap"><div class="fm">Earth <span class="sw">Sweet</span> Earth</div>'+s+a+'<div class="flegal"><a href="#/privacy">Privacy Policy</a> · <a href="#/terms">Terms &amp; Conditions</a></div><div class="cpy">© 2026 Earth Sweet Earth</div></div>';
 }
 
 /* ==========================================================================
@@ -652,6 +860,50 @@ function renderFooter(){
    ========================================================================== */
 function deniedView(msg){return '<div class="wrap view"><div class="denied card"><div class="big">🔒</div><h2>Not available yet</h2><p class="muted">'+msg+'</p><button class="btn btn-primary" onclick="go(\'home\')">Back to Home</button></div></div>';}
 
+/* ---------- About (description + live stat + Board / Advisory / Youth Leadership) ---------- */
+let aboutStats=null, aboutStatsLoading=false;
+function ensureAboutStats(){ if(aboutStats!==null||aboutStatsLoading)return; aboutStatsLoading=true; loadAboutStats(); }
+async function loadAboutStats(){
+  if(!BACKEND){ aboutStats={people:people.length,countries:1}; aboutStatsLoading=false; if(route()==='about')render(); return; }
+  try{ const {data,error}=await sb.rpc('ese_stats'); if(error||!data){ aboutStats='error'; } else { aboutStats={people:data.people||0,countries:data.countries||0}; } }
+  catch(e){ aboutStats='error'; }
+  aboutStatsLoading=false; if(route()==='about')render();
+}
+function profileCard(p,kind,ed){
+  const ph=p.photo?'<img class="pc-pic" src="'+escA(p.photo)+'">':'<div class="pc-pic pc-noimg">'+esc((p.name||'?').charAt(0).toUpperCase())+'</div>';
+  return '<div class="pcard">'+ph+'<div class="pc-body">'+
+    '<div class="pc-name">'+esc(p.name||'Name')+'</div>'+
+    (p.role?'<div class="pc-role">'+esc(p.role)+'</div>':'')+
+    (p.bio?'<p class="pc-bio">'+esc(p.bio)+'</p>':'')+
+    (ed?editDel(kind,p.id):'')+
+  '</div></div>';
+}
+function aboutSection(kind,title,note,btnHtml,placeholders){
+  const arr=content[kind]||[], ed=canEditKind(kind);
+  const cards=(arr.length?arr.map(function(p){return profileCard(p,kind,ed);}):placeholders.map(function(p){return profileCard(p,kind,false);})).join('');
+  return '<section class="about-sec">'+
+    '<h2 class="acts-sub" style="margin-top:6px">'+title+(ed?' <span class="pill">you can edit</span>':'')+'</h2>'+
+    '<p class="muted about-note">'+note+'</p>'+
+    '<div class="about-btnrow">'+btnHtml+(ed?' <button class="btn btn-ghost btn-sm" onclick="addItem(\''+kind+'\')">+ Add someone</button>':'')+'</div>'+
+    '<div class="pgrid">'+cards+'</div>'+
+  '</section>';
+}
+function aboutView(){
+  const s=(aboutStats&&aboutStats!=='error'&&aboutStats.people>0)
+    ?('<strong>'+aboutStats.people+'</strong> '+(aboutStats.people===1?'person':'people')+' across <strong>'+aboutStats.countries+'</strong> '+(aboutStats.countries===1?'country':'countries'))
+    :'a growing community across many countries';
+  const reach='<a class="btn btn-blue btn-sm" href="mailto:hello@earthsweetearth.org">Interested? Reach out!</a>';
+  const bph=[{name:'Board Member',role:'Director'},{name:'Board Member',role:'Director'},{name:'Board Member',role:'Treasurer'}];
+  const aph=[{name:'Advisor',role:'Advisory Council'},{name:'Advisor',role:'Advisory Council'},{name:'Advisor',role:'Advisory Council'}];
+  const yph=[{name:'Youth Leader',role:'President'},{name:'Youth Leader',role:'Vice President'},{name:'Youth Leader',role:'Treasurer'},{name:'Youth Leader',role:'Secretary'}];
+  return '<div class="wrap view">'+
+    '<h1 class="page-title">About Earth Sweet Earth</h1>'+
+    '<p class="page-intro">Earth Sweet Earth is a youth-led environmental project \u2014 students working together to grow a greener, kinder planet, one neighborhood at a time. From clean-ups and challenges to guest speakers and school chapters, we turn small actions into real change. Today, we\u2019re '+s+'.</p>'+
+    aboutSection('board','Board of Directors','The people who steer Earth Sweet Earth \u2014 setting direction, keeping us accountable, and making the big decisions.',reach,bph)+
+    aboutSection('advisory','Advisory Council','Experienced mentors and advisors who guide our work and share their expertise along the way.',reach,aph)+
+    aboutSection('youth','Youth Leadership Team','The students running the day-to-day \u2014 leading projects, chapters, and events. Want to help lead? Apply below.','<a class="btn btn-primary btn-sm" href="#/youthapply">Apply for a Position</a>',yph)+
+  '</div>';
+}
 function homeView(){
   // team cards (viewers only see real members; editors also get an add button)
   const teamCards='<div class="grid g4">'+content.team.map(m=>{
@@ -673,9 +925,9 @@ function homeView(){
       moonSVG()+
     '</div>'+
     '<div class="clouds" id="clouds">'+
-      cloudSVG(210,'11%','3%',0)+cloudSVG(160,'30%','19%',1)+cloudSVG(240,'7%','38%',2)+
-      cloudSVG(180,'25%','60%',0)+cloudSVG(205,'44%','79%',1)+cloudSVG(165,'55%','9%',2)+
-      cloudSVG(150,'50%','46%',0)+cloudSVG(190,'40%','30%',2)+cloudSVG(170,'15%','72%',1)+
+      cloudSVG(190,'6%','6%',0)+cloudSVG(158,'11%','26%',1)+cloudSVG(150,'4%','48%',2)+
+      cloudSVG(172,'9%','67%',0)+cloudSVG(184,'6%','84%',1)+cloudSVG(165,'35%','0%',2)+
+      cloudSVG(152,'60%','3%',0)+cloudSVG(178,'33%','85%',1)+cloudSVG(158,'58%','83%',2)+
     '</div>'+
     '<div class="tshadow" id="shadow-left"></div><div class="tshadow" id="shadow-right"></div>'+
     '<svg class="leaf-pile" id="leafPile" aria-hidden="true"></svg>'+
@@ -690,11 +942,11 @@ function homeView(){
     '</svg>'+
     snowLayer()+
     '<div class="hero-content">'+
-      '<h1 class="wordmark">Earth <span class="sw">Sweet</span> Earth</h1>'+
-      '<p class="tagline">'+esc(content.tagline||'A youth-led project growing a greener, kinder planet — one neighborhood at a time.')+'</p>'+
+      '<h1 class="wordmark"><span class="cw">'+wordCloud(0)+'Earth</span> <span class="cw sw">'+wordCloud(1)+'Sweet</span> <span class="cw">'+wordCloud(2)+'Earth</span></h1>'+
+      '<p class="tagline">'+esc(content.tagline||'If not us, who?\nIf not now, when?').replace(/\n/g,'<br>')+'</p>'+
       (canEdit('edit_content')?'<div style="margin-bottom:14px"><button class="btn btn-ghost btn-xs" onclick="editText(\'tagline\')">✎ Edit subtitle</button></div>':'')+
-      '<div class="cta-row"><button class="btn btn-primary" onclick="go(\'programs\')">See our programs</button><button class="btn btn-blue" onclick="go(\'contact\')">Get in touch</button></div>'+
-      '<div class="scroll-hint" id="scrollHint">scroll ↓</div>'+
+      '<div class="cta-row"><button class="btn btn-primary" onclick="go(\'activities\')">See Our Activities</button><button class="btn btn-blue" onclick="go(\'chapters\')">Start a Chapter</button></div>'+
+      
     '</div>'+
   '</header>'+
   '</section>'+
@@ -719,11 +971,18 @@ function snowLayer(){
   }
   return '<div class="snow" id="snow">'+s+'</div>';
 }
+const WORDCLOUDS=[
+ '<ellipse cx="26" cy="52" rx="18" ry="15"/><ellipse cx="36" cy="59" rx="26" ry="18"/><ellipse cx="66" cy="61" rx="28" ry="18"/><ellipse cx="98" cy="61" rx="28" ry="18"/><ellipse cx="122" cy="59" rx="22" ry="16"/><ellipse cx="48" cy="40" rx="22" ry="21"/><ellipse cx="76" cy="30" rx="27" ry="25"/><ellipse cx="106" cy="38" rx="23" ry="22"/>',
+ '<ellipse cx="28" cy="57" rx="20" ry="16"/><ellipse cx="52" cy="60" rx="24" ry="17"/><ellipse cx="80" cy="60" rx="26" ry="17"/><ellipse cx="108" cy="60" rx="24" ry="17"/><ellipse cx="128" cy="57" rx="18" ry="15"/><ellipse cx="44" cy="38" rx="21" ry="20"/><ellipse cx="74" cy="29" rx="27" ry="25"/><ellipse cx="104" cy="36" rx="23" ry="22"/>',
+ '<ellipse cx="40" cy="58" rx="26" ry="20"/><ellipse cx="74" cy="60" rx="30" ry="20"/><ellipse cx="108" cy="58" rx="26" ry="20"/><ellipse cx="54" cy="35" rx="24" ry="23"/><ellipse cx="90" cy="33" rx="25" ry="24"/><ellipse cx="72" cy="60" rx="48" ry="18"/>'
+];
+// a white cloud that sits BEHIND a word (free SVG — never boxed/clipped); opaque so overlaps read as one cloud
+function wordCloud(i){ return '<svg class="cwsvg" viewBox="0 0 150 80" preserveAspectRatio="none" aria-hidden="true"><g fill="#ffffff">'+WORDCLOUDS[i]+'</g></svg>'; }
 function cloudSVG(w,top,left,variant){
   const shapes=[
-    '<ellipse cx="34" cy="46" rx="30" ry="16"/><ellipse cx="64" cy="36" rx="30" ry="22"/><ellipse cx="94" cy="42" rx="26" ry="18"/><ellipse cx="120" cy="48" rx="20" ry="13"/>',
-    '<ellipse cx="40" cy="48" rx="26" ry="14"/><ellipse cx="66" cy="34" rx="24" ry="20"/><ellipse cx="90" cy="30" rx="24" ry="20"/><ellipse cx="114" cy="46" rx="24" ry="15"/>',
-    '<ellipse cx="24" cy="46" rx="20" ry="12"/><ellipse cx="52" cy="36" rx="24" ry="22"/><ellipse cx="84" cy="32" rx="30" ry="26"/><ellipse cx="116" cy="40" rx="24" ry="18"/><ellipse cx="138" cy="48" rx="16" ry="10"/>'
+    '<ellipse cx="34" cy="47" rx="24" ry="15"/><ellipse cx="58" cy="38" rx="24" ry="22"/><ellipse cx="84" cy="34" rx="28" ry="25"/><ellipse cx="110" cy="40" rx="22" ry="17"/><ellipse cx="128" cy="48" rx="15" ry="11"/><ellipse cx="46" cy="34" rx="16" ry="15"/><ellipse cx="98" cy="30" rx="16" ry="14"/>',
+    '<ellipse cx="30" cy="48" rx="20" ry="13"/><ellipse cx="52" cy="38" rx="24" ry="21"/><ellipse cx="76" cy="32" rx="26" ry="24"/><ellipse cx="102" cy="38" rx="24" ry="20"/><ellipse cx="124" cy="47" rx="16" ry="12"/><ellipse cx="64" cy="30" rx="16" ry="14"/>',
+    '<ellipse cx="30" cy="46" rx="20" ry="13"/><ellipse cx="54" cy="36" rx="24" ry="22"/><ellipse cx="82" cy="32" rx="28" ry="25"/><ellipse cx="110" cy="40" rx="22" ry="17"/><ellipse cx="128" cy="48" rx="15" ry="11"/><ellipse cx="68" cy="28" rx="16" ry="14"/><ellipse cx="96" cy="28" rx="15" ry="13"/>'
   ];
   return '<svg class="cloud" data-cloud style="top:'+top+';left:'+left+';width:'+w+'px" width="'+w+'" height="'+(w*0.48)+'" viewBox="0 0 150 72">'+shapes[variant%shapes.length]+'</svg>';
 }
@@ -793,63 +1052,401 @@ function moonLitPath(f){
 }
 
 function newsletterView(){
-  const feat=newsletters.find(n=>n.featured);
-  const list=newsletters.filter(n=>!n.featured);
-  let h='<div class="wrap view"><h1 class="page-title">News &amp; updates</h1><p class="page-intro">Read the latest from Earth Sweet Earth.</p>';
+  let h='<div class="wrap view"><h1 class="page-title">News &amp; updates</h1><p class="page-intro">The latest from Earth Sweet Earth \u2014 announcements, recaps, and stories.</p>';
   if(canEdit('newsletter_post')){
-    h+='<div class="card composer" style="margin:22px 0;background:rgba(0,118,0,.04)"><h3 style="font-size:1.2rem;margin-bottom:12px">+ New post <span class="pill">you can post</span></h3>'+
-      '<input id="np-title" type="text" placeholder="Post title"><textarea id="np-body" rows="4" placeholder="Write anything — no word limit"></textarea>'+
-      '<div class="tools"><button class="btn btn-ghost btn-sm" onclick="comingSoon()">📎 Attach file</button><button class="btn btn-ghost btn-sm" onclick="comingSoon()">🔗 Attach link</button><span style="flex:1"></span><button class="btn btn-primary btn-sm" onclick="publishPost()">Publish</button></div></div>';
+    h+='<div class="card composer" style="margin:20px 0;background:rgba(0,118,0,.04)"><h3 style="font-size:1.15rem;margin-bottom:12px">+ New post <span class="pill">you can post</span></h3>'+
+      '<input id="np-title" type="text" placeholder="Post title"><textarea id="np-body" rows="4" placeholder="Write your update \u2014 short posts expand in place, longer ones open their own page."></textarea>'+
+      '<div class="tools"><span style="flex:1"></span><button class="btn btn-primary btn-sm" onclick="publishPost()">Publish</button></div></div>';
   }
-  // Featured section — exists only when a post is featured
-  if(feat){
-    h+='<div class="card featured" style="margin-bottom:22px"><span class="pill">Featured</span><h2 style="font-size:1.7rem;margin:10px 0">'+esc(feat.title)+'</h2><p style="white-space:pre-wrap">'+esc(feat.body)+'</p>'+reactionsBar(feat)+
-      (canEdit('newsletter_post')?'<div class="rowbtns"><button class="btn btn-ghost btn-xs" onclick="toggleFeature('+feat.id+')">Remove from Featured</button></div>':'')+'</div>';
-  }
-  if(list.length){
-    h+='<h3 style="color:var(--green);margin:8px 0 12px">'+(feat?'More posts':'Posts')+'</h3>';
-    list.forEach(n=>{ h+='<div class="postcard"><span class="t" onclick="openPost('+n.id+')">'+esc(n.title)+'</span>'+
-      (canEdit('newsletter_post')?'<button class="btn btn-ghost btn-xs" onclick="toggleFeature('+n.id+')">Feature</button>':'')+'</div>'; });
-  }
-  if(!newsletters.length && !canEdit('newsletter_post')) h+='';  // viewers see nothing when empty
+  if(newsletters.length){ h+='<div class="nl-list">'+newsletters.map(newsletterCard).join('')+'</div>'; }
+  else if(!canEdit('newsletter_post')){ h+='<p class="muted">No posts yet \u2014 check back soon!</p>'; }
   return h+'</div>';
 }
-function reactionsBar(n){
-  const R=n.reactions,my=n.myReaction;
-  const b=(k,e,l)=>'<button class="'+(my===k?'on':'')+'" onclick="react('+n.id+',\''+k+'\')">'+e+' '+l+' · '+R[k]+'</button>';
-  return '<div class="reactions">'+b('heart','❤️','Heart')+b('support','🤝','Support')+b('thank','🙏','Thank')+b('celebrate','🎉','Celebrate')+'</div>';
+function newsletterCard(n){
+  const long=(n.body||'').length>600;
+  const head='<div class="nl-head" onclick="'+(long?'openNewsletter(\''+n.id+'\')':'toggleNewsletter(\''+n.id+'\')')+'"><div class="nl-meta"><span class="nl-time">'+esc(fmtDateTime(n.publishedAt))+'</span><span class="nl-title">'+esc(n.title)+'</span></div><span class="nl-arrow">'+(long?'\u2197':'\u25BE')+'</span></div>';
+  const body=long?'':'<div class="nl-body" id="nlb-'+n.id+'"><div class="nl-inner"><p style="white-space:pre-wrap;margin:0 0 10px">'+esc(n.body||'')+'</p><button class="btn btn-ghost btn-xs" onclick="toggleNewsletter(\''+n.id+'\')">Show less</button></div></div>';
+  const admin=canEdit('newsletter_post')?'<div class="nl-admin"><button class="btn btn-ghost btn-xs" onclick="editNewsletter(\''+n.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" onclick="deleteNewsletter(\''+n.id+'\')">Delete</button></div>':'';
+  return '<div class="nl-card">'+head+body+admin+'</div>';
 }
-function react(id,kind){ const n=newsletters.find(x=>x.id===id); if(!n)return;
-  if(n.myReaction===kind){n.reactions[kind]--;n.myReaction=null;}
-  else{ if(n.myReaction)n.reactions[n.myReaction]--; n.reactions[kind]++; n.myReaction=kind; }
-  render();
+function toggleNewsletter(id){ const b=document.getElementById('nlb-'+id); if(!b)return; b.classList.toggle('open'); const card=b.closest('.nl-card'); if(card)card.classList.toggle('open'); }
+let _openPost=null;
+function openNewsletter(id){ _openPost=id; go('post'); }
+function newsletterPostView(){
+  const n=newsletters.find(function(x){return x.id===_openPost;});
+  if(!n) return '<div class="wrap view"><p><button class="btn btn-ghost btn-sm" onclick="go(\'newsletter\')">\u2190 Back to Newsletter</button></p><h1 class="page-title">Post not found</h1><p class="muted">This post may have been removed.</p></div>';
+  return '<div class="wrap view"><p><button class="btn btn-ghost btn-sm" onclick="go(\'newsletter\')">\u2190 Back to Newsletter</button></p>'+
+    '<h1 class="page-title" style="margin-bottom:6px">'+esc(n.title)+'</h1>'+
+    '<p class="muted" style="margin-bottom:22px">'+esc(fmtDateTime(n.publishedAt))+'</p>'+
+    '<div style="white-space:pre-wrap;font-size:1.06rem;line-height:1.75;max-width:70ch">'+esc(n.body||'')+'</div></div>';
 }
 function publishPost(){
   const t=v('np-title'),b=document.getElementById('np-body').value.trim();
   if(!t){toast('Add a title first');return;}
-  newsletters.unshift({id:uid(),title:t,body:b,featured:false,reactions:{heart:0,support:0,thank:0,celebrate:0},myReaction:null});
+  newsletters.unshift({id:uid(),title:t,body:b,publishedAt:Date.now()});
   toast('Posted');render();
 }
-function toggleFeature(id){ const n=newsletters.find(x=>x.id===id); if(!n)return;
-  if(n.featured){n.featured=false;} else { newsletters.forEach(p=>p.featured=false); n.featured=true; } render();
+function editNewsletter(id){ const n=newsletters.find(function(x){return x.id===id;}); if(!n)return; openEditor('Edit post',[{key:'title',label:'Title',type:'text'},{key:'body',label:'Body',type:'textarea'}],{title:n.title,body:n.body},function(v){ n.title=v.title; n.body=v.body; toast('Saved'); }); }
+function deleteNewsletter(id){ const i=newsletters.findIndex(function(x){return x.id===id;}); if(i>-1){ newsletters.splice(i,1); toast('Deleted'); render(); } }
+function fmtDateTime(ts){ if(!ts)return ''; const d=new Date(ts); return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})+' \u00b7 '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }
+
+/* ---------- Activities (featured + category grid) ---------- */
+function activitiesView(){
+  const ed=canEdit('programs_update');
+  const cats=[
+    {id:'speakers',name:'Speakers',color:'#2f6f8f',icon:'🎤',desc:'Guest speakers and panels \u2014 students, scientists, activists, and community voices sharing ideas and answering your questions.',target:'construction'},
+    {id:'challenges',name:'Challenges',color:'#3f8a5a',icon:'🌍',desc:'Rotating goals for schools, clubs, chapters, and individuals to take on together \u2014 a fresh environmental challenge to rally around.',target:'challenges'},
+    {id:'contests',name:'Contests',color:'#b5813d',icon:'🏆',desc:'Compete for virtual and physical prizes. Schools, clubs, chapters, and individuals can enter, place, and win.',target:'construction'},
+    {id:'fundraising',name:'Fundraising',color:'#a1596b',icon:'💚',desc:'Drives and campaigns that turn small actions into real support for greener communities.',target:'construction'}
+  ];
+  const grid='<div class="cat-grid">'+cats.map(c=>activityCard({id:c.id,name:c.name,desc:c.desc,color:c.color,icon:c.icon,mode:'category',target:c.target})).join('')+'</div>';
+  return '<div class="wrap view">'+
+    '<h1 class="page-title">Our activities</h1>'+
+    '<p class="page-intro">The programs, events, and initiatives that bring Earth Sweet Earth to life.</p>'+
+    '<h2 class="acts-sub">Featured</h2>'+activityFeatured(ed)+
+    '<h2 class="acts-sub">Explore by category</h2>'+grid+
+  '</div>';
 }
-function openPost(id){ const n=newsletters.find(x=>x.id===id); if(!n)return;
-  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>'+esc(n.title)+'</h3><p style="white-space:pre-wrap">'+esc(n.body||'')+'</p>'+reactionsBar(n));
+function activityFeatured(ed){
+  const f=content.featured||{};
+  const has=f.name||f.desc||f.image;
+  if(!has && !ed) return '<p class="muted">No featured activity yet \u2014 check back soon!</p>';
+  const img=f.image?'<img src="'+escA(f.image)+'">':'<div class="acard-noimg">🌱</div>';
+  return '<div class="featured-act">'+
+    '<div class="fa-img">'+img+'</div>'+
+    '<div class="fa-body"><h3>'+esc(f.name||'Featured activity')+'</h3>'+
+      '<p class="fa-desc clamp" id="ad-featured">'+esc(f.desc||'This is where a highlighted activity will live \u2014 a big event, a spotlight project, or whatever ESE wants front and center. An owner can edit this anytime.')+'</p>'+
+      '<div class="acard-btns"><button class="btn btn-primary btn-sm" onclick="toggleActivity(\'featured\',this)">Read more</button>'+
+      (ed?' <button class="btn btn-ghost btn-sm" onclick="editFeatured()">\u270E Edit featured</button>':'')+'</div>'+
+    '</div>'+
+  '</div>';
+}
+function editFeatured(){
+  openEditor('Featured activity',[{key:'name',label:'Activity name',type:'text'},{key:'desc',label:'Description',type:'textarea'},{key:'image',label:'Image',type:'image'}],content.featured||{},function(v){ content.featured=v; toast('Saved'); saveSiteContent(true); });
+}
+function activityCard(o){
+  const plain=o.plain;
+  const img=o.image?'<img class="acard-img" src="'+escA(o.image)+'">':'<div class="acard-img acard-noimg">'+(o.icon||'🌿')+'</div>';
+  let btn='';
+  if(o.mode==='category') btn='<button class="btn acard-btn" onclick="go(\''+o.target+'\')">Explore \u2192</button>';
+  else if(o.mode==='specific') btn='<button class="btn acard-btn" onclick="toggleActivity(\''+o.id+'\',this)">Read more</button>';
+  else if(o.mode==='coming') btn=ucHover('<button class="btn acard-btn" onclick="comingSoon()">Coming soon</button>');
+  const clamp=o.mode==='specific'?' clamp':'';
+  const style=(!plain&&o.color)?' style="background:'+o.color+'"':'';
+  return '<div class="acard '+(plain?'acard-plain':'acard-color')+'"'+style+'>'+
+    '<div class="acard-name">'+esc(o.name)+'</div>'+img+
+    '<div class="acard-desc'+clamp+'" id="ad-'+o.id+'">'+esc(o.desc)+'</div>'+btn+
+  '</div>';
+}
+function toggleActivity(id,btn){ const d=document.getElementById('ad-'+id); if(!d)return; const open=d.classList.toggle('open'); d.classList.toggle('clamp',!open); btn.textContent=open?'Read less':'Read more'; }
+
+/* ---------- Challenges (rudimentary page) ---------- */
+function challengesView(){
+  const items=[
+    {id:'ch-plastic',name:'Plastic-Free Week',icon:'\u267B\uFE0F',desc:'Take on a week without single-use plastics. Swap the disposable water bottle, bring your own bag, and skip the straw \u2014 then share what you learned. A simple way to see just how much plastic sneaks into an ordinary week, and how easy some swaps really are. (Placeholder challenge for testing.)'},
+    {id:'ch-cleanup',name:'Campus Cleanup Challenge',icon:'🧤',desc:'Gather a few friends, pick a spot \u2014 a park, a beach, a stretch of sidewalk \u2014 and see how much litter your group can collect and sort for recycling. Snap a before-and-after and tag ESE. (Placeholder challenge for testing.)'},
+    {id:'ch-meatless',name:'Meatless Mondays',icon:'🥗',desc:'Go meat-free every Monday for a month. It is one of the easiest ways to shrink your food footprint, and a fun excuse to try new recipes with your family or club. (Placeholder challenge for testing.)'}
+  ];
+  const cards=items.map(i=>activityCard({id:i.id,name:i.name,desc:i.desc,icon:i.icon,mode:'specific',plain:true})).join('');
+  const mgs=activityCard({id:'mygreenschools',name:'MyGreenSchools',icon:'🏫',desc:'A brand-new challenge we are putting together \u2014 a way for whole schools to track and grow their green habits side by side. Still in the works. Check back soon to see how your school can take part!',mode:'coming',plain:true});
+  return '<div class="wrap view">'+
+    '<p><button class="btn btn-ghost btn-sm" onclick="go(\'activities\')">\u2190 Back to Activities</button></p>'+
+    '<h1 class="page-title">Challenges</h1>'+
+    '<p class="page-intro">Rotating goals for schools, clubs, chapters, and individuals to take on. Here is what is brewing:</p>'+
+    '<div class="act-list">'+mgs+cards+'</div>'+
+  '</div>';
 }
 
-function programsView(){
-  const doingItems=content.doing.map(x=>'<div class="evt" onclick="openDetails(\'doing\','+x.id+')"><div class="en">'+esc(x.name)+'</div>'+(canEditKind('doing')?editDel('doing',x.id):'<div class="ed2">Click for details</div>')+'</div>').join('');
-  const spItems=content.speakers.map(x=>'<div class="evt" onclick="openDetails(\'speaker\','+x.id+')"><div class="en">'+esc(x.name)+'</div>'+(canEditKind('speaker')?editDel('speaker',x.id):'<div class="ed2">Click for details</div>')+'</div>').join('');
-  return '<div class="wrap view">'+
-    '<div class="sechead"><div><h1 class="page-title" style="margin:0">What we\'ve been doing</h1></div>'+
-      '<div><button class="btn btn-primary" onclick="createChapter()">Create Chapter</button><span class="info" tabindex="0">i<span class="tip">A chapter is a regional branch of ESE. To learn more, visit <a href="#/chapters">Chapters</a>.</span></span></div></div>'+
-    section('doing','What we\'re doing', doingItems, 'Add activity')+
-    section('speaker','Guest speakers', spItems, 'Add guest speaker')+
-  '</div>';
+/* ---------- Under Construction (page + hover tip) ---------- */
+function underConstructionView(){
+  return '<div class="wrap view"><div class="uc-page card">'+
+    '<div class="uc-emoji">🚧</div>'+
+    '<h1 class="page-title" style="margin-bottom:10px">Under construction</h1>'+
+    '<p class="page-intro" style="margin:0 auto 22px">This part of Earth Sweet Earth is still being built. Check back soon \u2014 it is on the way!</p>'+
+    '<button class="btn btn-primary" onclick="go(\'home\')">Back to Home</button>'+
+  '</div></div>';
+}
+function ucHover(inner){ return '<span class="uc-wrap">'+inner+'<span class="uc-tip">🚧 Under construction \u2014 coming soon!</span></span>'; }
+
+/* ---------- Privacy Policy & Terms (linked from the footer, hidden from the nav) ---------- */
+function legalDoc(title,updated,sections){
+  const body=sections.map(function(s){return '<h3 class="lg-h">'+esc(s[0])+'</h3><p>'+s[1]+'</p>';}).join('');
+  return '<div class="wrap view"><div class="legal">'+
+    '<h1 class="page-title">'+esc(title)+'</h1>'+
+    '<p class="muted" style="margin-bottom:20px">Last updated: '+esc(updated)+'</p>'+
+    body+
+    '<p style="margin-top:28px"><button class="btn btn-ghost btn-sm" onclick="go(\'home\')">\u2190 Back to Home</button></p>'+
+  '</div></div>';
+}
+function privacyView(){
+  return legalDoc('Privacy Policy','July 2026',[
+    ['Who we are','Earth Sweet Earth ("ESE," "we," "us") is a youth-led environmental project. This policy explains what information we collect through this website and how we use it.'],
+    ['Information we collect','<strong>Account information:</strong> your email address and a username, and \u2014 only if you choose to add them \u2014 a country and a profile picture. <strong>Application information:</strong> if you apply to start a chapter or join the youth leadership team, we collect what you enter, such as your name, grade, school, Discord username, short written answers, and a typed or drawn signature. <strong>Photos and posts:</strong> any images and captions you submit to the gallery or newsletter. We do <strong>not</strong> collect payment information through this website.'],
+    ['How we use your information','To create and manage your account; to review chapter and youth-leadership applications; to display chapters, events, and a count of how many members and countries are part of ESE; and to contact you about ESE.'],
+    ['Children under 13','ESE welcomes young people, but online services have rules. Discord requires its users to be at least 13. If you are under 13, please use a parent or guardian\u2019s email address (and their Discord account) and have them help you sign up. Where we ask for a parent or guardian\u2019s email, it is so a grown-up can give permission. Parents and guardians can ask us to review or delete their child\u2019s information at any time by emailing hello@earthsweetearth.org.'],
+    ['Photos and media release','By submitting photos, or by taking part in ESE events where photos are taken, you \u2014 and, for a participant under 18, your parent or guardian \u2014 give ESE permission to use those images on this website and on ESE\u2019s social media to share our work. You can ask us to remove a photo at any time by emailing us.'],
+    ['How your information is shared','We do not sell your personal information. We use trusted services to run the site: Supabase provides our secure database and login and stores your account and application data, and we use Discord to host our community. We only share personal information when it is needed to operate ESE, when you give permission, or when the law requires it.'],
+    ['A note about Discord','ESE is not affiliated with, endorsed by, or sponsored by Discord. Discord is a separate company with its own Privacy Policy and Terms of Service, including a minimum age of 13. When you use Discord, you are subject to Discord\u2019s rules, not only ours.'],
+    ['Keeping and deleting your information','You can update your profile or delete your account at any time from your profile. When you delete your account, we remove your profile information. You can also email us to ask us to delete information you have submitted.'],
+    ['Security','We take reasonable steps to protect your information, but no website can promise perfect security.'],
+    ['Changes to this policy','We may update this policy as ESE grows. We will post the new version here with an updated date.'],
+    ['Contact us','Questions about this policy? Email <a href="mailto:hello@earthsweetearth.org">hello@earthsweetearth.org</a>.']
+  ]);
+}
+function termsView(){
+  return legalDoc('Terms & Conditions','July 2026',[
+    ['Agreement','By using the Earth Sweet Earth ("ESE") website, you agree to these Terms. If you do not agree, please do not use the site.'],
+    ['Who can use ESE','You may create an account to take part. Some features connect to Discord, which requires users to be at least 13. If you are under 13, please use a parent or guardian\u2019s email and Discord account, with their permission and supervision.'],
+    ['Your account','Keep your login details private. You are responsible for activity on your account, and you agree to give accurate information when you sign up or apply.'],
+    ['Being a good community member','Be kind and respectful. Do not post anything hateful, harassing, illegal, or harmful, and do not pretend to be someone else. Follow the rules of any chapter or community space you join. We may remove content or accounts that break these rules.'],
+    ['A note about Discord','ESE is not affiliated with, endorsed by, or sponsored by Discord. Using Discord means following Discord\u2019s own Terms of Service and Community Guidelines, including its 13+ age requirement. Third-party platforms carry their own risks, and ESE is not responsible for them.'],
+    ['Chapters and youth leadership','Anyone may apply to start a chapter or join the youth leadership team. ESE reviews applications and decides which to approve, at its discretion. Leading a chapter or holding a role comes with responsibilities, and ESE may pause or end a chapter or role if community rules are not being followed.'],
+    ['Your content','You keep ownership of the photos, captions, and writing you submit. By submitting them, you give ESE permission to display and share them to promote our work (see the media-release section of our Privacy Policy). Only submit content you have the right to share.'],
+    ['For parents and guardians','If a participant is a minor, a parent or guardian should review these Terms and our Privacy Policy and supervise their participation.'],
+    ['No warranty','ESE is a volunteer, youth-led project. The site is provided "as is," and we cannot promise it will always be available or free of errors.'],
+    ['Limitation of liability','To the fullest extent allowed by law, ESE and its members are not liable for damages arising from your use of the site or of third-party platforms such as Discord.'],
+    ['Changes','We may update these Terms as ESE grows. The updated version will be posted here.'],
+    ['Contact','Questions about these Terms? Email <a href="mailto:hello@earthsweetearth.org">hello@earthsweetearth.org</a>.']
+  ]);
 }
 function createChapter(){ if(!isLoggedIn()){popup('Become a member','Become a member to start your own chapter!');return;} comingSoon(); }
 
-function chaptersView(){
+function chaptersView(){                                  // top-bar landing page
+  return '<div class="wrap view">'+
+    '<h1 class="page-title" id="chapTitle" style="margin-bottom:22px;white-space:nowrap;max-width:100%">Flip the page. Take the pen. Start <em>your</em> chapter today.<span class="info" tabindex="0">i<span class="tip">A chapter is a regional branch of ESE \u2014 a school club led by a student president. Youth apply to start one at their own school.</span></span></h1>'+
+    '<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:0 0 24px">'+
+      '<button class="btn btn-primary" onclick="go(\'chapterapply\')">Start your own chapter</button>'+
+      '<button class="btn btn-blue" onclick="go(\'chapterslist\')">View our chapters</button>'+
+    '</div>'+
+    '<p class="muted" style="font-size:.95rem;margin:0 0 30px">Fill out the application form to start your school\u2019s chapter and become its president. The ESE team reviews each one, and if approved, it will show up here!</p>'+
+    '<h2 class="chaphead">How do you start a chapter?</h2>'+
+    '<ul class="chapreqs">'+
+      '<li>You must be a registered member of ESE.'+(isLoggedIn()?'':' <span class="muted">(Not a member yet? It only takes 30 seconds! <a href="#" onclick="openSignup();return false;">Sign up now!</a>)</span>')+'</li>'+
+      '<li>You must have at least 5 other youth, not including you, to start with.</li>'+
+      '<li>You must be able to clearly communicate with confidence, including publicly if necessary.</li>'+
+    '</ul>'+
+    '<h2 class="chaphead">I\u2019ve started a chapter. Now what?</h2>'+
+    '<ul class="chapreqs">'+
+      '<li>Encourage more people to join ESE through your chapter \u2014 your chapter may put up posters, send out emails, or just talk to people!</li>'+
+      '<li>Host biweekly (or even more often, if you\u2019d like) get-togethers to spread awareness. This can be online, through platforms like Zoom or Google Meet, or in person.</li>'+
+      '<li>Find guest speakers to present to your chapter, or have student presenters from your chapter present! A few starters for the latter can be your local library or school.</li>'+
+      '<li>Join monthly meetings online to meet other chapters based in other countries\u2026. Remember, these people may be your future colleagues!</li>'+
+      '<li>Report back to our #Chapters category in Discord to update the ESE team on what your chapter has been doing\u2026</li>'+
+      '<li>Because you\u2019ll get a chance to be featured in our newsletter or gallery! You\u2019re also welcome to submit additional news, thoughts, or pictures in the #newsletter-submissions or #gallery-submissions channels.</li>'+
+    '</ul>'+
+  '</div>';
+}
+function startChapter(){ go('chapterapply'); }
+
+/* ---------- chapter application form (reached from "Start your own chapter"; not in the nav) ---------- */
+const RECAPTCHA_SITE_KEY = "";   // paste your reCAPTCHA v2 ("I'm not a robot") site key here — google.com/recaptcha/admin. Empty shows a simple stand-in.
+const CA_CONSENT = "I understand and consent that I am fully aware of the responsibilities and obligations of my position and that I will make every effort within reasonable capability to fulfill these. I recognize that exploitation or abuse of this power and privilege may lead to the revoke and transfer of my position to another ESE member.";
+const CA_GRADES = ["6th grade","7th grade","8th grade","9th grade","10th grade","11th grade","12th grade","College / University","Other"];
+const CA_COUNTRIES = ["Afghanistan","Albania","Algeria","Argentina","Australia","Austria","Bangladesh","Belgium","Bolivia","Brazil","Bulgaria","Cambodia","Cameroon","Canada","Chile","China","Colombia","Costa Rica","Croatia","Cuba","Czechia","Denmark","Dominican Republic","Ecuador","Egypt","El Salvador","Estonia","Ethiopia","Finland","France","Georgia","Germany","Ghana","Greece","Guatemala","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Ivory Coast","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kuwait","Latvia","Lebanon","Lithuania","Luxembourg","Malaysia","Mexico","Morocco","Nepal","Netherlands","New Zealand","Nigeria","Norway","Pakistan","Panama","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Saudi Arabia","Serbia","Singapore","Slovakia","Slovenia","South Africa","South Korea","Spain","Sri Lanka","Sweden","Switzerland","Taiwan","Tanzania","Thailand","Trinidad and Tobago","Tunisia","Turkey","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Venezuela","Vietnam","Zambia","Zimbabwe","Other / not listed"];
+const CA_SUBDIV = {
+  "United States":["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","District of Columbia","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"],
+  "Canada":["Alberta","British Columbia","Manitoba","New Brunswick","Newfoundland and Labrador","Northwest Territories","Nova Scotia","Nunavut","Ontario","Prince Edward Island","Quebec","Saskatchewan","Yukon"],
+  "Australia":["Australian Capital Territory","New South Wales","Northern Territory","Queensland","South Australia","Tasmania","Victoria","Western Australia"],
+  "United Kingdom":["England","Northern Ireland","Scotland","Wales"],
+  "India":["Andhra Pradesh","Assam","Bihar","Chhattisgarh","Delhi","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Odisha","Punjab","Rajasthan","Tamil Nadu","Telangana","Uttar Pradesh","Uttarakhand","West Bengal","Other"],
+  "Mexico":["Aguascalientes","Baja California","Chiapas","Chihuahua","Ciudad de México","Coahuila","Guanajuato","Jalisco","México (State)","Michoacán","Nuevo León","Oaxaca","Puebla","Querétaro","Quintana Roo","Sonora","Veracruz","Yucatán","Other"],
+  "Brazil":["Amazonas","Bahia","Ceará","Distrito Federal","Espírito Santo","Goiás","Maranhão","Mato Grosso","Minas Gerais","Pará","Paraná","Pernambuco","Rio de Janeiro","Rio Grande do Sul","Santa Catarina","São Paulo","Other"],
+  "Germany":["Baden-Württemberg","Bavaria","Berlin","Brandenburg","Bremen","Hamburg","Hesse","Lower Saxony","North Rhine-Westphalia","Rhineland-Palatinate","Saarland","Saxony","Saxony-Anhalt","Schleswig-Holstein","Thuringia"]
+};
+let caRecaptchaId=null;
+const caWords=(s)=> (String(s).trim().match(/\S+/g)||[]).length;
+
+function chapterApplyView(){
+  const optList=(a)=>a.map(x=>'<option>'+esc(x)+'</option>').join('');
+  const five=(pfx,ph)=>{ let s='<div class="ca-five">'; for(let i=1;i<=5;i++) s+='<input class="in" id="'+pfx+i+'" type="text" maxlength="60" autocomplete="off" placeholder="'+ph+' '+i+'">'; return s+'</div>'; };
+  const sig=(id)=>'<div class="sig-wrap"><canvas class="sigpad" id="'+id+'"></canvas><button type="button" class="btn btn-ghost btn-xs" onclick="caClearSig(\''+id+'\')">Clear</button></div>';
+  const fld=(label,inner,hint)=>'<div class="ca-fld"><label class="ca-label">'+label+'</label>'+inner+(hint?'<p class="ca-hint">'+hint+'</p>':'')+'</div>';
+  return '<div class="wrap view apply">'+
+    '<div class="sechead"><h1 class="page-title" style="margin:0">Apply to start a chapter</h1><button class="btn btn-ghost btn-sm" onclick="go(\'chapters\')">\u2190 Back</button></div>'+
+    '<p class="page-intro">The ESE team reviews every application. Take your time and answer honestly.</p>'+
+    '<form id="caForm" onsubmit="return submitChapterApplication(event)" novalidate>'+
+      fld('Your real first name & last initial','<input class="in" id="ca-name" type="text" maxlength="40" autocomplete="off" placeholder="e.g. Steven L.">')+
+      fld('Your Discord username','<input class="in" id="ca-discord" type="text" maxlength="40" autocomplete="off" placeholder="e.g. soliphilia">')+
+      fld('Incoming grade <span class="muted">(the grade you\u2019ll be in next school year)</span>','<select class="in" id="ca-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
+      fld('Country or territory','<select class="in" id="ca-country" onchange="caCountryChange()"><option value="">Choose\u2026</option>'+optList(CA_COUNTRIES)+'</select><div id="ca-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="ca-sublabel" style="font-weight:500">State / province</label><select class="in" id="ca-sub"></select></div>')+
+      fld('Full school name, with district','<input class="in" id="ca-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. South Woods Middle School \u2014 Syosset">')+
+      fld('The 5 other youth starting with you <span class="muted">(real first name & last initial each)</span>', five('ca-p','Person'))+
+      fld('Their 5 Discord usernames', five('ca-d','Username'),'\u26a0\ufe0f All five must be ESE members (just a quick email sign-up), and each needs their own Discord account. If someone is under 13, Discord requires them to use a parent’s account instead.')+
+      fld('Type this statement out, word for word','<canvas class="consent-img" id="ca-consent-img"></canvas><textarea class="in" id="ca-consent" rows="4" autocomplete="off" placeholder="Type the statement above here\u2026"></textarea>')+
+      fld('Why do you want to start a chapter? <span class="muted">(500 words max)</span>','<textarea class="in" id="ca-why" rows="6" oninput="caWordCount()" placeholder="Briefly tell us why \u2014 and anything else we should know."></textarea>','<span id="ca-why-count">0 / 500 words</span>')+
+      '<label class="ca-check"><input type="checkbox" id="ca-privacy"> <span>I confirm I haven\u2019t shared any private information about myself or anyone else beyond what this form asks for.</span></label>'+
+      fld('Parent or guardian\u2019s signature <span class="muted">(sign in the box)</span>', sig('ca-sig-parent'))+
+      fld('Your signature <span class="muted">(sign in the box)</span>', sig('ca-sig-self'))+
+      fld('One last check', (RECAPTCHA_SITE_KEY?'<div id="ca-recaptcha"></div>':'<label class="ca-recap"><input type="checkbox" id="ca-notrobot"> I\u2019m not a robot</label><p class="ca-note">A full reCAPTCHA appears here once a site key is added in the code.</p>'))+
+      '<p class="ca-hint bad" id="ca-err" style="display:none"></p>'+
+      '<button class="btn btn-primary" type="submit" style="margin-top:6px">Submit application</button>'+
+    '</form>'+
+  '</div>';
+}
+function caCountryChange(){
+  const c=document.getElementById('ca-country'), wrap=document.getElementById('ca-subwrap'), sub=document.getElementById('ca-sub'), lbl=document.getElementById('ca-sublabel');
+  if(!c||!wrap||!sub)return;
+  const subs=CA_SUBDIV[c.value];
+  if(subs){ lbl.textContent=(c.value==='Canada'?'Province / territory':c.value==='India'?'State / union territory':'State / province'); sub.innerHTML='<option value="">Choose\u2026</option>'+subs.map(s=>'<option>'+esc(s)+'</option>').join(''); wrap.style.display=''; }
+  else { wrap.style.display='none'; sub.innerHTML=''; }
+}
+function caWordCount(){ const el=document.getElementById('ca-why'), c=document.getElementById('ca-why-count'); if(!el||!c)return; const n=caWords(el.value); c.textContent=n+' / 500 words'; c.parentElement.className='ca-hint'+(n>500?' bad':''); }
+function caClearSig(id){ const cv=document.getElementById(id); if(cv&&cv._ctx){ cv._ctx.clearRect(0,0,cv.width,cv.height); cv._drawn=false; } }
+function caDrawConsent(){
+  const cv=document.getElementById('ca-consent-img'); if(!cv)return;
+  const W=Math.max(260, cv.parentElement.clientWidth-2), dpr=window.devicePixelRatio||1, ctx=cv.getContext('2d');
+  const pad=16, fs=16, lh=25, font=fs+'px Georgia, "Times New Roman", serif';
+  ctx.font=font; const words=CA_CONSENT.split(' '), lines=[]; let line='';
+  words.forEach(w=>{ const t=line?line+' '+w:w; if(ctx.measureText(t).width>W-pad*2 && line){ lines.push(line); line=w; } else line=t; });
+  if(line)lines.push(line);
+  const H=lines.length*lh+pad*2;
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle=(document.body.getAttribute('data-theme')==='dark')?'#20241d':'#fbfaf5'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=(document.body.getAttribute('data-theme')==='dark')?'#e7eef3':'#1a2e22'; ctx.font=font; ctx.textBaseline='top';
+  lines.forEach((l,i)=>ctx.fillText(l,pad,pad+i*lh));
+}
+function caSetupSig(id){
+  const cv=document.getElementById(id); if(!cv)return;
+  const W=Math.max(220, cv.clientWidth||cv.parentElement.clientWidth-2), H=150, dpr=window.devicePixelRatio||1, ctx=cv.getContext('2d');
+  cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.lineWidth=2.4; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle=(document.body.getAttribute('data-theme')==='dark')?'#e7eef3':'#12351f';
+  cv._ctx=ctx; cv._drawn=false; let drawing=false, lx=0, ly=0;
+  const pos=(e)=>{ const r=cv.getBoundingClientRect(), t=(e.touches&&e.touches[0])||e; return [ (t.clientX-r.left)*(W/r.width), (t.clientY-r.top)*(H/r.height) ]; };
+  const down=(e)=>{ drawing=true; [lx,ly]=pos(e); if(e.cancelable)e.preventDefault(); };
+  const mv=(e)=>{ if(!drawing)return; const [x,y]=pos(e); ctx.beginPath(); ctx.moveTo(lx,ly); ctx.lineTo(x,y); ctx.stroke(); [lx,ly]=[x,y]; cv._drawn=true; if(e.cancelable)e.preventDefault(); };
+  const up=()=>{ drawing=false; };
+  cv.addEventListener('mousedown',down); cv.addEventListener('mousemove',mv); window.addEventListener('mouseup',up);
+  cv.addEventListener('touchstart',down,{passive:false}); cv.addEventListener('touchmove',mv,{passive:false}); cv.addEventListener('touchend',up);
+}
+function caLoadRecaptcha(){
+  if(!RECAPTCHA_SITE_KEY)return;
+  const doRender=()=>{ const el=document.getElementById('ca-recaptcha'); if(!el||el.dataset.done||!(window.grecaptcha&&grecaptcha.render))return; try{ caRecaptchaId=grecaptcha.render('ca-recaptcha',{sitekey:RECAPTCHA_SITE_KEY}); el.dataset.done='1'; }catch(e){} };
+  if(window.grecaptcha&&grecaptcha.render){ doRender(); return; }
+  if(!document.getElementById('ca-recaptcha-js')){ const s=document.createElement('script'); s.id='ca-recaptcha-js'; s.src='https://www.google.com/recaptcha/api.js'; s.async=true; s.defer=true; document.head.appendChild(s); }
+  let tries=0; const iv=setInterval(()=>{ if((window.grecaptcha&&grecaptcha.render)||++tries>40){ clearInterval(iv); doRender(); } },250);
+}
+function initChapterApply(){
+  caDrawConsent(); caSetupSig('ca-sig-parent'); caSetupSig('ca-sig-self'); caWordCount(); caCountryChange(); caLoadRecaptcha();
+}
+async function submitChapterApplication(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  const errBox=document.getElementById('ca-err');
+  const fail=(msg,id)=>{ if(errBox){ errBox.textContent=msg; errBox.style.display='block'; errBox.scrollIntoView({behavior:'smooth',block:'center'}); } const f=id&&document.getElementById(id); if(f&&f.focus)f.focus(); return false; };
+  const val=(id)=>{ const el=document.getElementById(id); return el?el.value.trim():''; };
+  if(!val('ca-name')) return fail('Please enter your first name and last initial.','ca-name');
+  if(!val('ca-discord')) return fail('Please enter your Discord username.','ca-discord');
+  if(!val('ca-grade')) return fail('Please choose your incoming grade.','ca-grade');
+  if(!val('ca-country')) return fail('Please choose your country or territory.','ca-country');
+  const subShown=document.getElementById('ca-subwrap').style.display!=='none';
+  if(subShown && !val('ca-sub')) return fail('Please choose your state / province.','ca-sub');
+  if(!val('ca-school')) return fail('Please enter your full school name and district.','ca-school');
+  const members=[]; for(let i=1;i<=5;i++){ const v=val('ca-p'+i); if(!v) return fail('Please list all five other starting members (person '+i+').','ca-p'+i); members.push(v); }
+  const memberDiscords=[]; for(let i=1;i<=5;i++){ const v=val('ca-d'+i); if(!v) return fail('Please list all five Discord usernames (username '+i+').','ca-d'+i); memberDiscords.push(v); }
+  const norm=(s)=>s.toLowerCase().replace(/\s+/g,' ').replace(/[\u2018\u2019]/g,"'").trim();
+  if(norm(val('ca-consent'))!==norm(CA_CONSENT)) return fail('The statement doesn\u2019t match exactly \u2014 you may have a typo or missing words. Please type it out in full.','ca-consent');
+  const why=val('ca-why'); if(!why) return fail('Please tell us why you want to start a chapter.','ca-why');
+  if(caWords(why)>500) return fail('Please keep your answer to 500 words or fewer.','ca-why');
+  if(!document.getElementById('ca-privacy').checked) return fail('Please tick the privacy confirmation box.','ca-privacy');
+  const par=document.getElementById('ca-sig-parent'), self=document.getElementById('ca-sig-self');
+  if(!par||!par._drawn) return fail('A parent or guardian needs to sign in the box.','ca-sig-parent');
+  if(!self||!self._drawn) return fail('Please add your own signature.','ca-sig-self');
+  if(RECAPTCHA_SITE_KEY){ const resp=(window.grecaptcha&&caRecaptchaId!=null)?grecaptcha.getResponse(caRecaptchaId):''; if(!resp) return fail('Please complete the reCAPTCHA.'); }
+  else { const nr=document.getElementById('ca-notrobot'); if(nr&&!nr.checked) return fail('Please tick the box to confirm you\u2019re human.','ca-notrobot'); }
+  if(errBox) errBox.style.display='none';
+  const app={ name:val('ca-name'), discord:val('ca-discord'), grade:val('ca-grade'), country:val('ca-country'), subdivision:subShown?val('ca-sub'):'', school:val('ca-school'), members, memberDiscords, why, parentSignature:par.toDataURL('image/png'), selfSignature:self.toDataURL('image/png'), submittedAt:new Date().toISOString() };
+  const btn=document.querySelector('#caForm button[type="submit"]'); if(btn){ btn.disabled=true; btn.textContent='Submitting\u2026'; }
+  let ok=true, emsg='';
+  if(BACKEND){ try{ const {error}=await sb.from('chapter_applications').insert({data:app}); if(error){ ok=false; emsg=error.message; } else { try{ sb.functions.invoke('notify-application',{body:{type:'chapter',data:app}}); }catch(e){} } }catch(ex){ ok=false; emsg='network error'; } }
+  if(ok){ openModal('<h3>Application received! \ud83c\udf31</h3><p>Thanks, '+esc(app.name)+'! The ESE team will review it and reach out on Discord. You can close this window.</p><button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="closeModal();go(\'chapters\')">Done</button>'); }
+  else { if(btn){ btn.disabled=false; btn.textContent='Submit application'; } fail('Sorry \u2014 we couldn\u2019t submit that ('+emsg+'). Please try again in a moment.'); }
+  return false;
+}
+
+/* ---------- Youth Leadership application ---------- */
+const YL_ROLES=[
+  {id:'president',name:'President',resp:'Leads the team and sets the vision. Runs meetings, keeps everyone moving toward shared goals, represents ESE to the outside world, and makes the final call when decisions are close.',qual:'Strong, dependable leadership; clear communication; solid organization; a real time commitment; and meaningful prior involvement in ESE.'},
+  {id:'vp',name:'Vice President',resp:'The right hand to the President. Steps in when they are away, drives specific initiatives and committees, and helps keep projects on track.',qual:'Leadership and initiative, dependability, good communication, and a willingness to jump in wherever needed.'},
+  {id:'treasurer',name:'Treasurer',resp:'Looks after the money. Tracks the budget and fundraising, keeps clear financial records, and reports on where funds stand.',qual:'Responsibility and honesty with money and records, attention to detail, and comfort with simple spreadsheets or math.'},
+  {id:'secretary',name:'Secretary',resp:'Keeps the team organized. Takes notes at meetings, manages schedules and communications, and keeps documents and records tidy.',qual:'Organization, clear writing, attention to detail, and reliably staying on top of deadlines.'}
+];
+let ylRecaptchaId=null;
+function youthApplyView(){
+  const optList=function(a){return a.map(function(x){return '<option>'+esc(x)+'</option>';}).join('');};
+  const fld=function(label,inner,hint){return '<div class="ca-fld"><label class="ca-label">'+label+'</label>'+inner+(hint?'<p class="ca-hint">'+hint+'</p>':'')+'</div>';};
+  const rep=content.repThreshold!=null?content.repThreshold:50;
+  const ownerEdit=editUI && session && session.roleId==='owner';
+  const rolesHtml=YL_ROLES.map(function(r){
+    return '<div class="yl-role"><label><input type="checkbox" class="yl-role-cb" value="'+r.id+'" onchange="ylToggleRole(\''+r.id+'\',this.checked)"> <span>'+esc(r.name)+'</span></label>'+
+      '<div class="yl-role-info" id="ylr-'+r.id+'" style="display:none"><p><strong>Responsibilities:</strong> '+esc(r.resp)+'</p><p><strong>Qualifications:</strong> '+esc(r.qual)+'</p></div></div>';
+  }).join('');
+  return '<div class="wrap view apply">'+
+    '<div class="sechead"><h1 class="page-title" style="margin:0">Apply for a leadership position</h1><button class="btn btn-ghost btn-sm" onclick="go(\'about\')">\u2190 Back</button></div>'+
+    '<p class="page-intro">Want to help lead Earth Sweet Earth? Tell us about yourself and the role(s) you\u2019re interested in. The ESE team reviews every application.</p>'+
+    '<div class="yl-rep">💬 You should have at least <strong>'+rep+'</strong> reputation points in our Discord server to apply.'+(ownerEdit?' <button class="btn btn-ghost btn-xs" onclick="editRepThreshold()">\u270E Edit</button>':'')+'</div>'+
+    '<form id="ylForm" onsubmit="return submitYouthApplication(event)" novalidate>'+
+      fld('Your real first name & last initial','<input class="in" id="yl-name" type="text" maxlength="40" autocomplete="off" placeholder="e.g. Steven L.">')+
+      fld('Your Discord username','<input class="in" id="yl-discord" type="text" maxlength="40" autocomplete="off" placeholder="e.g. soliphilia">')+
+      fld('Your email <span class="muted">(or a parent/guardian\u2019s)</span>','<input class="in" id="yl-email" type="email" autocomplete="off" placeholder="you@example.com"><label class="ca-check" style="margin-top:8px"><input type="checkbox" id="yl-under13" onchange="ylUnder13()"> <span>I\u2019m under 13</span></label><div id="yl-under-note" class="yl-under-note" style="display:none">Please use a parent or guardian\u2019s email above, and make sure they\u2019re okay with you applying. Discord also requires users to be at least 13, so you\u2019d use their Discord account too.</div>')+
+      fld('Incoming grade','<select class="in" id="yl-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
+      fld('Country or territory','<select class="in" id="yl-country" onchange="ylCountryChange()"><option value="">Choose\u2026</option>'+optList(CA_COUNTRIES)+'</select><div id="yl-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="yl-sublabel" style="font-weight:500">State / province</label><select class="in" id="yl-sub"></select></div>')+
+      fld('Full school name, with district','<input class="in" id="yl-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. South Woods Middle School \u2014 Syosset">')+
+      fld('Which role(s) are you interested in? <span class="muted">(select all that apply \u2014 details appear when you pick one)</span>', rolesHtml)+
+      fld('What have you accomplished in ESE so far? <span class="muted">(500 words max)</span>','<textarea class="in" id="yl-acc" rows="6" oninput="ylCount(\'yl-acc\',\'yl-acc-c\',500)" placeholder="Projects, chapters, events, contributions \u2014 anything you\u2019ve helped with."></textarea>','<span id="yl-acc-c">0 / 500 words</span>')+
+      fld('How do you plan on making ESE better? <span class="muted">(500 words max)</span>','<textarea class="in" id="yl-improve" rows="6" oninput="ylCount(\'yl-improve\',\'yl-improve-c\',500)" placeholder="Your ideas, goals, and what you\u2019d do in the role."></textarea>','<span id="yl-improve-c">0 / 500 words</span>')+
+      fld('Nominate a peer <span class="muted">(150 words max)</span>','<textarea class="in" id="yl-nominate" rows="4" oninput="ylCount(\'yl-nominate\',\'yl-nominate-c\',150)" placeholder="Name a fellow member for a specific position and briefly say why they\u2019d be a great fit."></textarea>','<span id="yl-nominate-c">0 / 150 words</span>')+
+      fld('One last check', (RECAPTCHA_SITE_KEY?'<div id="yl-recaptcha"></div>':'<label class="ca-recap"><input type="checkbox" id="yl-notrobot"> I\u2019m not a robot</label><p class="ca-note">A full reCAPTCHA appears here once a site key is added in the code.</p>'))+
+      '<p class="ca-hint bad" id="yl-err" style="display:none"></p>'+
+      '<button class="btn btn-primary" type="submit" style="margin-top:6px">Submit application</button>'+
+    '</form>'+
+  '</div>';
+}
+function ylToggleRole(id,checked){ const el=document.getElementById('ylr-'+id); if(el) el.style.display=checked?'':'none'; }
+function ylUnder13(){ const cb=document.getElementById('yl-under13'), n=document.getElementById('yl-under-note'); if(n) n.style.display=(cb&&cb.checked)?'':'none'; }
+function ylCountryChange(){ const c=document.getElementById('yl-country'), wrap=document.getElementById('yl-subwrap'), sub=document.getElementById('yl-sub'), lbl=document.getElementById('yl-sublabel'); if(!c||!wrap||!sub)return; const subs=CA_SUBDIV[c.value]; if(subs){ lbl.textContent=(c.value==='Canada'?'Province / territory':c.value==='India'?'State / union territory':'State / province'); sub.innerHTML='<option value="">Choose\u2026</option>'+subs.map(function(s){return '<option>'+esc(s)+'</option>';}).join(''); wrap.style.display=''; } else { wrap.style.display='none'; sub.innerHTML=''; } }
+function ylCount(id,cid,max){ const el=document.getElementById(id), c=document.getElementById(cid); if(!el||!c)return; const n=caWords(el.value); c.textContent=n+' / '+max+' words'; c.parentElement.className='ca-hint'+(n>max?' bad':''); }
+function ylLoadRecaptcha(){
+  if(!RECAPTCHA_SITE_KEY)return;
+  const doRender=function(){ const el=document.getElementById('yl-recaptcha'); if(!el||el.dataset.done||!(window.grecaptcha&&grecaptcha.render))return; try{ ylRecaptchaId=grecaptcha.render('yl-recaptcha',{sitekey:RECAPTCHA_SITE_KEY}); el.dataset.done='1'; }catch(e){} };
+  if(window.grecaptcha&&grecaptcha.render){ doRender(); return; }
+  if(!document.getElementById('ca-recaptcha-js')){ const s=document.createElement('script'); s.id='ca-recaptcha-js'; s.src='https://www.google.com/recaptcha/api.js'; s.async=true; s.defer=true; document.head.appendChild(s); }
+  let tries=0; const iv=setInterval(function(){ if((window.grecaptcha&&grecaptcha.render)||++tries>40){ clearInterval(iv); doRender(); } },250);
+}
+function initYouthApply(){ ylCount('yl-acc','yl-acc-c',500); ylCount('yl-improve','yl-improve-c',500); ylCount('yl-nominate','yl-nominate-c',150); ylCountryChange(); ylLoadRecaptcha(); }
+function editRepThreshold(){ openEditor('Minimum Discord reputation',[{key:'n',label:'Minimum reputation points required',type:'text',placeholder:'e.g. 50'}],{n:content.repThreshold!=null?String(content.repThreshold):'50'},function(v){ const n=parseInt(v.n,10); content.repThreshold=isNaN(n)?0:n; toast('Saved'); saveSiteContent(true); }); }
+async function submitYouthApplication(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  const errBox=document.getElementById('yl-err');
+  const fail=function(msg,id){ if(errBox){ errBox.textContent=msg; errBox.style.display='block'; errBox.scrollIntoView({behavior:'smooth',block:'center'}); } const f=id&&document.getElementById(id); if(f&&f.focus)f.focus(); return false; };
+  const val=function(id){ const el=document.getElementById(id); return el?el.value.trim():''; };
+  if(!val('yl-name')) return fail('Please enter your first name and last initial.','yl-name');
+  if(!val('yl-discord')) return fail('Please enter your Discord username.','yl-discord');
+  const email=val('yl-email'); if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('Please enter a valid email address.','yl-email');
+  if(!val('yl-grade')) return fail('Please choose your incoming grade.','yl-grade');
+  if(!val('yl-country')) return fail('Please choose your country or territory.','yl-country');
+  const subShown=document.getElementById('yl-subwrap').style.display!=='none';
+  if(subShown && !val('yl-sub')) return fail('Please choose your state / province.','yl-sub');
+  if(!val('yl-school')) return fail('Please enter your full school name and district.','yl-school');
+  const roles=Array.prototype.slice.call(document.querySelectorAll('.yl-role-cb')).filter(function(c){return c.checked;}).map(function(c){return c.value;});
+  if(!roles.length) return fail('Please select at least one role you\u2019re interested in.');
+  const acc=val('yl-acc'); if(!acc) return fail('Please answer what you\u2019ve accomplished in ESE so far.','yl-acc');
+  if(caWords(acc)>500) return fail('Please keep the first answer to 500 words or fewer.','yl-acc');
+  const improve=val('yl-improve'); if(!improve) return fail('Please answer how you\u2019d make ESE better.','yl-improve');
+  if(caWords(improve)>500) return fail('Please keep the second answer to 500 words or fewer.','yl-improve');
+  const nominate=val('yl-nominate'); if(caWords(nominate)>150) return fail('Please keep the nomination to 150 words or fewer.','yl-nominate');
+  if(RECAPTCHA_SITE_KEY){ const resp=(window.grecaptcha&&ylRecaptchaId!=null)?grecaptcha.getResponse(ylRecaptchaId):''; if(!resp) return fail('Please complete the reCAPTCHA.'); }
+  else { const nr=document.getElementById('yl-notrobot'); if(nr&&!nr.checked) return fail('Please tick the box to confirm you\u2019re human.','yl-notrobot'); }
+  if(errBox) errBox.style.display='none';
+  const app={ name:val('yl-name'), discord:val('yl-discord'), email:email, under13:!!(document.getElementById('yl-under13')||{}).checked, grade:val('yl-grade'), country:val('yl-country'), subdivision:subShown?val('yl-sub'):'', school:val('yl-school'), roles:roles, accomplished:acc, improve:improve, nomination:nominate, submittedAt:new Date().toISOString() };
+  const btn=document.querySelector('#ylForm button[type="submit"]'); if(btn){ btn.disabled=true; btn.textContent='Submitting\u2026'; }
+  let ok=true, emsg='';
+  if(BACKEND){ try{ const {error}=await sb.from('youth_applications').insert({data:app}); if(error){ ok=false; emsg=error.message; } else { try{ sb.functions.invoke('notify-application',{body:{type:'leadership',data:app}}); }catch(e){} } }catch(ex){ ok=false; emsg='network error'; } }
+  if(ok){ openModal('<h3>Application received! 🌱</h3><p>Thanks, '+esc(app.name)+'! The ESE team will review it and reach out on Discord. You can close this window.</p><button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="closeModal();go(\'about\')">Done</button>'); }
+  else { if(btn){ btn.disabled=false; btn.textContent='Submit application'; } fail('Sorry \u2014 we couldn\u2019t submit that ('+emsg+'). Please try again in a moment.'); }
+  return false;
+}
+
+function chaptersListView(){                              // reached via "View our chapters" (not in the nav)
   const conts=['Africa','Antarctica','Asia','Europe','North America','Oceania','South America'];
   const manage=canEdit('chapters_add');
   const byCont={};
@@ -863,22 +1460,128 @@ function chaptersView(){
     } else { inner='<p class="muted">No chapters here yet — check back soon!</p>'; }
     return '<details class="cont"><summary>'+c+'</summary><div class="body">'+inner+'</div></details>';
   }).join('');
-  return '<div class="wrap view"><h1 class="page-title">ESE chapters</h1>'+
-    '<p class="page-intro">Chapters are regional branches of ESE. People can apply to start one in their area.</p>'+
-    '<p style="margin-bottom:0"><button class="btn btn-primary btn-sm" onclick="createChapter()">Start your own chapter</button></p>'+
-    '<p class="muted" style="font-size:.9rem;margin-top:16px">Fill out the application form to start a chapter — the ESE team reviews each one and, once approved, adds it here.</p>'+
+  return '<div class="wrap view"><div class="sechead"><div><h1 class="page-title" style="margin:0">Our chapters</h1></div><button class="btn btn-ghost btn-sm" onclick="go(\'chapters\')">← Back to Chapters</button></div>'+
+    '<p class="page-intro">ESE chapters around the world. Open a continent to see its chapters.</p>'+
     (manage?'<div class="card" style="margin:18px 0"><strong style="color:var(--green)">Chapter admin</strong><p class="muted" style="margin:6px 0 10px">Add an approved chapter. Country and chapter names can be written in any language or script.</p><button class="btn btn-primary btn-sm" onclick="addItem(\'chapter\')">+ Add a chapter</button></div>':'<div style="height:8px"></div>')+
     body+
   '</div>';
 }
 
+/* ========================= GALLERY ========================= */
+const REACTION_EMOJIS=['\u2764\uFE0F','👍','🎉','🙌','😮','🌱','🔥','👏','😂','💚','🌍','\u2728'];
+const SAMPLE_COMMENTS=['Amazing work! 🌱','So proud of this team.','How can I join the next one?','This absolutely made my day.','Let\u2019s do way more of these!','Incredible turnout 👏'];
+const GALLERY_PH=(function(){
+  const caps=['Beach cleanup at Jones Beach','Tree planting, Earth Day','Community garden build','Neighborhood recycling drive','River cleanup crew','Pollinator garden in bloom','Solar-oven workshop','Composting 101 demo','Park trail restoration','Coastal dune planting','Zero-waste lunch challenge','Wildlife count morning','Storm-drain mural project','Seed library launch','Bike-to-school day','Rooftop garden harvest','Watershed field trip','E-waste collection day','Native plant giveaway','Community clothing swap','Litter-free game day','Rain barrel install','Meadow restoration','Green roof tour','Reef-safe beach day'];
+  return caps.map(function(c,i){ return {id:'ph'+(i+1), caption:c, hue:(i*37)%360, featured:i<4}; });
+})();
+let gSocial={};
+function galleryItems(){ return (content.gallery&&content.gallery.length)?content.gallery:GALLERY_PH; }
+function ensureSocial(id){
+  if(gSocial[id])return gSocial[id];
+  let seed=0; for(let i=0;i<String(id).length;i++) seed+=String(id).charCodeAt(i)*(i+1);
+  const rnd=function(n){ const x=Math.sin((seed+1)*9301+n*49297)*233280; return x-Math.floor(x); };
+  const reactions={}, nR=Math.floor(rnd(1)*4)+1;
+  for(let i=0;i<nR;i++){ const e=REACTION_EMOJIS[Math.floor(rnd(i+2)*REACTION_EMOJIS.length)]; reactions[e]=(reactions[e]||0)+Math.floor(rnd(i+5)*9)+1; }
+  const comments=[], nC=Math.floor(rnd(20)*3), names=['Ava','Leo','Mia','Noah','Zoe','Ivy'];
+  for(let i=0;i<nC;i++){ comments.push({id:'sc'+id+i, user:names[Math.floor(rnd(i+30)*names.length)], avatar:null, body:SAMPLE_COMMENTS[Math.floor(rnd(i+40)*SAMPLE_COMMENTS.length)], ts:Date.now()-(i+1)*77000000, reactions:{}, mine:null}); }
+  gSocial[id]={reactions:reactions, mine:null, comments:comments}; return gSocial[id];
+}
+function totalReactions(r){ let t=0; for(const k in r) t+=r[k]; return t; }
+function applyReaction(store,emoji){
+  if(!store.reactions)store.reactions={};
+  if(store.mine===emoji){ store.reactions[emoji]=(store.reactions[emoji]||1)-1; if(store.reactions[emoji]<=0)delete store.reactions[emoji]; store.mine=null; }
+  else { if(store.mine){ store.reactions[store.mine]=(store.reactions[store.mine]||1)-1; if(store.reactions[store.mine]<=0)delete store.reactions[store.mine]; } store.reactions[emoji]=(store.reactions[emoji]||0)+1; store.mine=emoji; }
+}
+function reactionChips(store, onclickPrefix){
+  const entries=Object.keys(store.reactions||{}).map(function(k){return [k,store.reactions[k]];}).filter(function(e){return e[1]>0;}).sort(function(a,b){return b[1]-a[1];});
+  if(!entries.length) return '';
+  return '<span class="rx-shown">'+entries.slice(0,3).map(function(e){ const on=store.mine===e[0]?' on':''; return '<span class="rx-chip'+on+'" onclick="'+onclickPrefix+'\''+e[0]+'\')"><span class="rx-e">'+e[0]+'</span><span class="rx-c">'+e[1]+'</span></span>'; }).join('')+'</span>';
+}
+function galleryReactionBar(id){
+  const s=ensureSocial(id), total=totalReactions(s.reactions);
+  return '<div class="rx">'+reactionChips(s,'galleryReact(\''+id+'\',')+
+    '<button class="rx-add" title="Add reaction" onclick="openEmojiPicker(this,\'photo\',\''+id+'\',\'\')">🙂+</button>'+
+    (total?'<span class="rx-total">'+total+'</span>':'')+'</div>';
+}
+function galleryReact(id,emoji){ if(!isLoggedIn()){ popup('Join in','Log in or sign up to react to photos!'); return; } applyReaction(ensureSocial(id),emoji); rerenderGallery(); }
+function rerenderGallery(){ if(route()==='gallery') render(); }
+
+/* emoji picker (floating) */
+let _rxTarget=null;
+function openEmojiPicker(btn,kind,photoId,commentId){
+  if(!isLoggedIn()){ popup('Join in','Log in or sign up to react!'); return; }
+  closeEmojiPicker(); _rxTarget={kind:kind,photoId:photoId,commentId:commentId};
+  const p=document.createElement('div'); p.className='emoji-picker'; p.id='emojiPicker';
+  p.innerHTML=REACTION_EMOJIS.map(function(e){return '<button onclick="pickEmoji(\''+e+'\')">'+e+'</button>';}).join('');
+  document.body.appendChild(p);
+  const r=btn.getBoundingClientRect();
+  p.style.left=Math.max(8,Math.min(r.left, window.innerWidth-p.offsetWidth-10))+'px';
+  p.style.top=(r.bottom+6+window.scrollY)+'px';
+  setTimeout(function(){ document.addEventListener('mousedown',emojiPickerOutside); },0);
+}
+function emojiPickerOutside(e){ const p=document.getElementById('emojiPicker'); if(p&&!p.contains(e.target)) closeEmojiPicker(); }
+function closeEmojiPicker(){ const p=document.getElementById('emojiPicker'); if(p)p.remove(); document.removeEventListener('mousedown',emojiPickerOutside); }
+function pickEmoji(emoji){
+  if(!_rxTarget)return; const t=_rxTarget; closeEmojiPicker();
+  if(t.kind==='photo'){ applyReaction(ensureSocial(t.photoId),emoji); rerenderGallery(); }
+  else { const c=ensureSocial(t.photoId).comments.find(function(x){return x.id===t.commentId;}); if(c){ applyReaction(c,emoji); renderCommentsModal(t.photoId); } }
+}
+
+function galleryTile(g,admin){
+  const ph=g.photo?'<img src="'+escA(g.photo)+'" alt="'+escA(g.caption||'')+'">':'<div class="g-ph" style="background:linear-gradient(135deg,hsl('+(g.hue||140)+',45%,72%),hsl('+(((g.hue||140)+45)%360)+',52%,55%))"><span>🌿</span></div>';
+  const s=ensureSocial(g.id), nC=s.comments.length;
+  return '<figure class="gtile">'+
+    '<div class="gphoto">'+ph+'</div>'+
+    '<figcaption class="gcap">'+esc(g.caption||'')+'</figcaption>'+
+    galleryReactionBar(g.id)+
+    '<div class="gfoot">'+
+      '<button class="gcomment" onclick="openGalleryComments(\''+g.id+'\')">💬 '+(nC?nC+(nC===1?' comment':' comments'):'Comment')+'</button>'+
+      (admin?'<span class="gadmin"><button class="btn btn-ghost btn-xs" onclick="toggleFeatureGallery(\''+g.id+'\')">'+(g.featured?'\u2605 Unfeature':'\u2606 Feature')+'</button><button class="btn btn-ghost btn-xs" onclick="editItem(\'gallery\',\''+g.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" title="Remove" onclick="deleteItem(\'gallery\',\''+g.id+'\')">\u00d7</button></span>':'')+
+    '</div></figure>';
+}
 function galleryView(){
-  const items=content.gallery.map(g=>'<figure class="gitem">'+(g.photo?'<img src="'+escA(g.photo)+'">':'')+'<figcaption>'+esc(g.caption)+(canEditKind('gallery')?editDel('gallery',g.id):'')+'</figcaption></figure>').join('');
-  let h='<div class="wrap view"><h1 class="page-title">Moments from the field</h1><p class="page-intro">Photos of clean-ups, plantings, and events.</p>';
-  if(content.gallery.length) h+='<div class="grid g3" style="margin-top:18px">'+items+'</div>';
-  if(canEditKind('gallery')) h+='<div style="margin-top:14px"><button class="addbtn" onclick="addItem(\'gallery\')">+ Add photo</button></div>';
+  const ed=canEditKind('gallery'), items=galleryItems(), isReal=!!(content.gallery&&content.gallery.length);
+  const feat=items.filter(function(g){return g.featured;}), gen=items.filter(function(g){return !g.featured;});
+  let h='<div class="wrap view"><h1 class="page-title">An Impact You Can <em>See</em></h1>'+
+    '<p class="page-intro">Snapshots from clean-ups, plantings, and events \u2014 react, comment, and cheer each other on.</p>';
+  if(ed) h+='<div style="margin:6px 0 22px"><button class="addbtn" style="max-width:280px" onclick="addItem(\'gallery\')">+ Add a photo</button></div>';
+  if(feat.length) h+='<h2 class="acts-sub" style="margin-top:6px">Featured</h2><div class="ggrid gfeat">'+feat.map(function(g){return galleryTile(g,ed&&isReal);}).join('')+'</div>';
+  h+='<h2 class="acts-sub">'+(feat.length?'More moments':'Moments')+'</h2>';
+  h+=gen.length?('<div class="ggrid">'+gen.map(function(g){return galleryTile(g,ed&&isReal);}).join('')+'</div>'):'<p class="muted">No photos yet \u2014 check back soon!</p>';
+  h+='<div style="margin-top:28px;text-align:center">'+ucHover('<button class="btn btn-blue" onclick="comingSoon()">Submit yours on Discord</button>')+'</div>';
   return h+'</div>';
 }
+function toggleFeatureGallery(id){ const g=(content.gallery||[]).find(function(x){return x.id===id;}); if(!g)return; g.featured=!g.featured; toast(g.featured?'Featured':'Moved to general'); render(); }
+
+/* comments (modal, so it never disrupts the grid) */
+function openGalleryComments(id){ renderCommentsModal(id); }
+function renderCommentsModal(id){
+  const g=galleryItems().find(function(x){return x.id===id;}), s=ensureSocial(id);
+  const thread=s.comments.length?s.comments.map(function(c){return commentRow(id,c);}).join(''):'<p class="muted" style="text-align:center;margin:18px 0">No comments yet \u2014 be the first!</p>';
+  const compose=isLoggedIn()
+    ?'<div class="cmp"><textarea id="gc-input" rows="2" placeholder="Add a comment\u2026"></textarea><button class="btn btn-primary btn-sm" onclick="postGalleryComment(\''+id+'\')">Post</button></div>'
+    :'<p class="muted" style="text-align:center;margin:0"><a href="#" onclick="closeModal();openLogin();return false;">Log in</a> to join the conversation.</p>';
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3 style="margin-bottom:2px">Comments</h3><p class="muted" style="margin-bottom:14px">'+esc(g?g.caption:'')+'</p><div class="cthread">'+thread+'</div>'+compose);
+}
+function commentRow(photoId,c){
+  const av=c.avatar?'<img src="'+escA(c.avatar)+'">':'<span class="cinit">'+esc((c.user||'?').charAt(0).toUpperCase())+'</span>';
+  return '<div class="crow"><div class="cav">'+av+'</div><div class="cbody">'+
+    '<div class="cmeta"><strong>'+esc(c.user||'Member')+'</strong><span class="ctime">'+timeAgo(c.ts)+'</span></div>'+
+    '<div class="ctext">'+esc(c.body)+'</div>'+
+    '<div class="crx">'+reactionChips({reactions:c.reactions||{},mine:c.mine},'commentReact(\''+photoId+'\',\''+c.id+'\',')+
+      '<button class="rx-add sm" title="Add reaction" onclick="openEmojiPicker(this,\'comment\',\''+photoId+'\',\''+c.id+'\')">🙂+</button></div>'+
+  '</div></div>';
+}
+function postGalleryComment(id){
+  const el=document.getElementById('gc-input'), body=el?el.value.trim():''; if(!body)return;
+  ensureSocial(id).comments.push({id:'c'+Date.now(), user:(account&&account.username)||'You', avatar:(account&&account.avatar)||null, body:body, ts:Date.now(), reactions:{}, mine:null});
+  renderCommentsModal(id); rerenderGallery();
+}
+function commentReact(photoId,commentId,emoji){
+  if(!isLoggedIn()){ popup('Join in','Log in to react!'); return; }
+  const c=ensureSocial(photoId).comments.find(function(x){return x.id===commentId;}); if(!c)return; applyReaction(c,emoji); renderCommentsModal(photoId);
+}
+function timeAgo(ts){ const d=Math.floor((Date.now()-ts)/1000); if(d<60)return 'just now'; if(d<3600)return Math.floor(d/60)+'m ago'; if(d<86400)return Math.floor(d/3600)+'h ago'; return Math.floor(d/86400)+'d ago'; }
 
 function contactView(){
   const ed=canEdit('edit_content');
@@ -901,17 +1604,106 @@ function contactView(){
     '</div></div>';
 }
 
+const EVENT_COLORS={Green:'#3f8a5a',Blue:'#2f6f8f',Amber:'#b5813d',Rose:'#a1596b',Purple:'#6a5acd',Gray:'#6b7a72'};
 function calendarView(){
   const canE=canEdit('calendar_edit');
-  let mtg='';
-  if(content.meetingLink){ mtg='<a class="mtg-rect" href="'+escA(safeUrl(content.meetingLink))+'" target="_blank" rel="noopener">Join the next meeting ↗</a>'+(canE?'<div class="rowbtns" style="margin-top:-8px;margin-bottom:16px"><button class="btn btn-ghost btn-xs" onclick="editMeetingLink()">Edit link</button></div>':''); }
-  else if(canE){ mtg='<button class="addbtn" onclick="editMeetingLink()" style="padding:20px;margin-bottom:20px">+ Add the next meeting link</button>'; }
-  const evts=content.events.map(e=>'<div class="evt" onclick="openDetails(\'event\','+e.id+')"><div class="en">'+esc(e.name)+'</div><div class="ed2">'+esc(fmtDate(e.date))+(e.time?' · '+esc(e.time):'')+'</div>'+(canE?editDel('event',e.id):'')+'</div>').join('');
-  let h='<div class="wrap view"><h1 class="page-title">Upcoming events</h1>';
-  h+=mtg;
-  if(content.events.length) h+='<h3 style="color:var(--green);margin:6px 0 12px">Events</h3>'+evts;
-  if(canE) h+='<div style="margin-top:8px"><button class="addbtn" onclick="addItem(\'event\')">+ Add event</button></div>';
+  let h='<div class="wrap view"><h1 class="page-title">Calendar &amp; events</h1><p class="page-intro">Everything happening at Earth Sweet Earth, in one place.</p>';
+  if(content.meetingLink){ h+='<a class="mtg-rect" href="'+escA(safeUrl(content.meetingLink))+'" target="_blank" rel="noopener">Join the next meeting \u2197</a>'+(canE?'<div class="rowbtns" style="margin-top:-8px;margin-bottom:18px"><button class="btn btn-ghost btn-xs" onclick="editMeetingLink()">Edit link</button></div>':''); }
+  else if(canE){ h+='<button class="addbtn" onclick="editMeetingLink()" style="padding:18px;margin-bottom:18px">+ Add the next meeting link</button>'; }
+  const gid=content.gcalId;
+  h+='<div class="sechead" style="margin:8px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Our shared calendar</h2>'+(canE?'<button class="btn btn-ghost btn-sm" onclick="editGcalId()">'+(gid?'Change calendar':'Connect a calendar')+'</button>':'')+'</div>';
+  if(gid){
+    const src='https://calendar.google.com/calendar/embed?src='+encodeURIComponent(gid)+'&ctz=local&mode=MONTH&showTitle=0&showPrint=0&showCalendars=0&showTz=0';
+    h+='<div class="gcal-wrap"><iframe class="gcal" src="'+src+'" style="border:0" loading="lazy"></iframe></div>';
+  } else {
+    h+='<div class="card" style="text-align:center;padding:30px"><p class="muted" style="margin:0">'+(canE?'Add your organization\u2019s Google Calendar ID (or email) above to embed the live calendar here \u2014 it maps your Google Calendar exactly.':'Our shared calendar will appear here soon.')+'</p></div>';
+  }
+  const evs=content.events.slice().sort(function(a,b){return (a.date||'')<(b.date||'')?-1:(a.date||'')>(b.date||'')?1:0;});
+  h+='<div class="sechead" style="margin:28px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Upcoming events</h2>'+(canE?'<button class="btn btn-primary btn-sm" onclick="addItem(\'event\')">+ Add event</button>':'')+'</div>';
+  if(evs.length){
+    h+='<div class="cev-list">'+evs.map(function(e){
+      const col=EVENT_COLORS[e.color]||EVENT_COLORS.Green;
+      const meta=esc(fmtDate(e.date))+(e.time?' \u00b7 '+esc(e.time):'');
+      const open=e.link?('window.open(\''+escA(safeUrl(e.link))+'\',\'_blank\',\'noopener\')'):('openDetails(\'event\',\''+e.id+'\')');
+      return '<div class="cev" style="border-left-color:'+col+'"><div class="cev-main" onclick="'+open+'"><span class="cev-dot" style="background:'+col+'"></span><div><div class="cev-name">'+esc(e.name)+(e.link?' <span class="cev-link">\u2197</span>':'')+'</div><div class="cev-date">'+meta+'</div></div></div>'+(canE?'<div class="cev-admin">'+editDel('event',e.id)+'</div>':'')+'</div>';
+    }).join('')+'</div>';
+  } else { h+='<p class="muted">No events listed yet.</p>'; }
   return h+'</div>';
+}
+function editGcalId(){ openEditor('Google Calendar',[{key:'id',label:'Calendar ID or email (Google Calendar \u2192 Settings \u2192 Integrate calendar \u2192 Calendar ID)',type:'text',placeholder:'yourcalendar@group.calendar.google.com'}],{id:content.gcalId||''},function(v){ content.gcalId=(v.id||'').trim(); toast('Saved'); saveSiteContent(true); }); }
+
+/* ========================= OWNER ANALYTICS ========================= */
+function isOwner(){ return isLoggedIn() && session && session.roleId==='owner'; }
+let analyticsData=null, analyticsLoading=false, notifCount=0;
+function ensureAnalytics(){ if(analyticsData!==null||analyticsLoading)return; analyticsLoading=true; loadAnalytics(); }
+async function loadAnalytics(){
+  if(!BACKEND){ analyticsData={members:people.length,countries:1,chApps:[],ylApps:[],chTotal:0,chPending:0,ylTotal:0,ylPending:0,traffic:{total:0,week:0,last7:[]}}; analyticsLoading=false; if(route()==='analytics')render(); return; }
+  const d={members:0,countries:0,chApps:[],ylApps:[],traffic:{total:0,week:0,last7:[]}};
+  try{ const {data}=await sb.rpc('ese_stats'); if(data){ d.members=data.people||0; d.countries=data.countries||0; } }catch(e){}
+  try{ const {data}=await sb.from('chapter_applications').select('id,data,reviewed,created_at').order('created_at',{ascending:false}); d.chApps=data||[]; }catch(e){}
+  try{ const {data}=await sb.from('youth_applications').select('id,data,reviewed,created_at').order('created_at',{ascending:false}); d.ylApps=data||[]; }catch(e){}
+  try{ const {data}=await sb.rpc('ese_traffic'); if(data) d.traffic=data; }catch(e){}
+  d.chTotal=d.chApps.length; d.chPending=d.chApps.filter(function(a){return !a.reviewed;}).length;
+  d.ylTotal=d.ylApps.length; d.ylPending=d.ylApps.filter(function(a){return !a.reviewed;}).length;
+  analyticsData=d; notifCount=d.chPending+d.ylPending; analyticsLoading=false;
+  if(route()==='analytics')render(); renderChrome();
+}
+async function loadNotifCount(){
+  if(!BACKEND||!isOwner()){ notifCount=0; return; }
+  try{
+    const a=await sb.from('chapter_applications').select('id',{count:'exact',head:true}).eq('reviewed',false);
+    const b=await sb.from('youth_applications').select('id',{count:'exact',head:true}).eq('reviewed',false);
+    notifCount=(a.count||0)+(b.count||0);
+  }catch(e){ notifCount=0; }
+  renderChrome();
+}
+function statCard(label,val,sub){ return '<div class="stat-card"><div class="stat-val">'+val+'</div><div class="stat-lab">'+esc(label)+'</div>'+(sub?'<div class="stat-sub">'+esc(sub)+'</div>':'')+'</div>'; }
+function analyticsView(){
+  const d=analyticsData;
+  let h='<div class="wrap view"><h1 class="page-title">Owner Analytics</h1><p class="page-intro">A private overview of Earth Sweet Earth \u2014 only the owner can see this.</p>';
+  if(!d) return h+'<p class="muted">Loading\u2026</p></div>';
+  h+='<div class="stat-grid">'+
+    statCard('Members',d.members)+statCard('Countries',d.countries)+
+    statCard('Chapter applications',d.chTotal,(d.chPending?d.chPending+' need review':'all reviewed'))+
+    statCard('Leadership applications',d.ylTotal,(d.ylPending?d.ylPending+' need review':'all reviewed'))+
+    statCard('Chapters listed',(content.chapters||[]).length)+statCard('Newsletter posts',newsletters.length)+
+    statCard('Events',(content.events||[]).length)+statCard('Gallery photos',(content.gallery||[]).length)+
+  '</div>';
+  const pending=[].concat(
+    d.chApps.filter(function(a){return !a.reviewed;}).map(function(a){return {k:'chapter',a:a};}),
+    d.ylApps.filter(function(a){return !a.reviewed;}).map(function(a){return {k:'youth',a:a};})
+  ).sort(function(x,y){return (x.a.created_at<y.a.created_at)?1:-1;});
+  h+='<h2 class="acts-sub">Needs review'+(pending.length?' <span class="ndot"></span>':'')+'</h2>';
+  if(pending.length){
+    h+='<div class="notif-list">'+pending.map(function(p){
+      const a=p.a, nm=(a.data&&a.data.name)||'Someone', when=fmtDateTime(new Date(a.created_at).getTime());
+      return '<div class="notif"><span class="ndot"></span><div class="notif-main" onclick="viewApplication(\''+p.k+'\',\''+a.id+'\')"><div class="notif-title">New '+(p.k==='chapter'?'chapter':'leadership')+' application \u2014 '+esc(nm)+'</div><div class="notif-when">'+esc(when)+'</div></div><button class="btn btn-ghost btn-xs" onclick="markReviewed(\''+p.k+'\',\''+a.id+'\')">Mark reviewed</button></div>';
+    }).join('')+'</div>';
+  } else { h+='<p class="muted">You\u2019re all caught up \u2014 no applications waiting.</p>'; }
+  h+='<h2 class="acts-sub">Traffic</h2>';
+  const t=d.traffic||{total:0,week:0,last7:[]};
+  h+='<div class="stat-grid" style="margin-bottom:16px">'+statCard('Total page views',t.total||0)+statCard('Views this week',t.week||0)+'</div>';
+  if(t.last7 && t.last7.length){
+    const max=Math.max.apply(null,[1].concat(t.last7.map(function(x){return x.n;})));
+    h+='<div class="tchart">'+t.last7.map(function(x){ const pct=Math.max(3,Math.round((x.n/max)*100)); return '<div class="tbar"><div class="tbar-n">'+x.n+'</div><div class="tbar-track"><div class="tbar-fill" style="height:'+pct+'%"></div></div><div class="tbar-lab">'+esc(x.d)+'</div></div>'; }).join('')+'</div>';
+  }
+  return h+'</div>';
+}
+function markReviewed(k,id){
+  const d=analyticsData; if(!d)return;
+  const arr=k==='chapter'?d.chApps:d.ylApps, a=arr.find(function(x){return String(x.id)===String(id);}); if(a)a.reviewed=true;
+  d.chPending=d.chApps.filter(function(x){return !x.reviewed;}).length; d.ylPending=d.ylApps.filter(function(x){return !x.reviewed;}).length; notifCount=d.chPending+d.ylPending;
+  render();
+  if(BACKEND){ const table=k==='chapter'?'chapter_applications':'youth_applications'; try{ sb.from(table).update({reviewed:true}).eq('id',id).then(function(){},function(){}); }catch(e){} }
+}
+function viewApplication(k,id){
+  const d=analyticsData; if(!d)return;
+  const arr=k==='chapter'?d.chApps:d.ylApps, a=arr.find(function(x){return String(x.id)===String(id);}); if(!a)return;
+  const ad=a.data||{}; let rows='';
+  const label={name:'Name',discord:'Discord',email:'Email',grade:'Grade',country:'Country',subdivision:'State / province',school:'School',members:'Five members',memberDiscords:'Their Discords',why:'Why',roles:'Roles',accomplished:'Accomplishments',improve:'Improvement ideas',nomination:'Peer nomination',under13:'Under 13'};
+  Object.keys(ad).forEach(function(key){ if(/signature|submittedAt/i.test(key))return; let val=ad[key]; if(Array.isArray(val))val=val.join(', '); if(typeof val==='boolean')val=val?'Yes':'No'; if(val===''||val==null)return; rows+='<div class="ad-row"><span class="ad-k">'+esc(label[key]||key)+'</span><span class="ad-v">'+esc(String(val))+'</span></div>'; });
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3>'+(k==='chapter'?'Chapter':'Leadership')+' application</h3><div class="ad-list">'+rows+'</div><button class="btn btn-primary btn-sm" style="width:100%;margin-top:14px" onclick="closeModal()">Close</button>');
+  markReviewed(k,id);
 }
 
 function adminView(){
@@ -929,7 +1721,7 @@ function adminView(){
     memberBlock='<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Member</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody>'+
       memberResults.map(p=>{ const cur=p._newRole||p.roleId; const dirty=p._newRole&&p._newRole!==p.roleId;
         return '<tr><td>'+esc(p.username)+'</td><td class="muted">'+esc(p.email)+'</td>'+
-          '<td><select class="rsel" onchange="stageMemberRole(\''+String(p.id)+'\',this.value)">'+Object.keys(roles).map(id=>'<option value="'+id+'" '+(cur===id?'selected':'')+'>'+esc(roles[id].name)+'</option>').join('')+'</select></td>'+
+          '<td><select class="rsel" onchange="stageMemberRole(\''+String(p.id)+'\',this.value)">'+Object.keys(roles).filter(id=>id!=='public').map(id=>'<option value="'+id+'" '+(cur===id?'selected':'')+'>'+esc(roles[id].name)+'</option>').join('')+'</select></td>'+
           '<td style="white-space:nowrap"><button class="btn btn-primary btn-xs" '+(dirty?'':'disabled')+' onclick="saveMemberRole(\''+String(p.id)+'\')">Save</button> <button class="btn btn-danger btn-xs" onclick="confirmDeleteUser(\''+String(p.id)+'\')">Delete</button></td></tr>';
       }).join('')+'</tbody></table></div>';
   }
@@ -995,6 +1787,21 @@ async function doDeleteUser(id){
 /* ==========================================================================
    8) MAIN RENDER
    ========================================================================== */
+function fitChapterTitle(){
+  const el=document.getElementById('chapTitle'); if(!el)return;
+  const tips=el.querySelectorAll('.info .tip'); tips.forEach(function(t){t.style.display='none';});   // the tooltip must not inflate the measured width
+  const parent=el.parentElement, cs=getComputedStyle(parent);
+  const avail=(parent.clientWidth - parseFloat(cs.paddingLeft||0) - parseFloat(cs.paddingRight||0)) * 0.96;   // fit within ~96% of the width
+  const MIN=32, MAX=44;
+  el.style.whiteSpace='nowrap';
+  let size=MAX; el.style.fontSize=size+'px';
+  let guard=0;
+  while(el.scrollWidth>avail && size>MIN && guard++<320){ size-=1; el.style.fontSize=size+'px'; }
+  if(el.scrollWidth>avail) el.style.whiteSpace='normal';       // still too wide at min size -> let it wrap so it stays readable (not tiny)
+  tips.forEach(function(t){t.style.display='';});
+}
+let _lastLoggedView=0;
+function logPageView(r){ if(!BACKEND)return; const now=Date.now(); if(now-_lastLoggedView<800)return; _lastLoggedView=now; try{ sb.from('page_views').insert({path:r}).then(function(){},function(){}); }catch(e){} }
 function render(){
   recomputeSession();
   renderChrome();
@@ -1005,12 +1812,17 @@ function render(){
     const msg=r==='calendar'?'The calendar opens up once you\'re signed in and it\'s switched on.':r==='admin'?'Owner Settings is only for the site owner.':'This section isn\'t open to everyone yet.';
     app.innerHTML=deniedView(msg);
   } else {
-    const views={home:homeView,newsletter:newsletterView,programs:programsView,chapters:chaptersView,gallery:galleryView,contact:contactView,calendar:calendarView,admin:adminView};
+    const views={home:homeView,about:aboutView,newsletter:newsletterView,activities:activitiesView,youthapply:youthApplyView,chapters:chaptersView,chapterslist:chaptersListView,chapterapply:chapterApplyView,gallery:galleryView,contact:contactView,calendar:calendarView,admin:adminView,challenges:challengesView,construction:underConstructionView,privacy:privacyView,terms:termsView,analytics:analyticsView,post:newsletterPostView};
     app.innerHTML=views[r]();
     app.firstChild && app.firstChild.classList && app.firstChild.classList.add('fade');
   }
-  if(r!==lastRoute){ window.scrollTo(0,0); lastRoute=r; }   // only jump to top on real page change
+  if(r!==lastRoute){ window.scrollTo(0,0); lastRoute=r; logPageView(r); }   // only jump to top on real page change
   if(r==='home') initHero();
+  if(r==='chapterapply') requestAnimationFrame(initChapterApply);   // set up consent image, signature pads, reCAPTCHA after layout
+  if(r==='chapters') requestAnimationFrame(fitChapterTitle);        // scale the heading to one line
+  if(r==='about') ensureAboutStats();
+  if(r==='analytics') ensureAnalytics();
+  if(r==='youthapply') requestAnimationFrame(initYouthApply);
 }
 
 /* ==========================================================================
@@ -1059,7 +1871,7 @@ const FLOWER_POS=(function(){const a=[];const cx=100,cy=82,rx=64,ry=50,step=15;l
   return a;})();
 
 // sun/moon vertical placement, measured from the real horizon (hills) so it sits right on any screen
-let heroW=0, heroH=0, curP=0, groundY=0, trunkLX=0, trunkRX=0, GROUND_TY=200, canopyY=0, skyY=0;
+let heroW=0, heroH=0, curP=0, groundY=0, trunkLX=0, trunkRX=0, GROUND_TY=200, canopyY=0, skyY=0, hs=1;
 function measureHero(){
   const hero=document.getElementById('hero'); if(!hero)return;
   heroW=hero.clientWidth; heroH=hero.clientHeight;
@@ -1068,10 +1880,13 @@ function measureHero(){
   // Ground/sky lines from the known vh-based hill sizes — deterministic (getBoundingClientRect on the SVGs was unreliable and put the shadows at the top).
   groundY = heroH - 0.166*vh;                        // front-hill green top (23vh box, green begins ~28% down it)
   skyY    = heroH - 0.258*vh;                        // far light-green hill ridge (34vh box) — the sun sets behind this
-  trunkLX = 89; trunkRX = heroW - 89;                // trees are 190px wide at each edge (left:-6 / right:-6) → centre ≈89px in
-  const contentH=Math.min(0.44*vh, 190*320/200), topPx=heroH-contentH;   // tree content is bottom-aligned & letterboxed to its width
-  GROUND_TY = Math.max(40, Math.min(300, (groundY - topPx)/contentH*320));   // tree viewBox-y that lands on the visible ground
-  canopyY = topPx + (48/320)*contentH;               // just below the top of the crown
+  hs = Math.max(0.45, Math.min(1, heroW/1280));     // proportional scale: full on a laptop, smaller on phones/tablets
+  hero.style.setProperty('--hs', hs.toFixed(3));
+  trunkLX = 89; trunkRX = heroW - 89;                // trunk sits at each tree's horizontal centre (≈89px), unchanged by scaling (trees scale about bottom-centre)
+  const contentH=Math.min(0.44*vh, 190*320/200), topPx=heroH-contentH;   // tree content (unscaled); trees scale about the ground line so this crossing stays put
+  GROUND_TY = Math.max(40, Math.min(300, (groundY - topPx)/contentH*320));   // viewBox-y where the trunk meets the grass — unchanged by scaling
+  const canopyU = topPx + (48/320)*contentH;
+  canopyY = groundY - hs*(groundY - canopyU);        // top of the crown, scaled about the ground line
 }
 
 function seasonColor(p){ return p<0.32 ? mix('#3f8f4f','#c9a227',p/0.32) : mix('#c9a227','#c0472b',Math.min(1,(p-0.32)/0.22)); }
@@ -1095,17 +1910,17 @@ function drawPile(p, night){
   if(vis<=0.01 || !trunkLX){ if(pile._k){ pile.innerHTML=''; pile._k=''; } pile.style.opacity='0'; return; }
   pile.style.opacity=vis.toFixed(2);
   pile.setAttribute('viewBox','0 0 '+heroW+' '+heroH); pile.setAttribute('preserveAspectRatio','none');
-  const col=seasonColor(p), key=Math.round(build*24)+'|'+col;          // rebuild only when the leaf count/colour changes
+  const col=seasonColor(p), key=Math.round(build*24)+'|'+col+'|'+hs.toFixed(2);   // rebuild when leaf count/colour/scale changes
   if(pile._k===key) return;
   pile._k=key;
-  const brown='#7a3f1e', N=16, spread=66;
+  const brown='#7a3f1e', N=16, spread=66*hs;
   let s='';
   [trunkLX, trunkRX].forEach((cx,ti)=>{ if(!cx)return;
     for(let i=0;i<N;i++){ if(i/N>build) continue;
       const rx=fr(ti*91+i*5)*2-1;                                      // -1..1 across the mound
-      const dx=rx*spread, mound=(1-rx*rx)*13;                          // parabolic — taller in the middle
+      const dx=rx*spread, mound=(1-rx*rx)*13*hs;                        // parabolic — taller in the middle
       const lx=cx+dx, ly=groundY + 3 - mound*(0.5+fr(ti*91+i*5+1)*0.5);
-      const rot=fr(ti*91+i*5+2)*360, sc=0.85+fr(ti*91+i*5+3)*0.35;
+      const rot=fr(ti*91+i*5+2)*360, sc=(0.85+fr(ti*91+i*5+3)*0.35)*hs;
       const c=mix(col, brown, 0.4+fr(ti*91+i*5+4)*0.5);
       s+='<g transform="translate('+lx.toFixed(1)+','+ly.toFixed(1)+') rotate('+rot.toFixed(0)+') scale('+sc.toFixed(2)+')"><path d="'+LEAF_PATH+'" fill="'+c+'"/></g>';
     }
@@ -1222,7 +2037,7 @@ function updateScene(p, now){
     const top=mix('#2f86d4','#33447e',warmth), mid=mix('#7fb4e4','#e8895a',warmth), bot=mix('#cfe8f7','#ffcf9e',warmth);
     sky.style.background='linear-gradient(to bottom,'+top+' 0%,'+mid+' 55%,'+bot+' 86%)';
     setSunArc(p,true,th,warmth);
-    document.querySelectorAll('#clouds .cloud').forEach((c,i)=>{ const dir=i%2?1:-1; c.style.transform='translateX('+(dir*(1-p)*160).toFixed(0)+'px)'; c.style.opacity=(0.72+p*0.28).toFixed(2); });
+    document.querySelectorAll('#clouds .cloud').forEach((c,i)=>{ const dir=i%2?1:-1; c.style.transform='translateX('+(dir*(1-p)*160).toFixed(0)+'px) scale('+hs.toFixed(3)+')'; c.style.opacity=(0.72+p*0.28).toFixed(2); });
     const bloom = p<0.1 ? p/0.1 : p<0.30 ? 1 : Math.max(0,1-(p-0.30)/0.12);
     paintFlowers(bloom);
     swayTrees(0);
@@ -1231,7 +2046,7 @@ function updateScene(p, now){
     paintLeaves(p, false, now);
   }
 }
-function hexA(hex,a){ const h=hex.replace('#',''); const n=parseInt(h,16); return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
+function hexA(c,a){ if(c[0]==='r'){ const m=c.match(/\d+/g); return 'rgba('+m[0]+','+m[1]+','+m[2]+','+a+')'; } const h=c.replace('#',''); const n=parseInt(h,16); return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')'; }
 // the sun rides a semicircular arc east(right)→west(left), climbing high at midday; trunks cast oval shadows opposite it
 function setSunArc(p, show, th, warmth){
   const hero=document.getElementById('hero'); if(!hero)return;
@@ -1246,9 +2061,9 @@ function setSunArc(p, show, th, warmth){
   const setVis = Math.max(0, Math.min(1, (ridge + H*0.03 - sunY)/(H*0.10)));   // ~30% peek at the ridge → 0 just behind it → full a bit higher
   if(sw){
     sw.style.opacity=setVis.toFixed(2);
-    sw.style.left=(sunX-75).toFixed(0)+'px'; sw.style.top=(sunY-75).toFixed(0)+'px'; sw.style.transform='none';
+    sw.style.left=(sunX-75).toFixed(0)+'px'; sw.style.top=(sunY-75).toFixed(0)+'px'; sw.style.transform='scale('+hs.toFixed(3)+')';
     const disk=sw.querySelector('.sun-disk'), glow=sw.querySelector('.sun-glow');
-    const sunCol=mix('#F4C430','#ff8a4a',warmth);
+    const sunCol=mix('#F4D462','#ffc04d',warmth*0.6);
     if(disk){ disk.style.background=sunCol; disk.style.boxShadow='0 0 46px '+hexA(sunCol,0.5); }
     if(glow){ glow.style.background='radial-gradient(circle,'+hexA(sunCol,0.5)+','+hexA(sunCol,0)+' 68%)'; }
   }
@@ -1389,7 +2204,7 @@ function updateZzz(p, now){
     }
   });
 }
-function swayTrees(deg){ const l=document.getElementById('tree-left'),r=document.getElementById('tree-right'); if(l)l.style.transform='rotate('+deg+'deg)'; if(r)r.style.transform='scaleX(-1) rotate('+(deg)+'deg)'; }
+function swayTrees(deg){ const s=hs.toFixed(3); const l=document.getElementById('tree-left'),r=document.getElementById('tree-right'); if(l)l.style.transform='scale('+s+') rotate('+deg+'deg)'; if(r)r.style.transform='scale(-'+s+','+s+') rotate('+deg+'deg)'; }
 
 // a leaf breaks off and rides the wind sideways + gently down (not tied to scrolling)
 function breakLeaf(side){
@@ -1424,8 +2239,10 @@ function windGust(){
   const vh=window.innerHeight||h;
   // tree-canopy zones (hero coords) for leaf pickup — computed, not measured (crown sits in the upper tree)
   const contentH=Math.min(0.44*vh, 190*320/200), topPx=h-contentH;
-  const cy0=topPx+(18/320)*contentH, cy1=topPx+(150/320)*contentH;
-  const zones=[{x0:-6,x1:184,y0:cy0,y1:cy1},{x0:w-184,x1:w+6,y0:cy0,y1:cy1}];
+  const gy=groundY||(h-0.166*vh);
+  const cy0=gy-hs*(gy-(topPx+(18/320)*contentH)), cy1=gy-hs*(gy-(topPx+(150/320)*contentH));
+  const halfW=95*hs, tlx=trunkLX||89, trx=trunkRX||(w-89);
+  const zones=[{x0:tlx-halfW,x1:tlx+halfW,y0:cy0,y1:cy1},{x0:trx-halfW,x1:trx+halfW,y0:cy0,y1:cy1}];
   const entryZone = dir>0 ? zones[0] : zones[1];               // the tree the breeze passes first
   const y0 = entryZone.y0 + (entryZone.y1-entryZone.y0)*(0.35+Math.random()*0.4);   // aligned to cross that canopy
   const span=w+140;
@@ -1510,9 +2327,9 @@ function birdStream(streamId){
   const group=document.createElement('div'); group.className='birds'; group.style.top=y.toFixed(0)+'px';
   for(let i=0;i<count;i++){
     const b=document.createElement('div'); b.className='bird';
-    b.style.left=(-i*30*dir).toFixed(0)+'px';
-    b.style.top=((i%2?1:-1)*i*8).toFixed(0)+'px';
-    b.style.transform='scaleX('+dir+')';
+    b.style.left=(-i*30*dir*hs).toFixed(0)+'px';
+    b.style.top=((i%2?1:-1)*i*8*hs).toFixed(0)+'px';
+    b.style.transform='scaleX('+dir+') scale('+hs.toFixed(3)+')';
     b.innerHTML=birdSVG(flapDur);
     group.appendChild(b);
   }
@@ -1526,10 +2343,11 @@ function birdStream(streamId){
 }
 window.addEventListener('scroll',()=>{ if(document.getElementById('heroScroll')){ curP=computeP(); if(reduceMotion) updateScene(curP, performance.now()); } },{passive:true});
 window.addEventListener('resize',()=>{ if(document.getElementById('hero')){ measureHero(); curP=computeP(); buildConstellations(); } });
+window.addEventListener('resize',()=>{ if(document.getElementById('chapTitle')) fitChapterTitle(); });
 
 /* ---- shared site content persisted for everyone via the site_content row ---- */
-const SITE_KEYS=['mission','tagline','discord'];
-const SITE_ARRAYS=['socials','affiliations','chapters'];
+const SITE_KEYS=['mission','tagline','discord','applyForm','featured','repThreshold','gcalId'];
+const SITE_ARRAYS=['socials','affiliations','chapters','board','advisory','youth'];
 async function loadSiteContent(){
   if(!BACKEND) return;
   try{
@@ -1541,13 +2359,7 @@ async function loadSiteContent(){
         roles=data.data.roles;
         if(!roles.owner) roles.owner={name:'Owner',locked:true,caps:allCaps(true)};
         roles.owner.locked=true; roles.owner.caps=allCaps(true);   // owner always keeps every permission
-        // Canonical built-in "Public" role = logged-out visitors. If an earlier custom
-        // role was named "Public", adopt its toggles and drop the duplicate (one-time).
-        if(!roles.public){
-          const legacy=Object.keys(roles).find(k=>(((roles[k]||{}).name)||'').trim().toLowerCase()==='public');
-          roles.public={name:'Public',caps:Object.assign(allCaps(false),(legacy&&roles[legacy].caps)||{})};
-          if(legacy) delete roles[legacy];
-        }
+        if(!roles.public) roles.public=DEFAULT_PUBLIC();           // logged-out visitors always have a Public row
       }
     }
   }catch(e){ /* table may not exist yet — falls back to defaults */ }
@@ -1562,7 +2374,7 @@ async function saveSiteContent(silent){
   }catch(e){ toast('Save failed — is the site_content table set up?'); }
 }
 function editText(kind){
-  const map={mission:{title:'Mission statement',label:'Mission statement',type:'textarea'},tagline:{title:'Home subtitle',label:'Subtitle under “Earth Sweet Earth”',type:'text'},discord:{title:'Discord invite link',label:'Discord invite URL',type:'url'}};
+  const map={mission:{title:'Mission statement',label:'Mission statement',type:'textarea'},tagline:{title:'Home subtitle',label:'Subtitle under “Earth Sweet Earth”',type:'textarea'},discord:{title:'Discord invite link',label:'Discord invite URL',type:'url'},applyForm:{title:'Chapter application form',label:'Application form URL (e.g. a Google Form)',type:'url'}};
   const m=map[kind];
   openEditor(m.title,[{key:'val',label:m.label,type:m.type,placeholder:kind==='discord'?'https://discord.gg/…':''}],{val:content[kind]},v=>{ content[kind]=v.val; saveSiteContent(); });
 }
@@ -1571,20 +2383,23 @@ function editText(kind){
    10) START
    ========================================================================== */
 async function init(){
-  document.body.setAttribute('data-theme',theme);
-  if(BACKEND){
-    try{ await loadSession(); await loadSiteContent(); }catch(e){}
-    sb.auth.onAuthStateChange(()=>{loadSession().then(render).catch(()=>{});});
-    // Live sync: when an owner/admin saves content or permissions, refresh every open tab
-    // (including logged-out visitors) with no manual reload. Needs the site_content table
-    // in the supabase_realtime publication — see the REALTIME section of supabase-setup.sql.
-    try{
-      sb.channel('site_content_live')
-        .on('postgres_changes', {event:'*', schema:'public', table:'site_content'},
-            ()=>{ loadSiteContent().then(render).catch(()=>{}); })
-        .subscribe();
-    }catch(e){}
+  if(!newsletters.length){
+    newsletters=[
+      {id:uid(),title:'We just passed 100 members!',body:'A quick but happy milestone: Earth Sweet Earth is now more than 100 young people strong, across a growing handful of countries. Thank you to everyone who has planted, cleaned, posted, and shown up. Here is to the next hundred \u2014 tell a friend!',publishedAt:Date.now()-2*86400000},
+      {id:uid(),title:'Recap: our first big Beach Cleanup',body:'What a morning. More than forty volunteers showed up at sunrise, gloves and buckets in hand, and by lunchtime we had filled 63 bags with litter pulled from a single half-mile stretch of shoreline. We sorted everything for recycling, logged the most common items (bottle caps and food wrappers, by a mile), and sent the data to a local conservation group tracking coastal pollution. A few first-timers told us it completely changed how they see \u201ca normal day at the beach.\u201d Huge thanks to the Riverside chapter for organizing, to the families who brought snacks, and to everyone who stayed late to make sure we left the sand cleaner than we found it. Photos are up in the Gallery \u2014 go leave a reaction on your favorite. Want to run one near you? Start a chapter, or bring the idea to your next chapter meeting. We are already scouting the next location, and we would love to make this a monthly tradition. If you have a spot in mind, drop it in our Discord.',publishedAt:Date.now()-9*86400000},
+      {id:uid(),title:'A new chapter just launched in Chicago',body:'Please give a warm welcome to our newest chapter! A group of students on the North Side applied last month and just held their first meeting. If you are in the area, reach out on Discord to get involved.',publishedAt:Date.now()-16*86400000},
+      {id:uid(),title:'Announcing our summer challenge lineup',body:'Summer is here, and so are three brand-new challenges anyone can take on \u2014 solo, with your club, or as a whole chapter. First up is Plastic-Free Week: go seven days without single-use plastics and share your swaps. Next is the Campus Cleanup Challenge, where teams compete to collect and correctly sort the most litter, with a before-and-after photo for proof. And finally, Meatless Mondays, a month-long push to shrink your food footprint one day a week. Each challenge comes with a simple scorecard, shout-outs for standout efforts, and small prizes for the most creative entries. The point is not perfection \u2014 it is momentum, and having fun while building habits that stick. Head to the Activities page to see the details, then rally a few friends. We will be tracking progress all summer and featuring the best stories right here in the newsletter. Let us show each other what a few thousand small choices can add up to.',publishedAt:Date.now()-25*86400000}
+    ];
   }
+  if(!content.events.length){
+    content.events=[
+      {id:uid(),name:'Monthly all-chapters call',date:'2026-07-15',time:'18:00',color:'Blue',link:'https://meet.google.com/',details:''},
+      {id:uid(),name:'Community garden build',date:'2026-07-22',time:'10:00',color:'Green',link:'',details:'Meet at the Elm Street lot \u2014 bring gloves if you have them!'},
+      {id:uid(),name:'Fundraiser bake sale',date:'2026-07-29',time:'12:00',color:'Amber',link:'',details:'Proceeds support the fall tree-planting drive.'}
+    ];
+  }
+  document.body.setAttribute('data-theme',theme);
+  if(BACKEND){ try{ await loadSession(); await loadSiteContent(); }catch(e){} loadNotifCount(); sb.auth.onAuthStateChange(()=>{loadSession().then(function(){render();loadNotifCount();}).catch(()=>{});}); }
   if(!location.hash) location.hash='#/home';
   render();
 }

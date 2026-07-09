@@ -23,6 +23,13 @@ create table if not exists public.profiles (
   created_at timestamptz not null default now()
 );
 
+-- keep the signed-up email here too, so the Owner can search members by email
+-- (the browser can't read auth.users directly). Safe to re-run.
+alter table public.profiles add column if not exists email text;
+
+-- optional member country, used for the "X people across Y countries" stat on the About page. Safe to re-run.
+alter table public.profiles add column if not exists country text;
+
 
 -- 2) Auto-create a profile whenever someone signs up --------------------------
 --    (username comes from the sign-up form; everyone starts as 'member')
@@ -32,11 +39,13 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, username, role)
+  insert into public.profiles (id, username, role, email, country)
   values (
     new.id,
     coalesce(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1)),
-    'member'
+    'member',
+    new.email,
+    nullif(new.raw_user_meta_data->>'country','')
   );
   return new;
 end;
@@ -46,6 +55,10 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- backfill emails for anyone who signed up before this column existed
+update public.profiles p set email = u.email
+  from auth.users u where u.id = p.id and p.email is null;
 
 
 -- 3) Helper: is the current user an admin or owner? ---------------------------
@@ -71,12 +84,7 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  -- Only restrict a REAL signed-in user from changing roles. The SQL editor and
-  -- server-side (service-role) contexts have no auth.uid() and are trusted — this
-  -- is what lets you bootstrap the very first Owner below.
-  if new.role is distinct from old.role
-     and auth.uid() is not null
-     and not public.is_admin() then
+  if new.role is distinct from old.role and not public.is_admin() then
     new.role := old.role;   -- quietly keep the old role
   end if;
   return new;
@@ -121,23 +129,138 @@ create policy "admins update profiles" on public.profiles for update using (publ
 
 
 -- ============================================================================
--- REALTIME: let already-open tabs update instantly when an owner/admin saves
+-- SITE CONTENT (mission statement, home subtitle, Discord link)
 -- ----------------------------------------------------------------------------
--- The website subscribes to changes on public.site_content and re-renders live
--- (including for logged-out visitors), so permission/content changes appear
--- without a manual refresh. That requires the table to be in Supabase's
--- realtime publication. Safe to run more than once; does nothing if the
--- site_content table doesn't exist yet.
+-- A single shared row (id = 1) holding editable homepage text as JSON.
+-- Anyone can READ it (so the public sees your edits); only Owner/Admin can WRITE.
+-- Run this block once, the same way you ran the setup above.
 -- ============================================================================
-do $$
-begin
-  if to_regclass('public.site_content') is not null
-     and not exists (
-       select 1 from pg_publication_tables
-       where pubname = 'supabase_realtime'
-         and schemaname = 'public'
-         and tablename  = 'site_content'
-     ) then
-    alter publication supabase_realtime add table public.site_content;
-  end if;
-end $$;
+create table if not exists public.site_content (
+  id   int primary key default 1,
+  data jsonb not null default '{}'::jsonb,
+  constraint site_content_singleton check (id = 1)
+);
+
+alter table public.site_content enable row level security;
+
+drop policy if exists "anyone reads site content"  on public.site_content;
+drop policy if exists "admins insert site content" on public.site_content;
+drop policy if exists "admins update site content" on public.site_content;
+
+create policy "anyone reads site content"  on public.site_content for select using (true);
+create policy "admins insert site content" on public.site_content for insert with check (public.is_admin());
+create policy "admins update site content" on public.site_content for update using (public.is_admin());
+
+-- seed the single row so the site has something to read on first load
+insert into public.site_content (id, data) values (1, '{}'::jsonb)
+on conflict (id) do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Chapter applications (submitted from the "Start a chapter" form).
+-- Anyone (including logged-out visitors) may SUBMIT one; only owner/admin may READ them.
+-- ---------------------------------------------------------------------------
+create table if not exists public.chapter_applications (
+  id uuid primary key default gen_random_uuid(),
+  data jsonb not null,
+  created_at timestamptz default now()
+);
+alter table public.chapter_applications enable row level security;
+
+drop policy if exists "anyone can submit an application" on public.chapter_applications;
+create policy "anyone can submit an application" on public.chapter_applications
+  for insert with check (true);
+
+drop policy if exists "admins can read applications" on public.chapter_applications;
+create policy "admins can read applications" on public.chapter_applications
+  for select using (public.is_admin());
+
+
+-- ============================================================================
+-- PUBLIC STAT: "X people across Y countries" for the About page
+-- ----------------------------------------------------------------------------
+-- Returns only aggregate counts (no personal data), so it is safe to expose to
+-- everyone, including logged-out visitors. Safe to re-run.
+-- ============================================================================
+create or replace function public.ese_stats()
+returns json
+language sql
+security definer set search_path = public
+stable
+as $$
+  select json_build_object(
+    'people',    (select count(*) from public.profiles),
+    'countries', (select count(distinct nullif(btrim(country),'')) from public.profiles)
+  );
+$$;
+grant execute on function public.ese_stats() to anon, authenticated;
+
+
+-- ============================================================================
+-- YOUTH LEADERSHIP APPLICATIONS (submitted by the youth-leadership form)
+-- ----------------------------------------------------------------------------
+-- Anyone may submit one; only admins/owner can read them. Safe to re-run.
+-- ============================================================================
+create table if not exists public.youth_applications (
+  id         uuid primary key default gen_random_uuid(),
+  data       jsonb not null,
+  created_at timestamptz not null default now()
+);
+alter table public.youth_applications enable row level security;
+drop policy if exists "anyone submit youth app" on public.youth_applications;
+drop policy if exists "admins read youth apps"  on public.youth_applications;
+create policy "anyone submit youth app" on public.youth_applications for insert with check (true);
+create policy "admins read youth apps"  on public.youth_applications for select using (public.is_admin());
+
+
+-- ============================================================================
+-- INSTALLMENT 7: username uniqueness, application review state, traffic
+-- ----------------------------------------------------------------------------
+-- All safe to re-run.
+-- ============================================================================
+
+-- Usernames must be unique (case-insensitive). The app also validates that they
+-- are letters/numbers only, and pre-checks availability via username_available().
+create unique index if not exists profiles_username_lower_key
+  on public.profiles (lower(username)) where username is not null;
+
+-- Public check the sign-up form uses (returns only true/false, no data leaked).
+create or replace function public.username_available(name text)
+returns boolean language sql security definer set search_path = public stable as $$
+  select not exists (select 1 from public.profiles where lower(username) = lower(btrim(name)));
+$$;
+grant execute on function public.username_available(text) to anon, authenticated;
+
+-- Mark applications reviewed (drives the "needs review" list + red dots).
+alter table public.chapter_applications add column if not exists reviewed boolean not null default false;
+alter table public.youth_applications  add column if not exists reviewed boolean not null default false;
+drop policy if exists "admins update chapter apps" on public.chapter_applications;
+create policy "admins update chapter apps" on public.chapter_applications for update using (public.is_admin());
+drop policy if exists "admins update youth apps" on public.youth_applications;
+create policy "admins update youth apps" on public.youth_applications for update using (public.is_admin());
+
+-- Simple traffic: log a row per page view; only admins can read them.
+create table if not exists public.page_views (
+  id         bigint generated always as identity primary key,
+  path       text,
+  created_at timestamptz not null default now()
+);
+alter table public.page_views enable row level security;
+drop policy if exists "anyone logs a view" on public.page_views;
+drop policy if exists "admins read views"  on public.page_views;
+create policy "anyone logs a view" on public.page_views for insert with check (true);
+create policy "admins read views"  on public.page_views for select using (public.is_admin());
+
+-- Aggregated traffic for the Analytics tab (total, this week, last 7 days).
+create or replace function public.ese_traffic()
+returns json language sql security definer set search_path = public stable as $$
+  select json_build_object(
+    'total', (select count(*) from public.page_views),
+    'week',  (select count(*) from public.page_views where created_at >= current_date - 6),
+    'last7', (select coalesce(json_agg(json_build_object('d', to_char(g.d,'Mon DD'), 'n', coalesce(c.n,0)) order by g.d), '[]'::json)
+              from generate_series((current_date-6)::timestamp, current_date::timestamp, interval '1 day') g(d)
+              left join (select date_trunc('day', created_at) dd, count(*) n
+                         from public.page_views where created_at >= current_date - 6 group by 1) c
+                on c.dd = date_trunc('day', g.d))
+  );
+$$;
+grant execute on function public.ese_traffic() to authenticated;
