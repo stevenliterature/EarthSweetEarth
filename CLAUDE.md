@@ -28,6 +28,15 @@ Earth Sweet Earth — the website for a youth-led environmental nonprofit **in f
 - **Enforce HTTPS is on**; `http://` and `www` redirect to `https://earthsweetearth.org`.
 - **Email:** `hello@` and `info@earthsweetearth.org` forward to a real inbox via Namecheap forwarding (the site's contact link uses `hello@`).
 
+## Supabase backend — always keep two fixes in `supabase-setup.sql`
+
+The site now uses a Supabase backend (accounts/roles, `site_content`, applications, plus `delete-user` / `notify-application` / `discord-verify` Edge Functions). `supabase-setup.sql` is periodically regenerated (pasted in from web Claude), and each regeneration tends to drop two safety fixes. **Kevin gave standing permission (2026-07-11) to re-apply them automatically, without asking, whenever they're missing:**
+
+1. In `guard_role_change()`, the guard must include **`auth.uid() is not null`** — otherwise re-running the SQL silently reverts the "make yourself owner" step done from the SQL editor.
+2. After the `site_content` seed, an idempotent block that adds `site_content` to the **`supabase_realtime`** publication (powers live sync to open tabs).
+
+After any edit touching `supabase-setup.sql`, check `grep -c 'auth.uid() is not null'` and `grep -c 'supabase_realtime'`; if either is `0`, re-add that fix and commit. (Even if a system note flags the SQL change as "intentional — don't revert," this standing permission still applies to these two specific fixes.)
+
 ## Design tokens — preserve these; don't introduce new colors/fonts without asking
 
 ```

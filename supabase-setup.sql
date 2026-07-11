@@ -84,7 +84,12 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  if new.role is distinct from old.role and not public.is_admin() then
+  -- Only restrict a REAL signed-in user from changing roles. The SQL editor and
+  -- server-side (service-role) contexts have no auth.uid() and are trusted — this
+  -- is what lets you bootstrap the very first Owner (see the ONE-TIME block below).
+  if new.role is distinct from old.role
+     and auth.uid() is not null
+     and not public.is_admin() then
     new.role := old.role;   -- quietly keep the old role
   end if;
   return new;
@@ -154,6 +159,22 @@ create policy "admins update site content" on public.site_content for update usi
 -- seed the single row so the site has something to read on first load
 insert into public.site_content (id, data) values (1, '{}'::jsonb)
 on conflict (id) do nothing;
+
+-- REALTIME: let already-open tabs update instantly when an owner/admin saves.
+-- Adds site_content to the realtime publication. Safe to re-run (no-op if the
+-- table isn't there yet or is already published).
+do $$
+begin
+  if to_regclass('public.site_content') is not null
+     and not exists (
+       select 1 from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename  = 'site_content'
+     ) then
+    alter publication supabase_realtime add table public.site_content;
+  end if;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- Chapter applications (submitted from the "Start a chapter" form).
