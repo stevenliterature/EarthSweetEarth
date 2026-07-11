@@ -304,3 +304,180 @@ Prerequisites on Supabase (do once): run `supabase-setup.sql` (creates `profiles
 
 ### Still pending (final backend piece)
 - [ ] Durable per-account persistence for **gallery reactions/comments**, **newsletter posts**, and **calendar events** (needs member-writable tables + Supabase Storage for images/avatars) — currently in-memory/seeded
+
+---
+
+## 22. Revision batch — cleanup, About, Gallery, profile picture (rev 1)
+
+### Placeholder cleanup (keep the format, drop the fake text)
+- [ ] Gallery ships **empty** ("Nothing here yet") — no invented captions/reactions/comments
+- [ ] Newsletter ships **empty** — no invented posts
+- [ ] Calendar ships with **no fake events**
+- [ ] Formats are intact: posting real content brings back tiles/cards with reactions, comments, click-in
+
+### About
+- [ ] Each section shows **open-role circles** (dashed) — Board (Director ×2, Treasurer), Advisory (×3), Youth (President/VP/Treasurer/Secretary)
+- [ ] Owner sees **+ Add** under each circle (fills that role) and **×** (deletes the slot entirely)
+- [ ] Filled people show **Edit / Delete** — deleting works **(live)**
+- [ ] "**+ Add someone (any role)**" adds a person with a **custom role** (role is a free-text field)
+- [ ] Placeholders + real people can coexist; visitors only see the filled ones
+- [ ] All of it persists after reload **(live)**
+- [ ] Stat reads "**X people across Y countries**" — countries now counts **member profile countries ∪ chapter countries**
+- [ ] Saving a profile now **shows an error** if the country fails to save (was silently failing)
+- [ ] Re-run `supabase-setup.sql` (new `ese_stats()` + `avatar` column)
+
+### Gallery
+- [ ] **Featured** is a horizontally scrolling row (handles many featured items)
+- [ ] Below featured: "**See our full gallery**" heading, then the grid
+- [ ] Bottom: "**Submit your own highlights on Discord for a chance to have your photos posted!**" + the (under-construction) Discord button
+- [ ] Owner "**+ New post**": add up to **15 photos**, pick a **★ cover**, remove any, add a caption
+- [ ] Tile shows the cover; **‹ › arrows** cycle the other photos in place (with a 1/N counter)
+- [ ] Clicking a tile opens the **post** — photos + text + reactions + comments in one place
+- [ ] Photos are **downscaled on upload** so a 15-photo post doesn't bloat the saved row
+- [ ] Owner "**⚙ Photo drive**" sets a shared drive link
+- [ ] Per post: tick "**photos live in the drive**" → the text stays and the photos become a "View all photos ↗" link (frees space)
+- [ ] Posts persist for everyone after reload **(live)**
+
+### Profile picture
+- [ ] Picking a photo opens a **circular cropper**: drag to move, slider to zoom (LinkedIn-style)
+- [ ] Reopening the profile starts from your **current** picture
+- [ ] Saved picture shows in the **nav, comments, and everywhere else**, and persists after reload **(live)**
+
+### Aesthetics
+- [ ] "Earth Sweet Earth" sits **lower** — more comfortably inside the clouds (light) and further from the moon (dark), by the same amount in both
+
+---
+
+## 23. Newsletter split (rev 2)
+
+### Two sections
+- [ ] Page has **Newsletter** and **Small updates** as separate sections
+- [ ] Owner composer has a **Type** dropdown: "Newsletter (becomes the featured issue)" or "Small update"
+
+### Newsletter
+- [ ] The **most recent issue is featured at the top, fully expanded** (title, timestamp, whole body)
+- [ ] Publishing a new issue **moves it into the featured spot**, and the previous one drops into **Past issues**
+- [ ] Past issues are rows with a "**📄 Open PDF ↗**" button
+- [ ] With no PDF link set, clicking **generates a real PDF from the text** (multi-page, opens in a new tab)
+- [ ] Owner can set a **PDF link** per issue (e.g. a hosted/drive PDF) — that link is used instead
+- [ ] `newsletter-sample.pdf` (under-construction text) is included for testing — commit it to the repo root and paste `newsletter-sample.pdf` as an issue's PDF link to test the hosted path
+- [ ] Empty state: "No newsletter yet — check back soon!"
+
+### Small updates
+- [ ] Same list format as before: timestamp + title, click to expand in place, click again to collapse
+- [ ] Expanding stays open when you react (no collapse-on-refresh)
+
+### Comments + reactions on both
+- [ ] The featured issue and every small update have the **same reaction bar as the gallery** (top-3 clustered, spread on hover, emoji picker, one per account)
+- [ ] Both have a **Comment** button opening the same comment thread (avatar + username + body + time, comments individually reactable)
+- [ ] Logged-out users are prompted to log in
+- [ ] Posts persist for everyone after reload **(live)**; calendar events now persist too
+- [ ] ⚠️ Reactions/comments themselves are still session-only (same as gallery) — the shared persistence backend is the remaining piece
+
+---
+
+## 24. Activities: Speakers, Challenges, Fundraising, "I'm in!" (rev 3)
+
+### Speakers
+- [ ] The Speakers category card opens a real **Speakers page** (no longer Under Construction)
+- [ ] Owner can **add / edit / delete** past speakers (name, role/org, date, about the talk, photo)
+- [ ] Read more / less expands a talk's description
+- [ ] Empty → "The rest of this is still under construction!"
+
+### Challenges
+- [ ] Page order: **School challenges** → **MyGreenSchools coming-soon notice** → **Individual challenges** → **Participate**
+- [ ] No invented challenge text anywhere
+- [ ] Owner can **add / edit / delete bullet points** in both challenge lists; they persist **(live)**
+- [ ] Each empty list shows "**The rest of this is still under construction!**"
+
+### Fundraising
+- [ ] Fundraising category card opens a real page with a **Donate button at the top**
+- [ ] Owner can set the donate link (until set, Donate shows the under-construction tooltip)
+- [ ] Below it: "The rest of this is still under construction!"
+
+### Participate / "I'm in!"
+- [ ] **Logged out** → Participate prompts you to create an account + join the Discord
+- [ ] **Logged in** → Participate takes you to the Calendar and scrolls to the **next event** (tagged "Next up")
+- [ ] Every **upcoming** event shows an "**I'm in!**" button; clicking it writes you into `event_participants` **(live)**
+- [ ] After joining, the button becomes "**You're in ✓**"; clicking again removes you
+- [ ] Every event shows a live "**👥 N going**" count that goes up by 1 when you join
+- [ ] Past events show the count but no join button
+- [ ] Privacy check: a member can only read **their own** sign-up row; everyone sees only anonymous counts
+- [ ] **Owner Analytics → Event sign-ups**: each event expands to the **exact list of accounts** (username + email) — this is what you'd use to award prizes
+- [ ] Re-run `supabase-setup.sql` (adds `event_participants` + `ese_event_counts()`)
+
+---
+
+## 25. Chapter leaders (rev 4)
+
+### ⚠️ Architecture change — re-run `supabase-setup.sql`
+Chapters and chapter events moved OUT of `site_content` into their **own tables**. Reason: `site_content` is
+owner/admin-write-only, so a chapter leader writing there would have been able to overwrite the whole site
+(roles included). Now a leader can only touch **their own** chapter row and its events.
+- [ ] SQL adds: `chapters`, `chapter_events`, `profiles.chapter`, drops the old fixed role check constraint
+- [ ] ⚠️ Any chapters previously added by the owner live in the old `site_content` list — re-add them via **Our Chapters → + Add a chapter** (they now go to the new table)
+
+### Role & permissions
+- [ ] New role **Chapter Leader**; new permission **"Manage their own chapter (Chapter Hub tab)"** in the Owner Settings matrix
+- [ ] Owner can **toggle that permission on/off per role** → that's what shows/hides the Chapter Hub tab
+- [ ] **Chapter Leader** is a new **preview mode** in the owner preview bar
+- [ ] Owner can assign the Chapter Leader role to a member (Owner Settings → Members) — no longer blocked by the DB role constraint
+
+### Chapter Hub (nav tab, chapter leaders only)
+- [ ] Leader with no chapter → "**+ Create my chapter**" (name / country / continent)
+- [ ] Creating it: adds it to **Our Chapters**, sets it as the leader's own chapter, and makes it selectable by students
+- [ ] Leader can **edit their chapter's details**
+- [ ] Leader can **connect their own Google Calendar** (separate from the main ESE one)
+- [ ] Leader can **add / edit / delete their own chapter's events**
+- [ ] Security: a leader can only write their OWN chapter + its events (try editing another chapter → blocked by RLS)
+
+### Calendar (both calendars in one place)
+- [ ] Shows the **Earth Sweet Earth calendar** + ESE events (as before, with "I'm in!" + counts)
+- [ ] If you belong to a chapter, it ALSO shows "**Your chapter — <name>**" with that chapter's Google Calendar + its events
+- [ ] Chapter events also have "I'm in!" and live sign-up counts
+- [ ] Chapter leaders see a "**⚙ Manage my chapter →**" button linking to the Hub
+- [ ] Not in a chapter → a hint to add one in your profile
+- [ ] Only the FIRST upcoming event is tagged "Next up"
+
+### Chapter on the account
+- [ ] **Sign-up**: an optional Chapter box with **type-to-search** (leave blank is fine)
+- [ ] **Profile**: same type-to-search box, editable any time
+- [ ] Typing a chapter that doesn't exist → clear error, not a silent failure
+- [ ] Newly created chapters appear in the dropdown for everyone
+
+---
+
+## 26. Discord verification + role mapping (rev 5)
+
+### Setup (see SETUP-discord.md)
+- [ ] Discord developer app created; redirect URL added
+- [ ] Supabase → Auth → Providers → **Discord enabled**; **manual linking** turned on
+- [ ] (For roles) bot invited to the server; `supabase functions deploy discord-verify`; `DISCORD_BOT_TOKEN` + `DISCORD_GUILD_ID` set
+- [ ] Re-run `supabase-setup.sql` (adds `discord_id` + `discord_username`)
+
+### Behaviour
+- [ ] **Sign-up never mentions Discord** (check the sign-up form)
+- [ ] **Logging in** pops the "verify with Discord" modal (only when the owner has switched it on)
+- [ ] "Continue with Discord" signs you in via browser **or** the Discord app, then returns to the site
+- [ ] On return, a **success message** names the linked Discord account
+- [ ] The popup mentions the under-13 / parent-account rule
+- [ ] Profile shows "✅ Linked as …", or a **Link Discord** button if not linked
+- [ ] Already-linked members aren't asked again
+
+### Role mapping (Owner Settings → Discord)
+- [ ] Toggle: "Ask people to verify with Discord when they log in"
+- [ ] Toggle: "Make it required" → declining logs the person back out
+- [ ] Mapping table: **left = website role, right = exact Discord role name**; add/remove rows; Save persists **(live)**
+- [ ] A member whose Discord role matches a mapping is **given that website role on next verification**
+- [ ] Exact-match check: `chapter leader` does NOT match `Chapter Leader`
+- [ ] First match wins (highest role should be listed first)
+
+### Security (important)
+- [ ] The role change happens **only in the Edge Function**, using the service key
+- [ ] The function identifies the caller from their **login token**, not from anything the browser sends
+- [ ] Try it: a member editing the page/console **cannot** promote themselves — the database blocks self-role-changes
+- [ ] The bot token and service key are **never** in `index.html`
+
+### Graceful failure
+- [ ] With Discord not configured, the site still works; the popup explains it isn't set up yet
+- [ ] Not in the ESE server → "join it, then try again"

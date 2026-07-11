@@ -84,12 +84,7 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  -- Only restrict a REAL signed-in user from changing roles. The SQL editor and
-  -- server-side (service-role) contexts have no auth.uid() and are trusted — this
-  -- is what lets you bootstrap the very first Owner (see the ONE-TIME block below).
-  if new.role is distinct from old.role
-     and auth.uid() is not null
-     and not public.is_admin() then
+  if new.role is distinct from old.role and not public.is_admin() then
     new.role := old.role;   -- quietly keep the old role
   end if;
   return new;
@@ -159,22 +154,6 @@ create policy "admins update site content" on public.site_content for update usi
 -- seed the single row so the site has something to read on first load
 insert into public.site_content (id, data) values (1, '{}'::jsonb)
 on conflict (id) do nothing;
-
--- REALTIME: let already-open tabs update instantly when an owner/admin saves.
--- Adds site_content to the realtime publication. Safe to re-run (no-op if the
--- table isn't there yet or is already published).
-do $$
-begin
-  if to_regclass('public.site_content') is not null
-     and not exists (
-       select 1 from pg_publication_tables
-       where pubname = 'supabase_realtime'
-         and schemaname = 'public'
-         and tablename  = 'site_content'
-     ) then
-    alter publication supabase_realtime add table public.site_content;
-  end if;
-end $$;
 
 -- ---------------------------------------------------------------------------
 -- Chapter applications (submitted from the "Start a chapter" form).
@@ -285,3 +264,171 @@ returns json language sql security definer set search_path = public stable as $$
   );
 $$;
 grant execute on function public.ese_traffic() to authenticated;
+
+
+-- ============================================================================
+-- REVISION: "X people across Y countries" — count countries from BOTH member
+-- profiles and chapter countries (a chapter's country is captured on the form).
+-- Also stores a member avatar. All safe to re-run.
+-- ============================================================================
+alter table public.profiles add column if not exists avatar text;
+
+create or replace function public.ese_stats()
+returns json language sql security definer set search_path = public stable as $$
+  select json_build_object(
+    'people', (select count(*) from public.profiles),
+    'countries', (
+      select count(distinct btrim(c))
+      from (
+        select country as c from public.profiles
+        union all
+        select elem->>'country'
+          from public.site_content sc,
+               lateral jsonb_array_elements(coalesce(sc.data->'chapters', '[]'::jsonb)) elem
+         where sc.id = 1
+      ) src
+      where nullif(btrim(coalesce(c,'')), '') is not null
+    )
+  );
+$$;
+grant execute on function public.ese_stats() to anon, authenticated;
+
+
+-- ============================================================================
+-- EVENT PARTICIPATION ("I'm in!") — who signed up for which event.
+-- ----------------------------------------------------------------------------
+-- Privacy: a member can only see (and add/remove) their OWN row. Everyone can
+-- see anonymous COUNTS via ese_event_counts(). Only owner/admin can read the
+-- actual list of people — that's what the Owner Analytics tab uses to hand out
+-- prizes. Safe to re-run.
+-- ============================================================================
+create table if not exists public.event_participants (
+  id         bigint generated always as identity primary key,
+  event_id   text not null,
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  username   text,
+  email      text,
+  created_at timestamptz not null default now(),
+  unique (event_id, user_id)
+);
+alter table public.event_participants enable row level security;
+
+drop policy if exists "join an event"          on public.event_participants;
+drop policy if exists "leave an event"         on public.event_participants;
+drop policy if exists "see own participation"  on public.event_participants;
+drop policy if exists "admins read participants" on public.event_participants;
+create policy "join an event"           on public.event_participants for insert with check (auth.uid() = user_id);
+create policy "leave an event"          on public.event_participants for delete using      (auth.uid() = user_id);
+create policy "see own participation"   on public.event_participants for select using      (auth.uid() = user_id);
+create policy "admins read participants" on public.event_participants for select using     (public.is_admin());
+
+-- Anonymous head-count per event, so anyone viewing the calendar sees "N going".
+create or replace function public.ese_event_counts()
+returns json language sql security definer set search_path = public stable as $$
+  select coalesce(json_object_agg(event_id, n), '{}'::json)
+  from (select event_id, count(*) as n from public.event_participants group by event_id) t;
+$$;
+grant execute on function public.ese_event_counts() to anon, authenticated;
+
+
+-- ============================================================================
+-- CHAPTERS & CHAPTER LEADERS
+-- ----------------------------------------------------------------------------
+-- Chapters and their events get their OWN tables (not site_content), because a
+-- chapter leader must be able to manage their own chapter WITHOUT being able to
+-- write the whole site (roles, permissions, etc). Each leader can only touch
+-- their own chapter's row and its events. Safe to re-run.
+-- ============================================================================
+
+-- Roles are now dynamic (Chapter Leader + any custom role the owner creates),
+-- so the old fixed list of allowed roles has to go.
+alter table public.profiles drop constraint if exists profiles_role_check;
+
+create table if not exists public.chapters (
+  id         uuid primary key default gen_random_uuid(),
+  name       text not null,
+  country    text,
+  continent  text,
+  leader_id  uuid references auth.users(id) on delete set null,
+  gcal_id    text,
+  created_at timestamptz not null default now()
+);
+alter table public.chapters enable row level security;
+drop policy if exists "anyone reads chapters"  on public.chapters;
+drop policy if exists "leader creates chapter" on public.chapters;
+drop policy if exists "leader updates chapter" on public.chapters;
+drop policy if exists "leader deletes chapter" on public.chapters;
+create policy "anyone reads chapters"  on public.chapters for select using (true);
+create policy "leader creates chapter" on public.chapters for insert with check (auth.uid() = leader_id or public.is_admin());
+create policy "leader updates chapter" on public.chapters for update using      (auth.uid() = leader_id or public.is_admin());
+create policy "leader deletes chapter" on public.chapters for delete using      (auth.uid() = leader_id or public.is_admin());
+
+-- Which chapter a member belongs to (optional at sign-up, editable in the profile).
+alter table public.profiles add column if not exists chapter uuid references public.chapters(id) on delete set null;
+
+create table if not exists public.chapter_events (
+  id         uuid primary key default gen_random_uuid(),
+  chapter_id uuid not null references public.chapters(id) on delete cascade,
+  name       text not null,
+  date       date,
+  time       text,
+  link       text,
+  color      text default 'Green',
+  details    text,
+  created_at timestamptz not null default now()
+);
+alter table public.chapter_events enable row level security;
+drop policy if exists "anyone reads chapter events" on public.chapter_events;
+drop policy if exists "leader writes chapter events" on public.chapter_events;
+create policy "anyone reads chapter events" on public.chapter_events for select using (true);
+create policy "leader writes chapter events" on public.chapter_events for all
+  using       (public.is_admin() or exists (select 1 from public.chapters c where c.id = chapter_id and c.leader_id = auth.uid()))
+  with check  (public.is_admin() or exists (select 1 from public.chapters c where c.id = chapter_id and c.leader_id = auth.uid()));
+
+-- Countries now come from member profiles + the chapters table.
+create or replace function public.ese_stats()
+returns json language sql security definer set search_path = public stable as $$
+  select json_build_object(
+    'people', (select count(*) from public.profiles),
+    'countries', (
+      select count(distinct btrim(c))
+      from (
+        select country as c from public.profiles
+        union all
+        select country     from public.chapters
+      ) src
+      where nullif(btrim(coalesce(c,'')), '') is not null
+    )
+  );
+$$;
+grant execute on function public.ese_stats() to anon, authenticated;
+
+-- Carry the optional sign-up chapter through to the new profile.
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.profiles (id, username, role, email, country, chapter)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1)),
+    'member',
+    new.email,
+    nullif(new.raw_user_meta_data->>'country',''),
+    nullif(new.raw_user_meta_data->>'chapter','')::uuid
+  );
+  return new;
+end;
+$$;
+
+
+-- ============================================================================
+-- DISCORD VERIFICATION — store the linked Discord account on the profile.
+-- The website-role <-> Discord-role mapping itself lives in site_content
+-- (owner-editable in Owner Settings). Role changes are applied by the
+-- discord-verify Edge Function using the service role, so nobody can promote
+-- themselves from the browser. Safe to re-run.
+-- ============================================================================
+alter table public.profiles add column if not exists discord_id       text;
+alter table public.profiles add column if not exists discord_username text;
+create unique index if not exists profiles_discord_id_key
+  on public.profiles (discord_id) where discord_id is not null;

@@ -203,9 +203,9 @@
   [data-theme="dark"] .hero-content .scroll-hint{color:#bcc7d6;}
   @keyframes hintbob{0%,100%{transform:translateY(0);opacity:.5;}50%{transform:translateY(5px);opacity:.9;}}
   .hero-content{position:relative;z-index:7;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px 190px;}
-  .wordmark{font-size:clamp(2.6rem,9vw,6rem);font-weight:900;letter-spacing:-.03em;color:var(--green);margin:0 0 50px;position:relative;z-index:0;}
+  .wordmark{font-size:clamp(2.6rem,9vw,6rem);font-weight:900;letter-spacing:-.03em;color:var(--green);margin:0 0 50px;position:relative;top:22px;z-index:0;}
   .wordmark .cw{position:relative;display:inline-block;}
-  .wordmark .cwsvg{position:absolute;left:50%;top:50%;width:174%;height:214%;transform:translate(-50%,-56%);z-index:-1;pointer-events:none;overflow:visible;}
+  .wordmark .cwsvg{position:absolute;left:50%;top:50%;width:174%;height:214%;transform:translate(-50%,-61%);z-index:-1;pointer-events:none;overflow:visible;}
   [data-theme="dark"] .wordmark .cwsvg{display:none;}
 
   [data-theme="dark"] .hero-content .wordmark{color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.5);}
@@ -408,6 +408,7 @@
   .pcard{display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 14px;border-radius:16px;background:transparent;}
   .pc-pic{width:104px;height:104px;border-radius:50%;object-fit:cover;margin-bottom:12px;background:var(--green);}
   .pc-noimg{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:2.2rem;font-family:"Fraunces",serif;}
+  .pc-empty{background:transparent;border:2px dashed var(--line);}
   .pc-body{width:100%;}
   .pc-name{font-family:"Fraunces",serif;font-weight:600;font-size:1.15rem;color:var(--ink);line-height:1.2;}
   .pc-role{color:var(--blue-dk);font-size:.88rem;font-weight:600;margin-top:3px;}
@@ -519,6 +520,63 @@
   .tbar-track{flex:1;width:100%;display:flex;align-items:flex-end;}
   .tbar-fill{width:100%;max-width:44px;margin:0 auto;background:linear-gradient(var(--green),var(--green-dk));border-radius:6px 6px 0 0;min-height:3px;}
   .tbar-lab{font-size:.72rem;color:var(--muted);white-space:nowrap;}
+  /* gallery: featured row, photo nav, post modal, editor */
+  .gfeat-row{display:flex;gap:20px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;}
+  .gfeat-row::-webkit-scrollbar{display:none;}
+  .gfeat-row > .gtile{flex:0 0 290px;}
+  @media (max-width:560px){.gfeat-row > .gtile{flex:0 0 84%;}}
+  .gnav{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.86);color:#20302a;font-size:1.2rem;line-height:1;cursor:pointer;opacity:0;transition:opacity .15s;display:flex;align-items:center;justify-content:center;}
+  .gphoto:hover .gnav,.gp-media:hover .gnav{opacity:1;}
+  .gnav:hover{background:#fff;}
+  .gprev{left:8px;} .gnext{right:8px;}
+  .gcount{position:absolute;right:8px;bottom:8px;background:rgba(20,48,42,.65);color:#fff;border-radius:100px;padding:2px 9px;font-size:.74rem;}
+  .g-drive{flex-direction:column;gap:6px;color:var(--muted);}
+  .g-drive small{font-size:.78rem;}
+  .g-submit{margin-top:34px;text-align:center;}
+  .g-submit p{font-size:1.02rem;color:var(--ink);margin-bottom:12px;}
+  .gp-media{position:relative;border-radius:12px;overflow:hidden;margin-bottom:14px;background:var(--bg);}
+  .gp-media img{width:100%;max-height:50vh;object-fit:contain;display:block;}
+  .gp-drive{text-align:center;padding:18px;border:1px dashed var(--line);border-radius:12px;margin-bottom:14px;}
+  .gp-cap{font-size:1rem;line-height:1.6;margin:0 0 6px;white-space:pre-wrap;}
+  .ged-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px;margin:10px 0 14px;}
+  .ged-t{position:relative;border-radius:10px;overflow:hidden;border:2px solid transparent;}
+  .ged-t.on{border-color:var(--green);}
+  .ged-t img{width:100%;aspect-ratio:1;object-fit:cover;display:block;}
+  .ged-tb{position:absolute;inset:auto 0 0 0;display:flex;justify-content:space-between;background:rgba(20,48,42,.62);}
+  .ged-tb button{flex:1;background:transparent;border:none;color:#fff;cursor:pointer;font-size:.85rem;padding:2px 0;}
+  .ged-tb button:hover{background:rgba(0,0,0,.28);}
+  /* profile picture editor */
+  .av-edit{margin-top:8px;}
+  .av-stage{position:relative;width:220px;height:220px;border-radius:12px;overflow:hidden;background:var(--bg);cursor:grab;}
+  .av-stage:active{cursor:grabbing;}
+  .av-stage canvas{display:block;touch-action:none;}
+  .av-mask{position:absolute;inset:0;pointer-events:none;border-radius:12px;box-shadow:0 0 0 999px rgba(20,48,42,.45) inset;-webkit-mask:radial-gradient(circle at 50% 50%, transparent 108px, #000 109px);mask:radial-gradient(circle at 50% 50%, transparent 108px, #000 109px);}
+  .av-zoom{width:220px;}
+  /* newsletter: featured issue + PDF archive */
+  .nl-feat{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--green);border-radius:16px;padding:24px;box-shadow:0 8px 22px rgba(20,48,42,.07);}
+  [data-theme="dark"] .nl-feat{box-shadow:0 8px 22px rgba(0,0,0,.3);}
+  .nl-feat-t{font-size:1.75rem;color:var(--green);margin:10px 0 4px;}
+  .nl-feat-b{white-space:pre-wrap;font-size:1.03rem;line-height:1.7;margin-bottom:14px;}
+  .nl-sub{font-family:"Fraunces",serif;font-size:1.15rem;color:var(--green);margin:26px 0 12px;}
+  .nl-arch{display:flex;flex-direction:column;gap:10px;}
+  .nl-a{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;flex-wrap:wrap;}
+  .nl-a-m{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .nl-a-t{font-family:"Fraunces",serif;font-weight:600;color:var(--ink);}
+  .nl-a-b{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  /* challenges / speakers / participate / event sign-ups */
+  .ch-list{margin:0 0 6px;padding-left:22px;}
+  .ch-list li{margin-bottom:9px;line-height:1.55;}
+  .mgs-note{display:flex;gap:14px;align-items:flex-start;background:rgba(32,131,196,.09);border:1px solid rgba(32,131,196,.3);border-radius:14px;padding:16px 18px;margin:22px 0 6px;}
+  .mgs-emoji{font-size:1.8rem;line-height:1;}
+  .participate{margin-top:40px;padding-top:26px;border-top:1px solid var(--line);}
+  .participate h2{font-family:"Fraunces",serif;color:var(--green);}
+  .cev-side{display:flex;align-items:center;gap:8px;padding-right:12px;flex-wrap:wrap;}
+  .cev-going{font-size:.82rem;color:var(--muted);white-space:nowrap;}
+  .cev.next{box-shadow:0 0 0 2px rgba(0,118,0,.25);}
+  .cev.next .cev-name::after{content:"Next up";margin-left:8px;font-size:.7rem;font-weight:600;color:#fff;background:var(--green);border-radius:100px;padding:2px 8px;vertical-align:middle;}
+  /* chapter hub / chapter calendar */
+  .chapter-cal{margin-top:36px;padding-top:26px;border-top:1px solid var(--line);}
+  .dc-status{padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-size:.9rem;background:var(--card);}
 </style>
 </head>
 <body>
@@ -578,6 +636,7 @@ const CAPS = [
   {id:'calendar_edit',   label:'Add / edit events & the meeting link'},
   {id:'chapters_add',    label:'Add / approve chapters'},
   {id:'edit_content',    label:'Edit site content (team, contact links, footer)'},
+  {id:'chapter_manage',  label:'Manage their own chapter (Chapter Hub tab)'},
   {id:'admin_settings',  label:'Open Owner Settings & manage roles'},
 ];
 const allCaps=(v)=>Object.fromEntries(CAPS.map(c=>[c.id,v]));
@@ -585,6 +644,7 @@ let roles = {
   owner:     {name:'Owner',     locked:true, caps:allCaps(true)},
   admin:     {name:'Admin',     caps:allCaps(true)},
   moderator: {name:'Moderator', caps:{...allCaps(false), newsletter_post:true, programs_update:true}},
+  chapter_leader:{name:'Chapter Leader', caps:{...allCaps(false), chapter_manage:true, view_chapters:true, view_gallery:true, view_calendar:true}},
   member:    {name:'Member',    caps:allCaps(false)},
   public:    {name:'Public',    caps:{...allCaps(false), view_chapters:true, view_gallery:true, view_calendar:true}},   // logged-out visitors
 };
@@ -593,7 +653,7 @@ let people = [
   {id:1, username:'(you)', email:'owner@earthsweetearth.org', roleId:'owner'},
 ];
 // editable site content (empty to start; admins fill it, viewers only see what exists)
-let content = { mission:'', tagline:'', discord:'', applyForm:'', team:[], socials:[], affiliations:[], doing:[], speakers:[], events:[], gallery:[], chapters:[], meetingLink:'', featured:{}, board:[], advisory:[], youth:[], repThreshold:50, gcalId:'' };
+let content = { mission:'', tagline:'', discord:'', applyForm:'', team:[], socials:[], affiliations:[], doing:[], speakers:[], events:[], gallery:[], chapters:[], meetingLink:'', featured:{}, board:[], advisory:[], youth:[], repThreshold:50, gcalId:'', aboutSeeded:false, driveUrl:'', donateUrl:'', schoolChallenges:[], indivChallenges:[], discordVerify:false, discordRequired:false, discordMap:[] };
 let newsletters = [];   // {id,title,body,featured,reactions,myReaction}
 let account = null;     // the REAL logged-in account {roleId, username, email, avatar}
 let previewAs = null;   // owner's view override: null | 'public' | a roleId (does NOT change the real account)
@@ -617,12 +677,13 @@ function canView(r){
   if(r==='chapters'||r==='chapterslist') return can('view_chapters');
   if(r==='gallery')  return can('view_gallery');
   if(r==='calendar') return can('view_calendar');
+  if(r==='chapterhub') return can('chapter_manage');
   if(r==='admin' || r==='analytics') return isLoggedIn() && session.roleId==='owner';
   return true;
 }
 // which permission controls editing each content kind
 const KIND_CAP = {team:'edit_content', social:'edit_content', affiliation:'edit_content', board:'edit_content', advisory:'edit_content', youth:'edit_content',
-  doing:'programs_update', speaker:'programs_update', event:'calendar_edit', meetingLink:'calendar_edit',
+  doing:'programs_update', speaker:'programs_update', schoolch:'programs_update', indivch:'programs_update', event:'calendar_edit', meetingLink:'calendar_edit',
   gallery:'gallery_upload', newsletter:'newsletter_post'};
 const canEditKind=(k)=> editUI && can(KIND_CAP[k]);
 const canEdit=(cap)=> editUI && can(cap);   // edit buttons also require the owner's "edit placeholders" switch to be on
@@ -630,9 +691,9 @@ const canEdit=(cap)=> editUI && can(cap);   // edit buttons also require the own
 /* ==========================================================================
    3) ROUTER (no scroll-jump on in-page updates — only on real page changes)
    ========================================================================== */
-const ROUTES=['home','about','newsletter','activities','chapters','chapterslist','chapterapply','youthapply','gallery','contact','calendar','admin','challenges','construction','privacy','terms','analytics','post'];
-const TAB={home:'Home',about:'About',newsletter:'Newsletter',activities:'Activities',youthapply:'Apply for a leadership position',chapters:'Chapters',chapterslist:'Our Chapters',chapterapply:'Apply for a chapter',gallery:'Gallery',contact:'Contact',calendar:'Calendar',admin:'Owner Settings',challenges:'Challenges',construction:'Under Construction',privacy:'Privacy Policy',terms:'Terms & Conditions',analytics:'Owner Analytics',post:'Post'};
-const NAV_HIDDEN=['chapterslist','chapterapply','youthapply','challenges','construction','privacy','terms','post'];   // reachable by link/URL, but not shown as a top-bar tab
+const ROUTES=['home','about','newsletter','activities','chapters','chapterslist','chapterapply','youthapply','gallery','contact','calendar','admin','challenges','construction','privacy','terms','analytics','speakers','fundraising','chapterhub'];
+const TAB={home:'Home',about:'About',newsletter:'Newsletter',activities:'Activities',youthapply:'Apply for a leadership position',chapters:'Chapters',chapterslist:'Our Chapters',chapterapply:'Apply for a chapter',gallery:'Gallery',contact:'Contact',calendar:'Calendar',admin:'Owner Settings',challenges:'Challenges',construction:'Under Construction',privacy:'Privacy Policy',terms:'Terms & Conditions',analytics:'Owner Analytics',speakers:'Speakers',fundraising:'Fundraising',chapterhub:'Chapter Hub'};
+const NAV_HIDDEN=['chapterslist','chapterapply','youthapply','challenges','construction','privacy','terms','speakers','fundraising'];   // reachable by link/URL, but not shown as a top-bar tab
 const route=()=> (location.hash.replace('#/','')||'home');
 const go=(r)=>{ location.hash='#/'+r; };
 let lastRoute=null;
@@ -648,7 +709,7 @@ function fmtDate(d){ if(!d) return ''; const p=d.split('-'); return p.length===3
 
 const modal=document.getElementById('modal');
 function openModal(html){modal.innerHTML='<div class="modal-card">'+html+'</div>';modal.classList.add('open');}
-function closeModal(){modal.classList.remove('open');modal.innerHTML='';}
+function closeModal(){modal.classList.remove('open');modal.innerHTML='';if(typeof _openSocial!=='undefined')_openSocial=null;}
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
 function popup(t,m){openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>'+t+'</h3><p>'+m+'</p><button class="btn btn-primary" onclick="closeModal()">Got it</button>');}
@@ -692,7 +753,9 @@ const FIELDS={
   social:[{key:'label',label:'Name (e.g. Instagram)',type:'text'},{key:'url',label:'Link',type:'url',placeholder:'instagram.com/…'}],
   affiliation:[{key:'label',label:'Affiliation name',type:'text'},{key:'url',label:'Link (optional)',type:'url'}],
   doing:[{key:'name',label:'Displayed — title',type:'text'},{key:'details',label:'Details (shown when clicked)',type:'textarea'}],
-  speaker:[{key:'name',label:'Displayed — speaker name',type:'text'},{key:'details',label:'Details (shown when clicked)',type:'textarea'}],
+  speaker:[{key:'name',label:'Speaker name',type:'text'},{key:'org',label:'Role / organisation (optional)',type:'text'},{key:'date',label:'Date they spoke (optional)',type:'date'},{key:'details',label:'About the talk',type:'textarea'},{key:'photo',label:'Photo (optional)',type:'image'}],
+  schoolch:[{key:'text',label:'Challenge',type:'textarea',placeholder:'e.g. Cut your cafeteria\u2019s single-use plastics for a week'}],
+  indivch:[{key:'text',label:'Challenge',type:'textarea'}],
   event:[{key:'name',label:'Event name',type:'text'},{key:'date',label:'Date',type:'date'},{key:'time',label:'Time',type:'time'},{key:'link',label:'Link (optional — e.g. a Zoom or Meet URL)',type:'url'},{key:'color',label:'Color',type:'select',options:['Green','Blue','Amber','Rose','Purple','Gray']},{key:'details',label:'Details (shown when clicked, if there is no link)',type:'textarea'}],
   gallery:[{key:'caption',label:'Caption',type:'text'},{key:'photo',label:'Photo',type:'image'}],
   chapter:[{key:'continent',label:'Continent',type:'select',options:['Africa','Antarctica','Asia','Europe','North America','Oceania','South America']},{key:'country',label:'Country (any language)',type:'text',placeholder:'e.g. 日本 / México / Kenya'},{key:'name',label:'Chapter name',type:'text'}],
@@ -700,12 +763,14 @@ const FIELDS={
   advisory:[{key:'name',label:'Name',type:'text'},{key:'role',label:'Role / title',type:'text'},{key:'bio',label:'Short bio (optional)',type:'textarea'},{key:'photo',label:'Photo',type:'image'}],
   youth:[{key:'name',label:'Name',type:'text'},{key:'role',label:'Role / title',type:'text'},{key:'bio',label:'Short bio (optional)',type:'textarea'},{key:'photo',label:'Photo',type:'image'}],
 };
-const COLL={team:'team',social:'socials',affiliation:'affiliations',doing:'doing',speaker:'speakers',event:'events',gallery:'gallery',chapter:'chapters',board:'board',advisory:'advisory',youth:'youth'};
-const ADD_TITLE={team:'Add team member',social:'Add social account',affiliation:'Add affiliation',doing:'Add activity',speaker:'Add guest speaker',event:'Add event',gallery:'Add photo',chapter:'Add a chapter',board:'Add a board member',advisory:'Add an advisor',youth:'Add a youth leader'};
-const PERSIST_KIND={social:1,affiliation:1,chapter:1,board:1,advisory:1,youth:1};   // these are saved for everyone via site_content
-function addItem(kind){ openEditor(ADD_TITLE[kind], FIELDS[kind], null, v=>{ v.id=uid(); content[COLL[kind]].push(v); toast('Added'); if(PERSIST_KIND[kind])saveSiteContent(true); }); }
-function editItem(kind,id){ const arr=content[COLL[kind]]; const it=arr.find(x=>x.id===id); openEditor('Edit', FIELDS[kind], it, v=>{ Object.assign(it,v); toast('Saved'); if(PERSIST_KIND[kind])saveSiteContent(true); }); }
-function deleteItem(kind,id){ const arr=content[COLL[kind]]; const i=arr.findIndex(x=>x.id===id); if(i>-1){arr.splice(i,1);toast('Removed'); if(PERSIST_KIND[kind])saveSiteContent(true); render();} }
+const COLL={team:'team',social:'socials',affiliation:'affiliations',doing:'doing',speaker:'speakers',event:'events',gallery:'gallery',chapter:'chapters',board:'board',advisory:'advisory',youth:'youth',schoolch:'schoolChallenges',indivch:'indivChallenges'};
+const ADD_TITLE={team:'Add team member',social:'Add social account',affiliation:'Add affiliation',doing:'Add activity',speaker:'Add guest speaker',event:'Add event',gallery:'Add photo',chapter:'Add a chapter',board:'Add a board member',advisory:'Add an advisor',youth:'Add a youth leader',schoolch:'Add a school challenge',indivch:'Add an individual challenge'};
+const PERSIST_KIND={social:1,affiliation:1,chapter:1,board:1,advisory:1,youth:1,speaker:1,schoolch:1,indivch:1};   // these are saved for everyone via site_content
+const ABOUT_KINDS={board:1,advisory:1,youth:1};
+const sameId=(a,b)=>String(a)===String(b);
+function addItem(kind){ openEditor(ADD_TITLE[kind], FIELDS[kind], null, v=>{ v.id=uid(); content[COLL[kind]].push(v); if(ABOUT_KINDS[kind])content.aboutSeeded=true; toast('Added'); if(PERSIST_KIND[kind])saveSiteContent(true); }); }
+function editItem(kind,id){ const arr=content[COLL[kind]]; const it=arr.find(x=>sameId(x.id,id)); if(!it)return; openEditor('Edit', FIELDS[kind], it, v=>{ Object.assign(it,v); it.placeholder=false; if(ABOUT_KINDS[kind])content.aboutSeeded=true; toast('Saved'); if(PERSIST_KIND[kind])saveSiteContent(true); }); }
+function deleteItem(kind,id){ const arr=content[COLL[kind]]; const i=arr.findIndex(x=>sameId(x.id,id)); if(i>-1){arr.splice(i,1); if(ABOUT_KINDS[kind])content.aboutSeeded=true; toast('Removed'); if(PERSIST_KIND[kind])saveSiteContent(true); render();} }
 function editMeetingLink(){ openEditor('Meeting link', [{key:'url',label:'Link for the next meeting',type:'url'}], {url:content.meetingLink}, v=>{ content.meetingLink=v.url; toast('Saved'); }); }
 function openDetails(kind,id){
   const it=content[COLL[kind]].find(x=>x.id===id); if(!it) return;
@@ -733,11 +798,15 @@ function openSignup(){
     '<label>Username</label><input id="su-user" type="text" placeholder="e.g. Soliphilia">'+
     '<label>Password</label><input id="su-pass" type="password" placeholder="Create a password">'+
     '<label>Country <span style="font-weight:400;color:var(--muted)">(optional — you can add it later)</span></label><select id="su-country"><option value="">Select a country</option>'+CA_COUNTRIES.map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+'</select>'+
+    '<label>Chapter <span style="font-weight:400;color:var(--muted)">(optional \u2014 start typing to search)</span></label><input id="su-chapter" list="chapterList" type="text" placeholder="e.g. South Woods">'+chapterDatalist()+
     '<p class="err" id="su-err"></p><button class="btn btn-primary" id="su-btn" style="width:100%;margin-top:6px" onclick="doSignup()">Create account</button>');
 }
 async function doSignup(){
   const email=v('su-email'),user=v('su-user'),pass=document.getElementById('su-pass').value,err=document.getElementById('su-err');
   const country=(document.getElementById('su-country')||{}).value||'';
+  const chapTyped=((document.getElementById('su-chapter')||{}).value||'').trim();
+  const chapId=chapterIdByName(chapTyped);
+  if(chapTyped && chapId===null){ err.textContent='We couldn\u2019t find that chapter \u2014 pick one from the list, or leave it blank.'; return; }
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Please enter a valid email.';return;}
   if(!user){err.textContent='Please pick a username.';return;}
   if(!/^[A-Za-z0-9]+$/.test(user)){err.textContent='Usernames can only contain letters and numbers \u2014 no spaces or symbols.';return;}
@@ -745,7 +814,7 @@ async function doSignup(){
   if(BACKEND){
     const b=document.getElementById('su-btn');b.disabled=true;b.textContent='Creating…';err.textContent='';
     try{ const av=await sb.rpc('username_available',{name:user}); if(!av.error && av.data===false){ b.disabled=false;b.textContent='Create account'; err.textContent='That username is already taken \u2014 please pick another.'; return; } }catch(e){}
-    const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{username:user,country:country}}});
+    const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{username:user,country:country,chapter:chapId||''}}});
     if(error){b.disabled=false;b.textContent='Create account'; err.innerHTML=/already registered|already exists|already been registered|user_already/i.test(error.message)?'An account with that email already exists. <a href="#" onclick="closeModal();openLogin();return false;">Log in instead?</a>':(/duplicate|unique|username/i.test(error.message)?'That username is already taken \u2014 please pick another.':esc(error.message)); return;}
     if(!data.session){closeModal();popup('Almost there!','Check your email to confirm your account, then log in.');return;}
     await loadSession();closeModal();render();toast('Welcome, '+user+'!');
@@ -768,7 +837,7 @@ async function doLogin(){
         ? 'We couldn’t find an account with those details. If you’re new, please <a href="#" onclick="closeModal();openSignup();return false;">sign up</a> first.'
         : esc(error.message);
       return;}
-    await loadSession();closeModal();render();toast('Logged in');
+    await loadSession();closeModal();render();toast('Logged in');checkDiscord();
   } else { account={roleId:'member',username:email.split('@')[0],email,avatar:null};previewAs=null;recomputeSession();closeModal();render();toast('Logged in (preview)'); }
 }
 async function logout(){ if(BACKEND){await sb.auth.signOut();} account=null;previewAs=null;recomputeSession();closeModal();go('home');render();toast('Logged out'); }
@@ -777,42 +846,182 @@ async function loadSession(){
   const {data:{user}}=await sb.auth.getUser();
   if(!user){ account=null; recomputeSession(); return; }
   let role='member',username=user.email.split('@')[0];
-  const {data:profile}=await sb.from('profiles').select('username, role, country').eq('id',user.id).single();
-  let country=''; if(profile){role=profile.role||'member';username=profile.username||username;country=profile.country||'';}
-  account={roleId:role,username,email:user.email,avatar:(account&&account.avatar)||null,country:country};
+  const {data:profile}=await sb.from('profiles').select('username, role, country, avatar, chapter, discord_username').eq('id',user.id).single();
+  let country='',av=null,chap=null,dc=null; if(profile){role=profile.role||'member';username=profile.username||username;country=profile.country||'';av=profile.avatar||null;chap=profile.chapter||null;dc=profile.discord_username||null;}
+  account={roleId:role,id:user.id,username,email:user.email,avatar:av||(account&&account.avatar)||null,country:country,chapter:chap,discord:dc};
   recomputeSession();
 }
 function openProfile(){
   const av=account&&account.avatar?'<img src="'+escA(account.avatar)+'">':'';
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Your profile</h3>'+noteHtml()+
-    '<label>Profile picture</label><input id="pf-av" type="file" accept="image/*"><div class="img-prev" id="pf-avp">'+av+'</div>'+
+    '<label>Profile picture</label><input id="pf-av" type="file" accept="image/*">'+
+    '<div id="pf-avwrap" class="av-edit" style="display:'+(account&&account.avatar?'':'none')+'">'+
+      '<div class="av-stage"><canvas id="pf-canvas" width="220" height="220"></canvas><div class="av-mask"></div></div>'+
+      '<label style="margin-top:10px">Zoom</label><input id="pf-zoom" class="av-zoom" type="range" min="1" max="3" step="0.01" value="1" oninput="avZoom(this.value)">'+
+      '<p class="muted" style="font-size:.8rem;margin:4px 0 0">Drag the picture to move it, and use the slider to zoom.</p>'+
+    '</div>'+
     '<label>Username</label><input id="pf-user" type="text" value="'+escA(account?account.username:'')+'">'+
     '<label>Email</label><input type="email" value="'+escA(account?account.email:'')+'" disabled>'+
     '<label>Country <span style="font-weight:400;color:var(--muted)">(optional)</span></label><select id="pf-country"><option value="">Select a country</option>'+CA_COUNTRIES.map(function(c){return '<option'+((account&&account.country===c)?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select>'+
+    '<label>Chapter <span style="font-weight:400;color:var(--muted)">(optional \u2014 start typing to search)</span></label><input id="pf-chapter" list="chapterList" type="text" value="'+escA(chapterName(account&&account.chapter))+'" placeholder="Search chapters\u2026">'+chapterDatalist()+
+    (BACKEND&&discordOn()?('<label>Discord</label><div class="dc-status">'+(account&&account.discord?'\u2705 Linked as <strong>'+esc(account.discord)+'</strong>':'<span class="muted">Not linked yet</span> <button class="btn btn-ghost btn-xs" onclick="closeModal();openDiscordVerify()">Link Discord</button>')+'</div>'):'')+
     '<label>New password</label><input id="pf-pass" type="password" placeholder="Leave blank to keep current">'+
     '<button class="btn btn-primary" style="width:100%;margin-top:14px" onclick="saveProfile()">Save changes</button>'+
     '<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="logout()">Log out</button>');
-  document.getElementById('pf-av').addEventListener('change',function(){
-    const f=this.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{_pfAvatar=rd.result;document.getElementById('pf-avp').innerHTML='<img src="'+rd.result+'">';};rd.readAsDataURL(f);
-  });
+  document.getElementById('pf-av').addEventListener('change',function(){ const f=this.files[0]; if(f) loadAvatarFile(f); });
+  const cv=document.getElementById('pf-canvas');
+  if(cv){ cv.addEventListener('mousedown',avDragStart); cv.addEventListener('touchstart',avDragStart,{passive:false}); }
+  if(account&&account.avatar) loadAvatarSrc(account.avatar);   // start from the current picture
+}
+/* ---- profile picture: zoom + drag inside the circle, then export a square crop ---- */
+const AV_SIZE=220, AV_OUT=256;
+let _av=null;
+function loadAvatarFile(file){ const rd=new FileReader(); rd.onload=function(){ loadAvatarSrc(rd.result); }; rd.readAsDataURL(file); }
+function loadAvatarSrc(src){
+  const img=new Image();
+  img.onload=function(){
+    const base=Math.max(AV_SIZE/img.width, AV_SIZE/img.height);            // "cover" the circle
+    _av={img:img, base:base, scale:1, x:(AV_SIZE-img.width*base)/2, y:(AV_SIZE-img.height*base)/2, drag:null};
+    const w=document.getElementById('pf-avwrap'); if(w)w.style.display='';
+    const z=document.getElementById('pf-zoom'); if(z)z.value=1;
+    drawAvatar();
+  };
+  img.src=src;
+}
+function clampAvatar(){ if(!_av)return; const s=_av.base*_av.scale, w=_av.img.width*s, h=_av.img.height*s;
+  _av.x=Math.min(0,Math.max(AV_SIZE-w,_av.x)); _av.y=Math.min(0,Math.max(AV_SIZE-h,_av.y)); }
+function drawAvatar(){
+  const c=document.getElementById('pf-canvas'); if(!c||!_av)return;
+  const g=c.getContext('2d'); g.clearRect(0,0,AV_SIZE,AV_SIZE);
+  const s=_av.base*_av.scale;
+  g.drawImage(_av.img,_av.x,_av.y,_av.img.width*s,_av.img.height*s);
+}
+function avZoom(val){
+  if(!_av)return; const mid=AV_SIZE/2, old=_av.base*_av.scale;
+  _av.scale=parseFloat(val)||1; const now=_av.base*_av.scale;
+  _av.x=mid-(mid-_av.x)*(now/old); _av.y=mid-(mid-_av.y)*(now/old);   // zoom about the centre
+  clampAvatar(); drawAvatar();
+}
+function avPt(e){ const r=document.getElementById('pf-canvas').getBoundingClientRect(); const t=(e.touches&&e.touches[0])||e; return {x:t.clientX-r.left, y:t.clientY-r.top}; }
+function avDragStart(e){ if(!_av)return; e.preventDefault(); const p=avPt(e); _av.drag={x:p.x-_av.x,y:p.y-_av.y};
+  window.addEventListener('mousemove',avDragMove); window.addEventListener('mouseup',avDragEnd);
+  window.addEventListener('touchmove',avDragMove,{passive:false}); window.addEventListener('touchend',avDragEnd); }
+function avDragMove(e){ if(!_av||!_av.drag)return; e.preventDefault(); const p=avPt(e); _av.x=p.x-_av.drag.x; _av.y=p.y-_av.drag.y; clampAvatar(); drawAvatar(); }
+function avDragEnd(){ if(_av)_av.drag=null; window.removeEventListener('mousemove',avDragMove); window.removeEventListener('mouseup',avDragEnd); window.removeEventListener('touchmove',avDragMove); window.removeEventListener('touchend',avDragEnd); }
+function avExport(){
+  if(!_av)return null;
+  const o=document.createElement('canvas'); o.width=AV_OUT; o.height=AV_OUT;
+  const g=o.getContext('2d'), k=AV_OUT/AV_SIZE, s=_av.base*_av.scale;
+  g.drawImage(_av.img,_av.x*k,_av.y*k,_av.img.width*s*k,_av.img.height*s*k);
+  try{ return o.toDataURL('image/jpeg',0.9); }catch(e){ return null; }
 }
 let _pfAvatar=null;
 async function saveProfile(){
   const user=v('pf-user'),pass=document.getElementById('pf-pass').value;
-  const pfCountry=(document.getElementById('pf-country')||{}).value||''; if(account){ account.username=user||account.username; account.country=pfCountry; if(_pfAvatar)account.avatar=_pfAvatar; } recomputeSession();
+  const pfCountry=(document.getElementById('pf-country')||{}).value||'';
+  const cropped=avExport(); if(cropped)_pfAvatar=cropped;
+  const chTyped=((document.getElementById('pf-chapter')||{}).value||'').trim();
+  const chId=chapterIdByName(chTyped);
+  if(chTyped && chId===null){ toast('We couldn\u2019t find that chapter \u2014 pick one from the list, or clear the box.'); return; } if(account){ account.username=user||account.username; account.country=pfCountry; account.chapter=chId||null; if(_pfAvatar)account.avatar=_pfAvatar; } recomputeSession();
   if(BACKEND){
     const {data:{user:u}}=await sb.auth.getUser();
-    if(u){await sb.from('profiles').update({username:user,country:pfCountry}).eq('id',u.id);}
+    if(u){ const {error:pErr}=await sb.from('profiles').update({username:user,country:pfCountry,chapter:chId||null,avatar:(account&&account.avatar)||null}).eq('id',u.id); if(pErr){ toast('Couldn\u2019t save profile: '+pErr.message); return; } }
     if(pass){await sb.auth.updateUser({password:pass});}
   }
-  _pfAvatar=null;closeModal();render();toast(BACKEND?'Saved':'Saved (preview)');
+  _pfAvatar=null;_av=null;aboutStats=null;chaptersLoaded=false;ensureChapters();aboutStatsLoading=false;closeModal();render();toast(BACKEND?'Saved':'Saved (preview)');
 }
 function v(id){return document.getElementById(id).value.trim();}
 
 /* ==========================================================================
+   5b) DISCORD VERIFICATION (at log-in) + role mapping
+   Sign-up never mentions Discord. Logging in does: we link the member's Discord
+   account, then a server function reads their Discord roles and applies the
+   owner's mapping. The role change happens server-side on purpose \u2014 the browser
+   is never allowed to set its own role.
+   ========================================================================== */
+function discordOn(){ return !!content.discordVerify; }
+async function checkDiscord(){
+  if(!BACKEND || !discordOn() || !account || account.discord) return;
+  try{
+    const {data}=await sb.auth.getUserIdentities();
+    const linked=((data&&data.identities)||[]).some(function(i){return i.provider==='discord';});
+    if(linked){ await verifyDiscord(true); return; }
+  }catch(e){}
+  openDiscordVerify();
+}
+function openDiscordVerify(){
+  openModal('<h3>One more step \u2014 verify with Discord</h3>'+
+    '<p>Earth Sweet Earth runs on Discord, so we link your Discord account when you log in. You can sign in through your browser or the Discord app \u2014 it only takes a moment.</p>'+
+    '<p class="muted" style="font-size:.85rem">If you are under 13, Discord requires you to use a parent or guardian\u2019s account.</p>'+
+    '<button class="btn btn-blue" style="width:100%;margin-top:6px" onclick="startDiscordLink()">Continue with Discord</button>'+
+    (content.discordRequired
+      ? '<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="skipDiscord()">Not now (this logs you out)</button>'
+      : '<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="closeModal()">Not now</button>')+
+    '<p class="err" id="dc-err"></p>');
+}
+async function startDiscordLink(){
+  const err=document.getElementById('dc-err');
+  try{
+    const {error}=await sb.auth.linkIdentity({provider:'discord',options:{redirectTo:location.href}});
+    if(error) throw error;
+  }catch(e){
+    if(err) err.innerHTML='Discord sign-in isn\u2019t switched on yet. An owner needs to enable the Discord provider (and manual linking) in Supabase \u2014 see SETUP-discord.md.';
+  }
+}
+function skipDiscord(){ closeModal(); logout(); }
+async function verifyDiscord(silent){
+  if(!BACKEND || !account) return;
+  try{
+    const {data,error}=await sb.functions.invoke('discord-verify',{body:{}});
+    if(error) throw error;
+    if(data && data.ok){
+      account.discord=data.discordUsername||'linked';
+      if(data.appliedRole && roles[data.appliedRole]) account.roleId=data.appliedRole;
+      recomputeSession(); closeModal(); render();
+      const rn=data.appliedRole && roles[data.appliedRole] ? roles[data.appliedRole].name : '';
+      popup('You\u2019re verified! \u2705','Your Discord account <strong>'+esc(data.discordUsername||'')+'</strong> is linked.'+
+        (rn?' Your Discord roles matched, so you now have the <strong>'+esc(rn)+'</strong> role on the site.':'')+
+        (data.message?'<br><span class="muted" style="font-size:.85rem">'+esc(data.message)+'</span>':''));
+    } else if(!silent){
+      toast((data&&data.message)||'We couldn\u2019t verify you with Discord.');
+    }
+  }catch(e){ if(!silent) toast('Discord verification isn\u2019t set up yet \u2014 see SETUP-discord.md.'); }
+}
+/* ---- owner-editable mapping: website role (left) <-> Discord role name (right) ---- */
+function dcMapAdd(){ content.discordMap=content.discordMap||[]; content.discordMap.push({role:'member',discord:''}); render(); }
+function dcMapSet(i,k,v){ if(content.discordMap&&content.discordMap[i]) content.discordMap[i][k]=v; }
+function dcMapDel(i){ if(content.discordMap){ content.discordMap.splice(i,1); saveSiteContent(true); render(); } }
+function dcMapSave(){ saveSiteContent(); }
+function discordSettingsHtml(){
+  const map=content.discordMap||[];
+  const roleOpts=function(sel){ return Object.keys(roles).filter(function(r){return r!=='public';}).map(function(r){return '<option value="'+r+'"'+(sel===r?' selected':'')+'>'+esc(roles[r].name)+'</option>';}).join(''); };
+  const rows=map.length?map.map(function(m,i){
+    return '<tr><td><select class="rsel" onchange="dcMapSet('+i+',\'role\',this.value)">'+roleOpts(m.role)+'</select></td>'+
+      '<td><input class="rsel" style="width:100%" value="'+escA(m.discord||'')+'" placeholder="Exact Discord role name" oninput="dcMapSet('+i+',\'discord\',this.value)"></td>'+
+      '<td class="c"><button class="btn btn-ghost btn-xs" title="Remove" onclick="dcMapDel('+i+')">\u00d7</button></td></tr>';
+  }).join(''):'<tr><td colspan="3" class="muted" style="text-align:center">No mappings yet.</td></tr>';
+  return '<h2 style="font-size:1.5rem;margin:32px 0 8px">Discord</h2>'+
+    '<div class="card" style="margin-bottom:18px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">'+
+        '<div><strong>Ask people to verify with Discord when they log in</strong>'+
+        '<p class="muted" style="margin:4px 0 0;font-size:.85rem">Sign-up never mentions Discord. This only appears at log-in.</p></div>'+
+        '<label class="switch"><input type="checkbox" '+(content.discordVerify?'checked':'')+' onchange="content.discordVerify=this.checked;saveSiteContent(true);render()"><span class="slider"></span></label>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">'+
+        '<div><strong>Make it required</strong>'+
+        '<p class="muted" style="margin:4px 0 0;font-size:.85rem">If on, someone who declines is logged back out.</p></div>'+
+        '<label class="switch"><input type="checkbox" '+(content.discordRequired?'checked':'')+' onchange="content.discordRequired=this.checked;saveSiteContent(true);render()"><span class="slider"></span></label>'+
+      '</div>'+
+    '</div>'+
+    '<p class="muted" style="font-size:.85rem;margin-bottom:12px">Map a Discord role to a website role. The Discord role name must match <strong>exactly</strong>. The first match wins, so put the highest role at the top.</p>'+
+    '<div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Website role</th><th>Discord role (exact)</th><th class="c"></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    '<div class="mrow" style="margin-top:12px"><button class="btn btn-ghost btn-sm" onclick="dcMapAdd()">+ Add a mapping</button><button class="btn btn-primary btn-sm" onclick="dcMapSave()">Save mapping</button></div>';
+}
+
+/* ==========================================================================
    6) PREVIEW SWITCHER, DARK MODE, NAV
    ========================================================================== */
-const PREVIEWS=[{id:'public',label:'Public'},{id:'member',label:'Member'},{id:'moderator',label:'Moderator'},{id:'admin',label:'Admin'},{id:'owner',label:'Owner'}];
+const PREVIEWS=[{id:'public',label:'Public'},{id:'member',label:'Member'},{id:'chapter_leader',label:'Chapter Leader'},{id:'moderator',label:'Moderator'},{id:'admin',label:'Admin'},{id:'owner',label:'Owner'}];
 function setPreview(id){ previewAs=id; recomputeSession(); if(!canView(route()))go('home'); render(); }
 const curPreview=()=> previewAs || (account?account.roleId:'public');
 // the preview bar is a private owner tool: only the real Owner sees it (or anyone in local preview mode before keys)
@@ -869,39 +1078,66 @@ async function loadAboutStats(){
   catch(e){ aboutStats='error'; }
   aboutStatsLoading=false; if(route()==='about')render();
 }
+const ABOUT_SLOTS={
+  board:['Director','Director','Treasurer'],
+  advisory:['Advisory Council','Advisory Council','Advisory Council'],
+  youth:['President','Vice President','Treasurer','Secretary']
+};
+// The starter circles are real, editable entries: an owner can fill one in, or delete it outright.
+function seedAbout(){
+  if(content.aboutSeeded) return;
+  Object.keys(ABOUT_SLOTS).forEach(function(k){
+    if(!content[k] || !content[k].length){
+      content[k]=ABOUT_SLOTS[k].map(function(r,i){ return {id:uid()+i, name:'', role:r, placeholder:true}; });
+    }
+  });
+}
+function fillSlot(kind,id){
+  const it=(content[kind]||[]).find(function(x){return sameId(x.id,id);}); if(!it)return;
+  openEditor('Add '+esc(it.role||'someone'), FIELDS[kind], {role:it.role}, function(v){
+    Object.assign(it,v); it.placeholder=false; content.aboutSeeded=true; toast('Added'); saveSiteContent(true);
+  });
+}
 function profileCard(p,kind,ed){
+  if(p.placeholder){
+    return '<div class="pcard"><div class="pc-pic pc-empty"></div><div class="pc-body">'+
+      '<div class="pc-role" style="margin-top:0">'+esc(p.role||'Open role')+'</div>'+
+      (ed?'<div class="rowbtns" style="justify-content:center;margin-top:9px"><button class="btn btn-ghost btn-xs" onclick="fillSlot(\''+kind+'\',\''+p.id+'\')">+ Add</button><button class="btn btn-ghost btn-xs" title="Remove this slot" onclick="deleteItem(\''+kind+'\',\''+p.id+'\')">\u00d7</button></div>':'')+
+    '</div></div>';
+  }
   const ph=p.photo?'<img class="pc-pic" src="'+escA(p.photo)+'">':'<div class="pc-pic pc-noimg">'+esc((p.name||'?').charAt(0).toUpperCase())+'</div>';
   return '<div class="pcard">'+ph+'<div class="pc-body">'+
     '<div class="pc-name">'+esc(p.name||'Name')+'</div>'+
     (p.role?'<div class="pc-role">'+esc(p.role)+'</div>':'')+
     (p.bio?'<p class="pc-bio">'+esc(p.bio)+'</p>':'')+
-    (ed?editDel(kind,p.id):'')+
+    (ed?'<div class="rowbtns" style="justify-content:center">'+
+        '<button class="btn btn-ghost btn-xs" onclick="editItem(\''+kind+'\',\''+p.id+'\')">Edit</button>'+
+        '<button class="btn btn-ghost btn-xs" onclick="deleteItem(\''+kind+'\',\''+p.id+'\')">Delete</button></div>':'')+
   '</div></div>';
 }
-function aboutSection(kind,title,note,btnHtml,placeholders){
+function aboutSection(kind,title,note,btnHtml){
   const arr=content[kind]||[], ed=canEditKind(kind);
-  const cards=(arr.length?arr.map(function(p){return profileCard(p,kind,ed);}):placeholders.map(function(p){return profileCard(p,kind,false);})).join('');
+  const visible=ed?arr:arr.filter(function(p){return !p.placeholder;});
+  const cards=visible.map(function(p){return profileCard(p,kind,ed);}).join('');
   return '<section class="about-sec">'+
     '<h2 class="acts-sub" style="margin-top:6px">'+title+(ed?' <span class="pill">you can edit</span>':'')+'</h2>'+
     '<p class="muted about-note">'+note+'</p>'+
-    '<div class="about-btnrow">'+btnHtml+(ed?' <button class="btn btn-ghost btn-sm" onclick="addItem(\''+kind+'\')">+ Add someone</button>':'')+'</div>'+
-    '<div class="pgrid">'+cards+'</div>'+
+    '<div class="about-btnrow">'+btnHtml+(ed?' <button class="btn btn-ghost btn-sm" onclick="addItem(\''+kind+'\')">+ Add someone (any role)</button>':'')+'</div>'+
+    (visible.length?'<div class="pgrid">'+cards+'</div>':'<p class="muted">Coming soon!</p>')+
   '</section>';
 }
 function aboutView(){
+  seedAbout();
   const s=(aboutStats&&aboutStats!=='error'&&aboutStats.people>0)
     ?('<strong>'+aboutStats.people+'</strong> '+(aboutStats.people===1?'person':'people')+' across <strong>'+aboutStats.countries+'</strong> '+(aboutStats.countries===1?'country':'countries'))
     :'a growing community across many countries';
   const reach='<a class="btn btn-blue btn-sm" href="mailto:hello@earthsweetearth.org">Interested? Reach out!</a>';
-  const bph=[{name:'Board Member',role:'Director'},{name:'Board Member',role:'Director'},{name:'Board Member',role:'Treasurer'}];
-  const aph=[{name:'Advisor',role:'Advisory Council'},{name:'Advisor',role:'Advisory Council'},{name:'Advisor',role:'Advisory Council'}];
-  const yph=[{name:'Youth Leader',role:'President'},{name:'Youth Leader',role:'Vice President'},{name:'Youth Leader',role:'Treasurer'},{name:'Youth Leader',role:'Secretary'}];
   return '<div class="wrap view">'+
     '<h1 class="page-title">About Earth Sweet Earth</h1>'+
     '<p class="page-intro">Earth Sweet Earth is a youth-led environmental project \u2014 students working together to grow a greener, kinder planet, one neighborhood at a time. From clean-ups and challenges to guest speakers and school chapters, we turn small actions into real change. Today, we\u2019re '+s+'.</p>'+
-    aboutSection('board','Board of Directors','The people who steer Earth Sweet Earth \u2014 setting direction, keeping us accountable, and making the big decisions.',reach,bph)+
-    aboutSection('advisory','Advisory Council','Experienced mentors and advisors who guide our work and share their expertise along the way.',reach,aph)+
-    aboutSection('youth','Youth Leadership Team','The students running the day-to-day \u2014 leading projects, chapters, and events. Want to help lead? Apply below.','<a class="btn btn-primary btn-sm" href="#/youthapply">Apply for a Position</a>',yph)+
+    aboutSection('board','Board of Directors','The people who steer Earth Sweet Earth \u2014 setting direction, keeping us accountable, and making the big decisions.',reach)+
+    aboutSection('advisory','Advisory Council','Experienced mentors and advisors who guide our work and share their expertise along the way.',reach)+
+    aboutSection('youth','Youth Leadership Team','The students running the day-to-day \u2014 leading projects, chapters, and events. Want to help lead? Apply below.','<a class="btn btn-primary btn-sm" href="#/youthapply">Apply for a Position</a>')+
   '</div>';
 }
 function homeView(){
@@ -1051,53 +1287,151 @@ function moonLitPath(f){
   return 'M'+T+' A'+R+','+R+' 0 0,'+limb+' '+B+' A'+rx+','+R+' 0 0,'+term+' '+T+' Z';
 }
 
+function nlIssues(){ return newsletters.filter(function(n){return n.kind==='issue';}).sort(function(a,b){return b.publishedAt-a.publishedAt;}); }
+function nlUpdates(){ return newsletters.filter(function(n){return n.kind!=='issue';}).sort(function(a,b){return b.publishedAt-a.publishedAt;}); }
+let nlOpen={};
 function newsletterView(){
-  let h='<div class="wrap view"><h1 class="page-title">News &amp; updates</h1><p class="page-intro">The latest from Earth Sweet Earth \u2014 announcements, recaps, and stories.</p>';
-  if(canEdit('newsletter_post')){
+  const ed=canEdit('newsletter_post');
+  let h='<div class="wrap view"><h1 class="page-title">News &amp; updates</h1>'+
+    '<p class="page-intro">Our newsletter, plus the smaller things happening week to week.</p>';
+  if(ed){
     h+='<div class="card composer" style="margin:20px 0;background:rgba(0,118,0,.04)"><h3 style="font-size:1.15rem;margin-bottom:12px">+ New post <span class="pill">you can post</span></h3>'+
-      '<input id="np-title" type="text" placeholder="Post title"><textarea id="np-body" rows="4" placeholder="Write your update \u2014 short posts expand in place, longer ones open their own page."></textarea>'+
+      '<label style="display:block;font-size:.84rem;font-weight:600;color:var(--green);margin-bottom:5px">Type</label>'+
+      '<select id="np-kind" class="ed-select" style="margin-bottom:12px"><option value="issue">Newsletter (becomes the featured issue)</option><option value="update">Small update</option></select>'+
+      '<input id="np-title" type="text" placeholder="Title"><textarea id="np-body" rows="4" placeholder="Write it here."></textarea>'+
       '<div class="tools"><span style="flex:1"></span><button class="btn btn-primary btn-sm" onclick="publishPost()">Publish</button></div></div>';
   }
-  if(newsletters.length){ h+='<div class="nl-list">'+newsletters.map(newsletterCard).join('')+'</div>'; }
-  else if(!canEdit('newsletter_post')){ h+='<p class="muted">No posts yet \u2014 check back soon!</p>'; }
+  const issues=nlIssues(), feat=issues[0], past=issues.slice(1);
+  h+='<h2 class="acts-sub">Newsletter</h2>';
+  if(feat){
+    h+='<div class="nl-feat">'+
+      '<span class="pill">Latest issue</span>'+
+      '<h3 class="nl-feat-t">'+esc(feat.title)+'</h3>'+
+      '<p class="nl-time" style="margin:0 0 14px">'+esc(fmtDateTime(feat.publishedAt))+'</p>'+
+      '<div class="nl-feat-b">'+esc(feat.body||'')+'</div>'+
+      socialBar(feat.id)+
+      '<div class="gfoot" style="margin-top:8px">'+nlCommentBtn(feat.id)+
+        (ed?'<span class="gadmin"><button class="btn btn-ghost btn-xs" onclick="editNewsletter(\''+feat.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" onclick="deleteNewsletter(\''+feat.id+'\')">Delete</button></span>':'')+
+      '</div></div>';
+    if(past.length){
+      h+='<h3 class="nl-sub">Past issues</h3><div class="nl-arch">'+past.map(function(n){
+        return '<div class="nl-a"><div class="nl-a-m"><span class="nl-time">'+esc(fmtDateTime(n.publishedAt))+'</span><span class="nl-a-t">'+esc(n.title)+'</span></div>'+
+          '<div class="nl-a-b"><button class="btn btn-ghost btn-sm" onclick="openIssuePdf(\''+n.id+'\')">📄 Open PDF \u2197</button>'+
+          (ed?'<button class="btn btn-ghost btn-xs" onclick="editIssuePdf(\''+n.id+'\')">PDF link</button><button class="btn btn-ghost btn-xs" onclick="deleteNewsletter(\''+n.id+'\')">Delete</button>':'')+
+          '</div></div>';
+      }).join('')+'</div>';
+    }
+  } else { h+='<p class="muted">No newsletter yet \u2014 check back soon!</p>'; }
+  const ups=nlUpdates();
+  h+='<h2 class="acts-sub">Small updates</h2>';
+  h+=ups.length?('<div class="nl-list">'+ups.map(newsletterCard).join('')+'</div>')
+               :'<p class="muted">No updates yet \u2014 check back soon!</p>';
   return h+'</div>';
 }
+function nlCommentBtn(id){ const n=ensureSocial(id).comments.length; return '<button class="gcomment" onclick="openNewsletterComments(\''+id+'\')">💬 '+(n?n+(n===1?' comment':' comments'):'Comment')+'</button>'; }
 function newsletterCard(n){
-  const long=(n.body||'').length>600;
-  const head='<div class="nl-head" onclick="'+(long?'openNewsletter(\''+n.id+'\')':'toggleNewsletter(\''+n.id+'\')')+'"><div class="nl-meta"><span class="nl-time">'+esc(fmtDateTime(n.publishedAt))+'</span><span class="nl-title">'+esc(n.title)+'</span></div><span class="nl-arrow">'+(long?'\u2197':'\u25BE')+'</span></div>';
-  const body=long?'':'<div class="nl-body" id="nlb-'+n.id+'"><div class="nl-inner"><p style="white-space:pre-wrap;margin:0 0 10px">'+esc(n.body||'')+'</p><button class="btn btn-ghost btn-xs" onclick="toggleNewsletter(\''+n.id+'\')">Show less</button></div></div>';
-  const admin=canEdit('newsletter_post')?'<div class="nl-admin"><button class="btn btn-ghost btn-xs" onclick="editNewsletter(\''+n.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" onclick="deleteNewsletter(\''+n.id+'\')">Delete</button></div>':'';
-  return '<div class="nl-card">'+head+body+admin+'</div>';
+  const open=!!nlOpen[n.id];
+  const head='<div class="nl-head" onclick="toggleNewsletter(\''+n.id+'\')"><div class="nl-meta"><span class="nl-time">'+esc(fmtDateTime(n.publishedAt))+'</span><span class="nl-title">'+esc(n.title)+'</span></div><span class="nl-arrow">\u25BE</span></div>';
+  const body='<div class="nl-body'+(open?' open':'')+'" id="nlb-'+n.id+'"><div class="nl-inner">'+
+    '<p style="white-space:pre-wrap;margin:0 0 10px">'+esc(n.body||'')+'</p>'+
+    socialBar(n.id)+
+    '<div class="gfoot" style="margin-top:6px">'+nlCommentBtn(n.id)+
+      (canEdit('newsletter_post')?'<span class="gadmin"><button class="btn btn-ghost btn-xs" onclick="editNewsletter(\''+n.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" onclick="deleteNewsletter(\''+n.id+'\')">Delete</button></span>':'')+
+    '</div></div></div>';
+  return '<div class="nl-card'+(open?' open':'')+'">'+head+body+'</div>';
 }
-function toggleNewsletter(id){ const b=document.getElementById('nlb-'+id); if(!b)return; b.classList.toggle('open'); const card=b.closest('.nl-card'); if(card)card.classList.toggle('open'); }
-let _openPost=null;
-function openNewsletter(id){ _openPost=id; go('post'); }
-function newsletterPostView(){
-  const n=newsletters.find(function(x){return x.id===_openPost;});
-  if(!n) return '<div class="wrap view"><p><button class="btn btn-ghost btn-sm" onclick="go(\'newsletter\')">\u2190 Back to Newsletter</button></p><h1 class="page-title">Post not found</h1><p class="muted">This post may have been removed.</p></div>';
-  return '<div class="wrap view"><p><button class="btn btn-ghost btn-sm" onclick="go(\'newsletter\')">\u2190 Back to Newsletter</button></p>'+
-    '<h1 class="page-title" style="margin-bottom:6px">'+esc(n.title)+'</h1>'+
-    '<p class="muted" style="margin-bottom:22px">'+esc(fmtDateTime(n.publishedAt))+'</p>'+
-    '<div style="white-space:pre-wrap;font-size:1.06rem;line-height:1.75;max-width:70ch">'+esc(n.body||'')+'</div></div>';
+function toggleNewsletter(id){ nlOpen[id]=!nlOpen[id]; const b=document.getElementById('nlb-'+id); if(b){ b.classList.toggle('open',!!nlOpen[id]); const c=b.closest('.nl-card'); if(c)c.classList.toggle('open',!!nlOpen[id]); } }
+function renderNewsletterModal(id){
+  const n=newsletters.find(function(x){return sameId(x.id,id);}); if(!n)return;
+  _openSocial={kind:'news',id:id};
+  const s=ensureSocial(id);
+  const thread=s.comments.length?s.comments.map(function(c){return commentRow(id,c);}).join(''):'<p class="muted" style="text-align:center;margin:14px 0">No comments yet \u2014 be the first!</p>';
+  const compose=isLoggedIn()
+    ?'<div class="cmp"><textarea id="gc-input" rows="2" placeholder="Add a comment\u2026"></textarea><button class="btn btn-primary btn-sm" onclick="postComment(\''+id+'\')">Post</button></div>'
+    :'<p class="muted" style="text-align:center;margin:0"><a href="#" onclick="closeModal();openLogin();return false;">Log in</a> to join the conversation.</p>';
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3 style="margin-bottom:2px">Comments</h3><p class="muted" style="margin-bottom:14px">'+esc(n.title)+'</p>'+
+    socialBar(id)+'<div class="cthread" style="margin-top:12px">'+thread+'</div>'+compose);
 }
+function openNewsletterComments(id){ renderNewsletterModal(id); }
 function publishPost(){
-  const t=v('np-title'),b=document.getElementById('np-body').value.trim();
+  const t=v('np-title'), b=document.getElementById('np-body').value.trim();
+  const k=(document.getElementById('np-kind')||{}).value||'update';
   if(!t){toast('Add a title first');return;}
-  newsletters.unshift({id:uid(),title:t,body:b,publishedAt:Date.now()});
-  toast('Posted');render();
+  newsletters.unshift({id:uid(), kind:k, title:t, body:b, publishedAt:Date.now(), pdfUrl:''});
+  toast(k==='issue'?'Published \u2014 this is now the featured issue':'Update posted');
+  saveSiteContent(true); render();
 }
-function editNewsletter(id){ const n=newsletters.find(function(x){return x.id===id;}); if(!n)return; openEditor('Edit post',[{key:'title',label:'Title',type:'text'},{key:'body',label:'Body',type:'textarea'}],{title:n.title,body:n.body},function(v){ n.title=v.title; n.body=v.body; toast('Saved'); }); }
-function deleteNewsletter(id){ const i=newsletters.findIndex(function(x){return x.id===id;}); if(i>-1){ newsletters.splice(i,1); toast('Deleted'); render(); } }
+function editNewsletter(id){ const n=newsletters.find(function(x){return sameId(x.id,id);}); if(!n)return;
+  openEditor('Edit post',[{key:'title',label:'Title',type:'text'},{key:'body',label:'Body',type:'textarea'}],{title:n.title,body:n.body},function(v){ n.title=v.title; n.body=v.body; toast('Saved'); saveSiteContent(true); }); }
+function deleteNewsletter(id){ const i=newsletters.findIndex(function(x){return sameId(x.id,id);}); if(i>-1){ newsletters.splice(i,1); toast('Deleted'); saveSiteContent(true); render(); } }
+function editIssuePdf(id){ const n=newsletters.find(function(x){return sameId(x.id,id);}); if(!n)return;
+  openEditor('PDF for this issue',[{key:'url',label:'Link to a hosted PDF (leave blank to auto-generate one from the text)',type:'url',placeholder:'newsletter-sample.pdf'}],{url:n.pdfUrl||''},function(v){ n.pdfUrl=(v.url||'').trim(); toast('Saved'); saveSiteContent(true); }); }
+
+/* ---- past issues open as PDFs: use a hosted link if set, else build one from the text ---- */
+function openIssuePdf(id){
+  const n=newsletters.find(function(x){return sameId(x.id,id);}); if(!n)return;
+  if(n.pdfUrl){ window.open(/^https?:/i.test(n.pdfUrl)?n.pdfUrl:n.pdfUrl,'_blank','noopener'); return; }
+  try{
+    const blob=new Blob([buildPdf(n.title, fmtDateTime(n.publishedAt), n.body||'')],{type:'application/pdf'});
+    const url=URL.createObjectURL(blob);
+    window.open(url,'_blank','noopener');
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+  }catch(e){ toast('Couldn\u2019t build the PDF.'); }
+}
+function pdfAscii(s){ return String(s==null?'':s).replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/[\u2013\u2014]/g,'-').replace(/\u2026/g,'...').replace(/[^\x20-\x7E\n]/g,''); }
+function pdfEsc(s){ return s.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)'); }
+function pdfWrap(s,max){
+  const out=[];
+  pdfAscii(s).split('\n').forEach(function(para){
+    if(!para.trim()){ out.push(''); return; }
+    let line='';
+    para.split(/\s+/).forEach(function(w){
+      if((line?line+' '+w:w).length>max){ if(line)out.push(line); line=w; } else { line=line?line+' '+w:w; }
+    });
+    if(line) out.push(line);
+  });
+  return out;
+}
+// A minimal, dependency-free PDF writer (Helvetica, letter pages).
+function buildPdf(title,dateStr,body){
+  const PER=44, MAXW=92;
+  const lines=[pdfAscii(dateStr),''].concat(pdfWrap(body,MAXW));
+  const pages=[];
+  for(let i=0;i<lines.length;i+=PER) pages.push(lines.slice(i,i+PER));
+  if(!pages.length) pages.push(['']);
+  const N=pages.length, objs=[], kids=[];
+  for(let i=0;i<N;i++) kids.push((5+i*2)+' 0 R');
+  objs[1]='<< /Type /Catalog /Pages 2 0 R >>';
+  objs[2]='<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+N+' >>';
+  objs[3]='<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+  pages.forEach(function(ls,pi){
+    let c='';
+    if(pi===0) c+='BT /F1 16 Tf 72 742 Td ('+pdfEsc(pdfAscii(title))+') Tj ET\n';
+    c+='BT /F1 11 Tf 72 '+(pi===0?712:742)+' Td 15 TL\n';
+    ls.forEach(function(l){ c+='('+pdfEsc(l)+') Tj T*\n'; });
+    c+='ET';
+    objs[4+pi*2]='<< /Length '+c.length+' >>\nstream\n'+c+'\nendstream';
+    objs[5+pi*2]='<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents '+(4+pi*2)+' 0 R >>';
+  });
+  const maxId=3+N*2, off=[];
+  let out='%PDF-1.4\n';
+  for(let id=1; id<=maxId; id++){ off[id]=out.length; out+=id+' 0 obj\n'+objs[id]+'\nendobj\n'; }
+  const xref=out.length;
+  out+='xref\n0 '+(maxId+1)+'\n0000000000 65535 f \n';
+  for(let id=1; id<=maxId; id++){ out+=('0000000000'+off[id]).slice(-10)+' 00000 n \n'; }
+  out+='trailer\n<< /Size '+(maxId+1)+' /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF';
+  return out;
+}
 function fmtDateTime(ts){ if(!ts)return ''; const d=new Date(ts); return d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})+' \u00b7 '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'}); }
 
 /* ---------- Activities (featured + category grid) ---------- */
 function activitiesView(){
   const ed=canEdit('programs_update');
   const cats=[
-    {id:'speakers',name:'Speakers',color:'#2f6f8f',icon:'🎤',desc:'Guest speakers and panels \u2014 students, scientists, activists, and community voices sharing ideas and answering your questions.',target:'construction'},
+    {id:'speakers',name:'Speakers',color:'#2f6f8f',icon:'🎤',desc:'Guest speakers and panels \u2014 students, scientists, activists, and community voices sharing ideas and answering your questions.',target:'speakers'},
     {id:'challenges',name:'Challenges',color:'#3f8a5a',icon:'🌍',desc:'Rotating goals for schools, clubs, chapters, and individuals to take on together \u2014 a fresh environmental challenge to rally around.',target:'challenges'},
     {id:'contests',name:'Contests',color:'#b5813d',icon:'🏆',desc:'Compete for virtual and physical prizes. Schools, clubs, chapters, and individuals can enter, place, and win.',target:'construction'},
-    {id:'fundraising',name:'Fundraising',color:'#a1596b',icon:'💚',desc:'Drives and campaigns that turn small actions into real support for greener communities.',target:'construction'}
+    {id:'fundraising',name:'Fundraising',color:'#a1596b',icon:'💚',desc:'Drives and campaigns that turn small actions into real support for greener communities.',target:'fundraising'}
   ];
   const grid='<div class="cat-grid">'+cats.map(c=>activityCard({id:c.id,name:c.name,desc:c.desc,color:c.color,icon:c.icon,mode:'category',target:c.target})).join('')+'</div>';
   return '<div class="wrap view">'+
@@ -1140,21 +1474,121 @@ function activityCard(o){
 }
 function toggleActivity(id,btn){ const d=document.getElementById('ad-'+id); if(!d)return; const open=d.classList.toggle('open'); d.classList.toggle('clamp',!open); btn.textContent=open?'Read less':'Read more'; }
 
-/* ---------- Challenges (rudimentary page) ---------- */
+/* ---------- Speakers ---------- */
+function speakersView(){
+  const ed=canEditKind('speaker'), arr=content.speakers||[];
+  let h='<div class="wrap view">'+
+    '<p><button class="btn btn-ghost btn-sm" onclick="go(\'activities\')">\u2190 Back to Activities</button></p>'+
+    '<h1 class="page-title">Speakers</h1>'+
+    '<p class="page-intro">Guests who have spoken to Earth Sweet Earth \u2014 students, scientists, activists, and community voices.</p>';
+  if(ed) h+='<div style="margin:6px 0 20px"><button class="btn btn-primary btn-sm" onclick="addItem(\'speaker\')">+ Add a speaker</button></div>';
+  if(arr.length){
+    h+='<div class="cat-grid">'+arr.map(function(sp){
+      const img=sp.photo?'<img class="acard-img" src="'+escA(sp.photo)+'">':'<div class="acard-img acard-noimg">🎤</div>';
+      return '<div class="acard acard-plain">'+
+        '<div class="acard-name">'+esc(sp.name)+'</div>'+img+
+        (sp.org?'<div class="pc-role" style="margin-bottom:6px">'+esc(sp.org)+(sp.date?' \u00b7 '+esc(fmtDate(sp.date)):'')+'</div>':(sp.date?'<div class="pc-role" style="margin-bottom:6px">'+esc(fmtDate(sp.date))+'</div>':''))+
+        '<div class="acard-desc clamp" id="ad-'+sp.id+'">'+esc(sp.details||'')+'</div>'+
+        '<div class="acard-btns">'+(sp.details?'<button class="btn acard-btn" onclick="toggleActivity(\''+sp.id+'\',this)">Read more</button>':'')+
+        (ed?'<button class="btn btn-ghost btn-xs" onclick="editItem(\'speaker\',\''+sp.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" onclick="deleteItem(\'speaker\',\''+sp.id+'\')">Delete</button>':'')+'</div>'+
+      '</div>';
+    }).join('')+'</div>';
+  } else { h+='<p class="muted">The rest of this is still under construction!</p>'; }
+  return h+'</div>';
+}
+
+/* ---------- Challenges ---------- */
+function bulletList(kind,ed){
+  const arr=content[COLL[kind]]||[];
+  if(!arr.length) return '<p class="muted">The rest of this is still under construction!</p>';
+  return '<ul class="ch-list">'+arr.map(function(b){
+    return '<li>'+esc(b.text||'')+(ed?' <button class="btn btn-ghost btn-xs" onclick="editItem(\''+kind+'\',\''+b.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" title="Remove" onclick="deleteItem(\''+kind+'\',\''+b.id+'\')">\u00d7</button>':'')+'</li>';
+  }).join('')+'</ul>';
+}
 function challengesView(){
-  const items=[
-    {id:'ch-plastic',name:'Plastic-Free Week',icon:'\u267B\uFE0F',desc:'Take on a week without single-use plastics. Swap the disposable water bottle, bring your own bag, and skip the straw \u2014 then share what you learned. A simple way to see just how much plastic sneaks into an ordinary week, and how easy some swaps really are. (Placeholder challenge for testing.)'},
-    {id:'ch-cleanup',name:'Campus Cleanup Challenge',icon:'🧤',desc:'Gather a few friends, pick a spot \u2014 a park, a beach, a stretch of sidewalk \u2014 and see how much litter your group can collect and sort for recycling. Snap a before-and-after and tag ESE. (Placeholder challenge for testing.)'},
-    {id:'ch-meatless',name:'Meatless Mondays',icon:'🥗',desc:'Go meat-free every Monday for a month. It is one of the easiest ways to shrink your food footprint, and a fun excuse to try new recipes with your family or club. (Placeholder challenge for testing.)'}
-  ];
-  const cards=items.map(i=>activityCard({id:i.id,name:i.name,desc:i.desc,icon:i.icon,mode:'specific',plain:true})).join('');
-  const mgs=activityCard({id:'mygreenschools',name:'MyGreenSchools',icon:'🏫',desc:'A brand-new challenge we are putting together \u2014 a way for whole schools to track and grow their green habits side by side. Still in the works. Check back soon to see how your school can take part!',mode:'coming',plain:true});
+  const ed=canEdit('programs_update');
   return '<div class="wrap view">'+
     '<p><button class="btn btn-ghost btn-sm" onclick="go(\'activities\')">\u2190 Back to Activities</button></p>'+
     '<h1 class="page-title">Challenges</h1>'+
-    '<p class="page-intro">Rotating goals for schools, clubs, chapters, and individuals to take on. Here is what is brewing:</p>'+
-    '<div class="act-list">'+mgs+cards+'</div>'+
+    '<p class="page-intro">Rotating goals for schools, clubs, chapters, and individuals to take on.</p>'+
+    '<h2 class="acts-sub">School challenges</h2>'+
+    bulletList('schoolch',ed)+
+    (ed?'<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" onclick="addItem(\'schoolch\')">+ Add a school challenge</button></div>':'')+
+    '<div class="mgs-note"><div class="mgs-emoji">🏫</div><div><strong>MyGreenSchools is coming soon.</strong><p class="muted" style="margin:4px 0 0">A way for whole schools to track and grow their green habits side by side. Check back soon to see how your school can take part!</p></div></div>'+
+    '<h2 class="acts-sub">Individual challenges</h2>'+
+    bulletList('indivch',ed)+
+    (ed?'<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" onclick="addItem(\'indivch\')">+ Add an individual challenge</button></div>':'')+
+    participateSection()+
   '</div>';
+}
+
+/* ---------- Fundraising ---------- */
+function fundraisingView(){
+  const ed=canEdit('programs_update'), url=content.donateUrl;
+  const donate=url
+    ? '<a class="btn btn-primary" href="'+escA(safeUrl(url))+'" target="_blank" rel="noopener">💚 Donate</a>'
+    : ucHover('<button class="btn btn-primary" onclick="comingSoon()">💚 Donate</button>');
+  return '<div class="wrap view">'+
+    '<p><button class="btn btn-ghost btn-sm" onclick="go(\'activities\')">\u2190 Back to Activities</button></p>'+
+    '<h1 class="page-title">Fundraising</h1>'+
+    '<p class="page-intro">Drives and campaigns that turn small actions into real support for greener communities.</p>'+
+    '<div style="margin:6px 0 26px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+donate+
+      (ed?'<button class="btn btn-ghost btn-sm" onclick="editDonateUrl()">\u270E '+(url?'Change':'Set')+' donate link</button>':'')+'</div>'+
+    '<p class="muted">The rest of this is still under construction!</p>'+
+  '</div>';
+}
+function editDonateUrl(){ openEditor('Donate link',[{key:'url',label:'Where should the Donate button go?',type:'url',placeholder:'https://\u2026'}],{url:content.donateUrl||''},function(v){ content.donateUrl=(v.url||'').trim(); toast('Saved'); saveSiteContent(true); }); }
+
+/* ---------- Participate (shared) ---------- */
+function participateSection(){
+  return '<div class="participate">'+
+    '<h2 style="font-size:1.5rem;margin-bottom:6px">Participate</h2>'+
+    '<p class="muted" style="margin-bottom:14px">Ready to take one on? Jump into our next event.</p>'+
+    '<button class="btn btn-primary" onclick="goParticipate()">Participate</button>'+
+  '</div>';
+}
+function goParticipate(){
+  if(!isLoggedIn()){
+    openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3>Join us first 🌱</h3>'+
+      '<p>To take part you\u2019ll need a free ESE account, and you\u2019ll want to be in our Discord \u2014 that\u2019s where everything is organised.</p>'+
+      '<button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="closeModal();openSignup()">Create an account</button>'+
+      '<button class="btn btn-blue btn-sm" style="width:100%;margin-top:8px" onclick="closeModal();joinDiscord()">Join our Discord</button>');
+    return;
+  }
+  go('calendar');
+  setTimeout(function(){ const el=document.querySelector('.cev.next'); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); },250);
+}
+
+/* ---------- event participation ("I'm in!") ---------- */
+let eventCounts={}, myEvents={}, eventDataLoaded=false;
+function eventTime(e){ if(!e.date) return 0; return new Date(e.date+'T'+(e.time||'00:00')).getTime(); }
+function isUpcoming(e){ return eventTime(e) >= Date.now()-3600000; }
+function ensureEventData(){ if(eventDataLoaded) return; eventDataLoaded=true; loadEventData(); }
+async function loadEventData(){
+  if(!BACKEND) return;
+  try{ const {data}=await sb.rpc('ese_event_counts'); if(data) eventCounts=data; }catch(e){}
+  if(account && account.id){
+    try{ const {data}=await sb.from('event_participants').select('event_id').eq('user_id',account.id);
+      myEvents={}; (data||[]).forEach(function(r){ myEvents[r.event_id]=true; }); }catch(e){}
+  }
+  if(route()==='calendar') render();
+}
+async function joinEvent(id){
+  if(!isLoggedIn()){ goParticipate(); return; }
+  const eid=String(id), joined=!!myEvents[eid];
+  if(joined){
+    delete myEvents[eid]; eventCounts[eid]=Math.max(0,(eventCounts[eid]||1)-1); render();
+    if(BACKEND && account.id){ try{ await sb.from('event_participants').delete().eq('event_id',eid).eq('user_id',account.id); }catch(e){} }
+    toast('You\u2019re no longer signed up.');
+  } else {
+    myEvents[eid]=true; eventCounts[eid]=(eventCounts[eid]||0)+1; render();
+    if(BACKEND && account.id){
+      try{ const {error}=await sb.from('event_participants').insert({event_id:eid,user_id:account.id,username:account.username,email:account.email});
+        if(error) throw error; }
+      catch(e){ delete myEvents[eid]; eventCounts[eid]=Math.max(0,(eventCounts[eid]||1)-1); render(); toast('Couldn\u2019t sign you up \u2014 is the event_participants table set up?'); return; }
+    }
+    toast('You\u2019re in! 🎉');
+  }
 }
 
 /* ---------- Under Construction (page + hover tip) ---------- */
@@ -1446,46 +1880,151 @@ async function submitYouthApplication(e){
   return false;
 }
 
+/* ========================= CHAPTERS (own table) + CHAPTER HUB ========================= */
+let chaptersRows=[], chapterEvents={}, chaptersLoaded=false;
+function ensureChapters(){ if(chaptersLoaded) return; chaptersLoaded=true; loadChapters(); }
+async function loadChapters(){
+  if(!BACKEND){ chaptersRows=content.chapters||[]; return; }
+  try{
+    const {data}=await sb.from('chapters').select('id,name,country,continent,leader_id,gcal_id').order('name');
+    chaptersRows=(data||[]).map(function(r){ return {id:r.id,name:r.name,country:r.country||'',continent:r.continent||'',leaderId:r.leader_id,gcalId:r.gcal_id||''}; });
+  }catch(e){ chaptersRows=[]; }
+  const mine=myChapter(); if(mine) await loadChapterEvents(mine.id);
+  const led=myLedChapter(); if(led && (!mine||!sameId(led.id,mine.id))) await loadChapterEvents(led.id);
+  const r=route(); if(r==='chapterhub'||r==='calendar'||r==='chapterslist') render();
+}
+async function loadChapterEvents(cid){
+  if(!BACKEND || !cid){ chapterEvents[cid]=chapterEvents[cid]||[]; return; }
+  try{ const {data}=await sb.from('chapter_events').select('*').eq('chapter_id',cid).order('date');
+    chapterEvents[cid]=(data||[]).map(function(e){ return {id:e.id,name:e.name,date:e.date||'',time:e.time||'',link:e.link||'',color:e.color||'Green',details:e.details||''}; });
+  }catch(e){ chapterEvents[cid]=[]; }
+}
+function myLedChapter(){ if(!account||!account.id) return null; return chaptersRows.find(function(c){return sameId(c.leaderId,account.id);})||null; }
+function myChapter(){ if(!account||!account.chapter) return null; return chaptersRows.find(function(c){return sameId(c.id,account.chapter);})||null; }
+function chapterName(id){ const c=chaptersRows.find(function(x){return sameId(x.id,id);}); return c?c.name:''; }
+function chapterDatalist(){ return '<datalist id="chapterList">'+chaptersRows.map(function(c){return '<option value="'+escA(c.name)+'">';}).join('')+'</datalist>'; }
+function chapterIdByName(nm){ nm=(nm||'').trim().toLowerCase(); if(!nm) return ''; const c=chaptersRows.find(function(x){return (x.name||'').trim().toLowerCase()===nm;}); return c?c.id:null; }
+
+/* ---- owner/admin chapter admin (writes the chapters table) ---- */
+async function addChapterRow(){
+  openEditor('Add a chapter', FIELDS.chapter, null, async function(v){
+    if(!BACKEND){ chaptersRows.push({id:uid(),name:v.name,country:v.country,continent:v.continent,leaderId:null,gcalId:''}); render(); return; }
+    const {error}=await sb.from('chapters').insert({name:v.name,country:v.country,continent:v.continent});
+    if(error) toast('Couldn\u2019t add: '+error.message); else { await loadChapters(); toast('Added'); render(); }
+  });
+}
+async function deleteChapterRow(id){
+  if(!BACKEND){ chaptersRows=chaptersRows.filter(function(c){return !sameId(c.id,id);}); render(); return; }
+  const {error}=await sb.from('chapters').delete().eq('id',id);
+  if(error) toast('Couldn\u2019t remove: '+error.message); else { await loadChapters(); toast('Removed'); render(); }
+}
+
+/* ---- Chapter Hub: a leader manages their own chapter, calendar and events ---- */
+function chapterHubView(){
+  ensureChapters();
+  const led=myLedChapter();
+  let h='<div class="wrap view"><h1 class="page-title">Chapter Hub</h1>'+
+    '<p class="page-intro">Your space to run your chapter \u2014 its details, its own calendar, and its events.</p>';
+  if(!led){
+    h+='<div class="card"><h3 style="font-size:1.25rem;margin-bottom:6px">Set up your chapter</h3>'+
+      '<p class="muted">You haven\u2019t created your chapter yet. Once you do, it shows up on <a href="#/chapterslist">Our Chapters</a>, students can pick it in their profile, and you can start adding events.</p>'+
+      '<button class="btn btn-primary" onclick="createMyChapter()">+ Create my chapter</button></div>';
+    return h+'</div>';
+  }
+  h+='<div class="card" style="margin-bottom:22px"><div class="sechead" style="margin:0">'+
+      '<div><h3 style="font-size:1.4rem;color:var(--green);margin:0">'+esc(led.name)+'</h3>'+
+      '<p class="muted" style="margin:4px 0 0">'+esc(led.country||'')+(led.continent?' \u00b7 '+esc(led.continent):'')+'</p></div>'+
+      '<button class="btn btn-ghost btn-sm" onclick="editMyChapter()">\u270E Edit details</button></div></div>';
+  h+='<div class="sechead" style="margin:8px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Your chapter\u2019s calendar</h2>'+
+     '<button class="btn btn-ghost btn-sm" onclick="editMyChapterGcal()">'+(led.gcalId?'Change calendar':'Connect a calendar')+'</button></div>';
+  h+=gcalEmbed(led.gcalId, 'Add your chapter\u2019s Google Calendar ID to show it here \u2014 members of your chapter will see it alongside the main ESE calendar.');
+  const evs=(chapterEvents[led.id]||[]).slice().sort(function(a,b){return (a.date||'')<(b.date||'')?-1:1;});
+  h+='<div class="sechead" style="margin:28px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Your chapter\u2019s events</h2>'+
+     '<button class="btn btn-primary btn-sm" onclick="addChapterEvent()">+ Add event</button></div>';
+  h+=evs.length?('<div class="cev-list">'+evs.map(function(e){return eventRow(e,true,true);}).join('')+'</div>')
+              :'<p class="muted">No chapter events yet \u2014 add your first one!</p>';
+  h+='<p style="margin-top:26px"><button class="btn btn-ghost btn-sm" onclick="go(\'calendar\')">\u2190 Back to the main calendar</button></p>';
+  return h+'</div>';
+}
+function createMyChapter(){
+  if(!isLoggedIn()){ popup('Log in first','You need to be logged in to create a chapter.'); return; }
+  openEditor('Create my chapter', FIELDS.chapter, null, async function(v){
+    if(!BACKEND){ const id=uid(); chaptersRows.push({id:id,name:v.name,country:v.country,continent:v.continent,leaderId:account.id||'me',gcalId:''}); account.chapter=id; render(); return; }
+    const {data,error}=await sb.from('chapters').insert({name:v.name,country:v.country,continent:v.continent,leader_id:account.id}).select().single();
+    if(error){ toast('Couldn\u2019t create: '+error.message); return; }
+    await sb.from('profiles').update({chapter:data.id}).eq('id',account.id);
+    account.chapter=data.id; await loadChapters(); toast('Chapter created!'); render();
+  });
+}
+function editMyChapter(){
+  const led=myLedChapter(); if(!led)return;
+  openEditor('Edit my chapter', FIELDS.chapter, led, async function(v){
+    if(!BACKEND){ Object.assign(led,v); render(); return; }
+    const {error}=await sb.from('chapters').update({name:v.name,country:v.country,continent:v.continent}).eq('id',led.id);
+    if(error) toast('Couldn\u2019t save: '+error.message); else { await loadChapters(); toast('Saved'); render(); }
+  });
+}
+function editMyChapterGcal(){
+  const led=myLedChapter(); if(!led)return;
+  openEditor('Your chapter\u2019s Google Calendar',[{key:'id',label:'Calendar ID or email (Google Calendar \u2192 Settings \u2192 Integrate calendar)',type:'text',placeholder:'yourchapter@group.calendar.google.com'}],{id:led.gcalId||''},async function(v){
+    const gid=(v.id||'').trim();
+    if(!BACKEND){ led.gcalId=gid; render(); return; }
+    const {error}=await sb.from('chapters').update({gcal_id:gid}).eq('id',led.id);
+    if(error) toast('Couldn\u2019t save: '+error.message); else { await loadChapters(); toast('Saved'); render(); }
+  });
+}
+function addChapterEvent(){
+  const led=myLedChapter(); if(!led)return;
+  openEditor('Add a chapter event', FIELDS.event, null, async function(v){
+    if(!BACKEND){ (chapterEvents[led.id]=chapterEvents[led.id]||[]).push(Object.assign({id:uid()},v)); render(); return; }
+    const {error}=await sb.from('chapter_events').insert({chapter_id:led.id,name:v.name,date:v.date||null,time:v.time||null,link:v.link||null,color:v.color||'Green',details:v.details||null});
+    if(error) toast('Couldn\u2019t save: '+error.message); else { await loadChapterEvents(led.id); toast('Added'); render(); }
+  });
+}
+function editChapterEvent(id){
+  const led=myLedChapter(); if(!led)return;
+  const ev=(chapterEvents[led.id]||[]).find(function(x){return sameId(x.id,id);}); if(!ev)return;
+  openEditor('Edit event', FIELDS.event, ev, async function(v){
+    if(!BACKEND){ Object.assign(ev,v); render(); return; }
+    const {error}=await sb.from('chapter_events').update({name:v.name,date:v.date||null,time:v.time||null,link:v.link||null,color:v.color||'Green',details:v.details||null}).eq('id',id);
+    if(error) toast('Couldn\u2019t save: '+error.message); else { await loadChapterEvents(led.id); toast('Saved'); render(); }
+  });
+}
+async function deleteChapterEvent(id){
+  const led=myLedChapter(); if(!led)return;
+  if(!BACKEND){ chapterEvents[led.id]=(chapterEvents[led.id]||[]).filter(function(x){return !sameId(x.id,id);}); render(); return; }
+  const {error}=await sb.from('chapter_events').delete().eq('id',id);
+  if(error) toast('Couldn\u2019t remove: '+error.message); else { await loadChapterEvents(led.id); toast('Removed'); render(); }
+}
+
 function chaptersListView(){                              // reached via "View our chapters" (not in the nav)
   const conts=['Africa','Antarctica','Asia','Europe','North America','Oceania','South America'];
   const manage=canEdit('chapters_add');
   const byCont={};
-  content.chapters.forEach(ch=>{ const c=conts.indexOf(ch.continent)>-1?ch.continent:'Other'; (byCont[c]=byCont[c]||{}); const co=ch.country||'—'; (byCont[c][co]=byCont[c][co]||[]).push(ch); });
+  ensureChapters();
+  chaptersRows.forEach(ch=>{ const c=conts.indexOf(ch.continent)>-1?ch.continent:'Other'; (byCont[c]=byCont[c]||{}); const co=ch.country||'—'; (byCont[c][co]=byCont[c][co]||[]).push(ch); });
   const body=conts.map(c=>{
     const countries=byCont[c]?Object.keys(byCont[c]).sort((a,b)=>a<b?-1:a>b?1:0):[];    // sort by Unicode code units
     let inner;
     if(countries.length){
       inner=countries.map(co=>'<div class="chp-country"><div class="chp-cn">'+esc(co)+'</div><ul class="chp-list">'+
-        byCont[c][co].slice().sort((a,b)=>(a.name||'')<(b.name||'')?-1:1).map(ch=>'<li>'+esc(ch.name)+(manage?' <button class="btn btn-ghost btn-xs" style="padding:0 6px" title="Remove" onclick="deleteItem(\'chapter\','+ch.id+')">×</button>':'')+'</li>').join('')+'</ul></div>').join('');
+        byCont[c][co].slice().sort((a,b)=>(a.name||'')<(b.name||'')?-1:1).map(ch=>'<li>'+esc(ch.name)+(manage?' <button class="btn btn-ghost btn-xs" style="padding:0 6px" title="Remove" onclick="deleteChapterRow(\''+ch.id+'\')">×</button>':'')+'</li>').join('')+'</ul></div>').join('');
     } else { inner='<p class="muted">No chapters here yet — check back soon!</p>'; }
     return '<details class="cont"><summary>'+c+'</summary><div class="body">'+inner+'</div></details>';
   }).join('');
   return '<div class="wrap view"><div class="sechead"><div><h1 class="page-title" style="margin:0">Our chapters</h1></div><button class="btn btn-ghost btn-sm" onclick="go(\'chapters\')">← Back to Chapters</button></div>'+
     '<p class="page-intro">ESE chapters around the world. Open a continent to see its chapters.</p>'+
-    (manage?'<div class="card" style="margin:18px 0"><strong style="color:var(--green)">Chapter admin</strong><p class="muted" style="margin:6px 0 10px">Add an approved chapter. Country and chapter names can be written in any language or script.</p><button class="btn btn-primary btn-sm" onclick="addItem(\'chapter\')">+ Add a chapter</button></div>':'<div style="height:8px"></div>')+
+    (manage?'<div class="card" style="margin:18px 0"><strong style="color:var(--green)">Chapter admin</strong><p class="muted" style="margin:6px 0 10px">Add an approved chapter. Country and chapter names can be written in any language or script.</p><button class="btn btn-primary btn-sm" onclick="addChapterRow()">+ Add a chapter</button></div>':'<div style="height:8px"></div>')+
     body+
   '</div>';
 }
 
 /* ========================= GALLERY ========================= */
 const REACTION_EMOJIS=['\u2764\uFE0F','👍','🎉','🙌','😮','🌱','🔥','👏','😂','💚','🌍','\u2728'];
-const SAMPLE_COMMENTS=['Amazing work! 🌱','So proud of this team.','How can I join the next one?','This absolutely made my day.','Let\u2019s do way more of these!','Incredible turnout 👏'];
-const GALLERY_PH=(function(){
-  const caps=['Beach cleanup at Jones Beach','Tree planting, Earth Day','Community garden build','Neighborhood recycling drive','River cleanup crew','Pollinator garden in bloom','Solar-oven workshop','Composting 101 demo','Park trail restoration','Coastal dune planting','Zero-waste lunch challenge','Wildlife count morning','Storm-drain mural project','Seed library launch','Bike-to-school day','Rooftop garden harvest','Watershed field trip','E-waste collection day','Native plant giveaway','Community clothing swap','Litter-free game day','Rain barrel install','Meadow restoration','Green roof tour','Reef-safe beach day'];
-  return caps.map(function(c,i){ return {id:'ph'+(i+1), caption:c, hue:(i*37)%360, featured:i<4}; });
-})();
-let gSocial={};
-function galleryItems(){ return (content.gallery&&content.gallery.length)?content.gallery:GALLERY_PH; }
-function ensureSocial(id){
-  if(gSocial[id])return gSocial[id];
-  let seed=0; for(let i=0;i<String(id).length;i++) seed+=String(id).charCodeAt(i)*(i+1);
-  const rnd=function(n){ const x=Math.sin((seed+1)*9301+n*49297)*233280; return x-Math.floor(x); };
-  const reactions={}, nR=Math.floor(rnd(1)*4)+1;
-  for(let i=0;i<nR;i++){ const e=REACTION_EMOJIS[Math.floor(rnd(i+2)*REACTION_EMOJIS.length)]; reactions[e]=(reactions[e]||0)+Math.floor(rnd(i+5)*9)+1; }
-  const comments=[], nC=Math.floor(rnd(20)*3), names=['Ava','Leo','Mia','Noah','Zoe','Ivy'];
-  for(let i=0;i<nC;i++){ comments.push({id:'sc'+id+i, user:names[Math.floor(rnd(i+30)*names.length)], avatar:null, body:SAMPLE_COMMENTS[Math.floor(rnd(i+40)*SAMPLE_COMMENTS.length)], ts:Date.now()-(i+1)*77000000, reactions:{}, mine:null}); }
-  gSocial[id]={reactions:reactions, mine:null, comments:comments}; return gSocial[id];
-}
+let gSocial={}, gViewIdx={};
+function galleryItems(){ return content.gallery||[]; }
+function gPhotos(g){ return (g.photos&&g.photos.length)?g.photos:(g.photo?[g.photo]:[]); }   // tolerate older single-photo posts
+function ensureSocial(id){ if(!gSocial[id]) gSocial[id]={reactions:{},mine:null,comments:[]}; return gSocial[id]; }
 function totalReactions(r){ let t=0; for(const k in r) t+=r[k]; return t; }
 function applyReaction(store,emoji){
   if(!store.reactions)store.reactions={};
@@ -1497,14 +2036,19 @@ function reactionChips(store, onclickPrefix){
   if(!entries.length) return '';
   return '<span class="rx-shown">'+entries.slice(0,3).map(function(e){ const on=store.mine===e[0]?' on':''; return '<span class="rx-chip'+on+'" onclick="'+onclickPrefix+'\''+e[0]+'\')"><span class="rx-e">'+e[0]+'</span><span class="rx-c">'+e[1]+'</span></span>'; }).join('')+'</span>';
 }
-function galleryReactionBar(id){
+function socialBar(id){
   const s=ensureSocial(id), total=totalReactions(s.reactions);
-  return '<div class="rx">'+reactionChips(s,'galleryReact(\''+id+'\',')+
-    '<button class="rx-add" title="Add reaction" onclick="openEmojiPicker(this,\'photo\',\''+id+'\',\'\')">🙂+</button>'+
+  return '<div class="rx">'+reactionChips(s,'socialReact(\''+id+'\',')+
+    '<button class="rx-add" title="Add reaction" onclick="openEmojiPicker(this,\'post\',\''+id+'\',\'\')">🙂+</button>'+
     (total?'<span class="rx-total">'+total+'</span>':'')+'</div>';
 }
-function galleryReact(id,emoji){ if(!isLoggedIn()){ popup('Join in','Log in or sign up to react to photos!'); return; } applyReaction(ensureSocial(id),emoji); rerenderGallery(); }
-function rerenderGallery(){ if(route()==='gallery') render(); }
+let _openSocial=null;   // which post's modal is open, so a reaction re-renders the right thing
+function socialReact(id,emoji){ if(!isLoggedIn()){ popup('Join in','Log in or sign up to react!'); return; } applyReaction(ensureSocial(id),emoji); refreshSocial(id); }
+function refreshSocial(id){
+  if(_openSocial && sameId(_openSocial.id,id)){
+    if(_openSocial.kind==='gallery') renderPostModal(id); else renderNewsletterModal(id);
+  } else { render(); }
+}
 
 /* emoji picker (floating) */
 let _rxTarget=null;
@@ -1523,48 +2067,88 @@ function emojiPickerOutside(e){ const p=document.getElementById('emojiPicker'); 
 function closeEmojiPicker(){ const p=document.getElementById('emojiPicker'); if(p)p.remove(); document.removeEventListener('mousedown',emojiPickerOutside); }
 function pickEmoji(emoji){
   if(!_rxTarget)return; const t=_rxTarget; closeEmojiPicker();
-  if(t.kind==='photo'){ applyReaction(ensureSocial(t.photoId),emoji); rerenderGallery(); }
-  else { const c=ensureSocial(t.photoId).comments.find(function(x){return x.id===t.commentId;}); if(c){ applyReaction(c,emoji); renderCommentsModal(t.photoId); } }
+  if(t.kind==='post'){ socialReact(t.photoId,emoji); }
+  else { const c=ensureSocial(t.photoId).comments.find(function(x){return x.id===t.commentId;}); if(c){ applyReaction(c,emoji); refreshSocial(t.photoId); } }
 }
 
+/* ---- tiles ---- */
 function galleryTile(g,admin){
-  const ph=g.photo?'<img src="'+escA(g.photo)+'" alt="'+escA(g.caption||'')+'">':'<div class="g-ph" style="background:linear-gradient(135deg,hsl('+(g.hue||140)+',45%,72%),hsl('+(((g.hue||140)+45)%360)+',52%,55%))"><span>🌿</span></div>';
+  const ps=gPhotos(g), n=ps.length;
+  if(gViewIdx[g.id]==null) gViewIdx[g.id]=Math.min(g.thumb||0, Math.max(0,n-1));
+  const i=gViewIdx[g.id];
+  let media;
+  if(g.inDrive && g.driveLink) media='<div class="g-ph g-drive"><span>🗂\uFE0F</span><small>Photos in the drive</small></div>';
+  else if(n) media='<img id="gimg-'+g.id+'" src="'+escA(ps[i])+'" alt="'+escA(g.caption||'')+'">';
+  else media='<div class="g-ph"><span>🌿</span></div>';
+  const nav=(n>1 && !g.inDrive)?'<button class="gnav gprev" title="Previous" onclick="gStep(\''+g.id+'\',-1,event)">\u2039</button><button class="gnav gnext" title="More photos" onclick="gStep(\''+g.id+'\',1,event)">\u203A</button><span class="gcount" id="gcount-'+g.id+'">'+(i+1)+'/'+n+'</span>':'';
   const s=ensureSocial(g.id), nC=s.comments.length;
   return '<figure class="gtile">'+
-    '<div class="gphoto">'+ph+'</div>'+
-    '<figcaption class="gcap">'+esc(g.caption||'')+'</figcaption>'+
-    galleryReactionBar(g.id)+
+    '<div class="gphoto" onclick="openGalleryPost(\''+g.id+'\')">'+media+nav+'</div>'+
+    (g.caption?'<figcaption class="gcap">'+esc(g.caption)+'</figcaption>':'')+
+    socialBar(g.id)+
     '<div class="gfoot">'+
-      '<button class="gcomment" onclick="openGalleryComments(\''+g.id+'\')">💬 '+(nC?nC+(nC===1?' comment':' comments'):'Comment')+'</button>'+
-      (admin?'<span class="gadmin"><button class="btn btn-ghost btn-xs" onclick="toggleFeatureGallery(\''+g.id+'\')">'+(g.featured?'\u2605 Unfeature':'\u2606 Feature')+'</button><button class="btn btn-ghost btn-xs" onclick="editItem(\'gallery\',\''+g.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" title="Remove" onclick="deleteItem(\'gallery\',\''+g.id+'\')">\u00d7</button></span>':'')+
+      '<button class="gcomment" onclick="openGalleryPost(\''+g.id+'\')">💬 '+(nC?nC+(nC===1?' comment':' comments'):'Comment')+'</button>'+
+      (admin?'<span class="gadmin"><button class="btn btn-ghost btn-xs" onclick="toggleFeatureGallery(\''+g.id+'\')">'+(g.featured?'\u2605 Unfeature':'\u2606 Feature')+'</button><button class="btn btn-ghost btn-xs" onclick="editGalleryPost(\''+g.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" title="Remove" onclick="deleteItem(\'gallery\',\''+g.id+'\')">\u00d7</button></span>':'')+
     '</div></figure>';
 }
+function gStep(id,dir,ev){
+  if(ev&&ev.stopPropagation)ev.stopPropagation();
+  const g=galleryItems().find(function(x){return sameId(x.id,id);}); if(!g)return;
+  const ps=gPhotos(g); if(ps.length<2)return;
+  const nx=(((gViewIdx[id]||0)+dir)%ps.length+ps.length)%ps.length; gViewIdx[id]=nx;
+  const im=document.getElementById('gimg-'+id); if(im)im.src=ps[nx];
+  const c=document.getElementById('gcount-'+id); if(c)c.textContent=(nx+1)+'/'+ps.length;
+}
 function galleryView(){
-  const ed=canEditKind('gallery'), items=galleryItems(), isReal=!!(content.gallery&&content.gallery.length);
+  const ed=canEditKind('gallery'), items=galleryItems();
   const feat=items.filter(function(g){return g.featured;}), gen=items.filter(function(g){return !g.featured;});
   let h='<div class="wrap view"><h1 class="page-title">An Impact You Can <em>See</em></h1>'+
     '<p class="page-intro">Snapshots from clean-ups, plantings, and events \u2014 react, comment, and cheer each other on.</p>';
-  if(ed) h+='<div style="margin:6px 0 22px"><button class="addbtn" style="max-width:280px" onclick="addItem(\'gallery\')">+ Add a photo</button></div>';
-  if(feat.length) h+='<h2 class="acts-sub" style="margin-top:6px">Featured</h2><div class="ggrid gfeat">'+feat.map(function(g){return galleryTile(g,ed&&isReal);}).join('')+'</div>';
-  h+='<h2 class="acts-sub">'+(feat.length?'More moments':'Moments')+'</h2>';
-  h+=gen.length?('<div class="ggrid">'+gen.map(function(g){return galleryTile(g,ed&&isReal);}).join('')+'</div>'):'<p class="muted">No photos yet \u2014 check back soon!</p>';
-  h+='<div style="margin-top:28px;text-align:center">'+ucHover('<button class="btn btn-blue" onclick="comingSoon()">Submit yours on Discord</button>')+'</div>';
+  if(ed) h+='<div style="margin:6px 0 22px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="newGalleryPost()">+ New post</button><button class="btn btn-ghost btn-sm" onclick="editDriveUrl()">\u2699 Photo drive</button></div>';
+  if(feat.length){
+    h+='<h2 class="acts-sub" style="margin-top:6px">Featured</h2>'+
+       '<div class="gfeat-row">'+feat.map(function(g){return galleryTile(g,ed);}).join('')+'</div>';
+  }
+  h+='<h2 class="acts-sub">See our full gallery</h2>';
+  h+=gen.length?('<div class="ggrid">'+gen.map(function(g){return galleryTile(g,ed);}).join('')+'</div>')
+               :'<p class="muted">Nothing here yet \u2014 check back soon!</p>';
+  h+='<div class="g-submit">'+
+       '<p>Submit your own highlights on Discord for a chance to have your photos posted!</p>'+
+       ucHover('<button class="btn btn-blue" onclick="comingSoon()">Submit on Discord</button>')+
+     '</div>';
   return h+'</div>';
 }
-function toggleFeatureGallery(id){ const g=(content.gallery||[]).find(function(x){return x.id===id;}); if(!g)return; g.featured=!g.featured; toast(g.featured?'Featured':'Moved to general'); render(); }
+function toggleFeatureGallery(id){ const g=(content.gallery||[]).find(function(x){return sameId(x.id,id);}); if(!g)return; g.featured=!g.featured; toast(g.featured?'Featured':'Moved to the full gallery'); saveSiteContent(true); render(); }
+function editDriveUrl(){ openEditor('Photo drive',[{key:'url',label:'Shared photo drive (e.g. a Google Drive folder)',type:'url',placeholder:'https://drive.google.com/\u2026'}],{url:content.driveUrl||''},function(v){ content.driveUrl=(v.url||'').trim(); toast('Saved'); saveSiteContent(true); }); }
 
-/* comments (modal, so it never disrupts the grid) */
-function openGalleryComments(id){ renderCommentsModal(id); }
-function renderCommentsModal(id){
-  const g=galleryItems().find(function(x){return x.id===id;}), s=ensureSocial(id);
-  const thread=s.comments.length?s.comments.map(function(c){return commentRow(id,c);}).join(''):'<p class="muted" style="text-align:center;margin:18px 0">No comments yet \u2014 be the first!</p>';
+/* ---- the post itself (photos + text + reactions + comments) ---- */
+function openGalleryPost(id){ renderPostModal(id); }
+function renderPostModal(id){
+  const g=galleryItems().find(function(x){return sameId(x.id,id);}); if(!g)return;
+  _openSocial={kind:'gallery',id:id};
+  const s=ensureSocial(id), ps=gPhotos(g), n=ps.length;
+  if(gViewIdx[id]==null) gViewIdx[id]=Math.min(g.thumb||0,Math.max(0,n-1));
+  const i=gViewIdx[id];
+  let media='';
+  if(g.inDrive && g.driveLink){
+    media='<div class="gp-drive"><p class="muted" style="margin:0 0 10px">The photos for this post live in our shared drive to save space.</p><a class="btn btn-blue btn-sm" href="'+escA(safeUrl(g.driveLink))+'" target="_blank" rel="noopener">View all photos \u2197</a></div>';
+  } else if(n){
+    media='<div class="gp-media"><img id="gimg-'+id+'" src="'+escA(ps[i])+'" alt="">'+
+      (n>1?'<button class="gnav gprev" onclick="gStep(\''+id+'\',-1,event)">\u2039</button><button class="gnav gnext" onclick="gStep(\''+id+'\',1,event)">\u203A</button><span class="gcount" id="gcount-'+id+'">'+(i+1)+'/'+n+'</span>':'')+'</div>';
+  }
+  const thread=s.comments.length?s.comments.map(function(c){return commentRow(id,c);}).join(''):'<p class="muted" style="text-align:center;margin:14px 0">No comments yet \u2014 be the first!</p>';
   const compose=isLoggedIn()
-    ?'<div class="cmp"><textarea id="gc-input" rows="2" placeholder="Add a comment\u2026"></textarea><button class="btn btn-primary btn-sm" onclick="postGalleryComment(\''+id+'\')">Post</button></div>'
+    ?'<div class="cmp"><textarea id="gc-input" rows="2" placeholder="Add a comment\u2026"></textarea><button class="btn btn-primary btn-sm" onclick="postComment(\''+id+'\')">Post</button></div>'
     :'<p class="muted" style="text-align:center;margin:0"><a href="#" onclick="closeModal();openLogin();return false;">Log in</a> to join the conversation.</p>';
-  openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3 style="margin-bottom:2px">Comments</h3><p class="muted" style="margin-bottom:14px">'+esc(g?g.caption:'')+'</p><div class="cthread">'+thread+'</div>'+compose);
+  openModal('<div id="gpost-modal"><button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button>'+
+    media+
+    (g.caption?'<p class="gp-cap">'+esc(g.caption)+'</p>':'')+
+    socialBar(id)+
+    '<h3 style="font-size:1.05rem;margin:16px 0 4px">Comments</h3><div class="cthread">'+thread+'</div>'+compose+'</div>');
 }
 function commentRow(photoId,c){
-  const av=c.avatar?'<img src="'+escA(c.avatar)+'">':'<span class="cinit">'+esc((c.user||'?').charAt(0).toUpperCase())+'</span>';
+  const live=(account && c.userId && String(c.userId)===String(account.id))?account.avatar:c.avatar;   // your picture updates everywhere
+  const av=live?'<img src="'+escA(live)+'">':'<span class="cinit">'+esc((c.user||'?').charAt(0).toUpperCase())+'</span>';
   return '<div class="crow"><div class="cav">'+av+'</div><div class="cbody">'+
     '<div class="cmeta"><strong>'+esc(c.user||'Member')+'</strong><span class="ctime">'+timeAgo(c.ts)+'</span></div>'+
     '<div class="ctext">'+esc(c.body)+'</div>'+
@@ -1572,16 +2156,76 @@ function commentRow(photoId,c){
       '<button class="rx-add sm" title="Add reaction" onclick="openEmojiPicker(this,\'comment\',\''+photoId+'\',\''+c.id+'\')">🙂+</button></div>'+
   '</div></div>';
 }
-function postGalleryComment(id){
+function postComment(id){
   const el=document.getElementById('gc-input'), body=el?el.value.trim():''; if(!body)return;
-  ensureSocial(id).comments.push({id:'c'+Date.now(), user:(account&&account.username)||'You', avatar:(account&&account.avatar)||null, body:body, ts:Date.now(), reactions:{}, mine:null});
-  renderCommentsModal(id); rerenderGallery();
+  ensureSocial(id).comments.push({id:'c'+Date.now(), userId:(account&&account.id)||null, user:(account&&account.username)||'You', avatar:(account&&account.avatar)||null, body:body, ts:Date.now(), reactions:{}, mine:null});
+  refreshSocial(id);
 }
-function commentReact(photoId,commentId,emoji){
+function commentReact(pid,commentId,emoji){
   if(!isLoggedIn()){ popup('Join in','Log in to react!'); return; }
-  const c=ensureSocial(photoId).comments.find(function(x){return x.id===commentId;}); if(!c)return; applyReaction(c,emoji); renderCommentsModal(photoId);
+  const c=ensureSocial(pid).comments.find(function(x){return x.id===commentId;}); if(!c)return; applyReaction(c,emoji); refreshSocial(pid);
 }
 function timeAgo(ts){ const d=Math.floor((Date.now()-ts)/1000); if(d<60)return 'just now'; if(d<3600)return Math.floor(d/60)+'m ago'; if(d<86400)return Math.floor(d/3600)+'h ago'; return Math.floor(d/86400)+'d ago'; }
+
+/* ---- gallery post editor: up to 15 photos, pick a cover, or hand off to the drive ---- */
+const GMAX=15;
+let _gEd=null;
+function newGalleryPost(){ _gEd={id:null,caption:'',photos:[],thumb:0,driveLink:content.driveUrl||'',inDrive:false}; renderGalleryEditor(); }
+function editGalleryPost(id){ const g=(content.gallery||[]).find(function(x){return sameId(x.id,id);}); if(!g)return;
+  _gEd={id:g.id,caption:g.caption||'',photos:gPhotos(g).slice(),thumb:g.thumb||0,driveLink:g.driveLink||content.driveUrl||'',inDrive:!!g.inDrive}; renderGalleryEditor(); }
+function syncGEd(){ const c=document.getElementById('ged-cap'), d=document.getElementById('ged-drive'), k=document.getElementById('ged-indrive');
+  if(c)_gEd.caption=c.value; if(d)_gEd.driveLink=d.value; if(k)_gEd.inDrive=k.checked; }
+function renderGalleryEditor(){
+  const e=_gEd;
+  const thumbs=e.photos.map(function(p,i){ return '<div class="ged-t'+(i===e.thumb?' on':'')+'"><img src="'+escA(p)+'">'+
+    '<div class="ged-tb"><button type="button" title="Use as cover" onclick="setGThumb('+i+')">'+(i===e.thumb?'\u2605':'\u2606')+'</button>'+
+    '<button type="button" title="Remove" onclick="removeGPhoto('+i+')">\u00d7</button></div></div>'; }).join('');
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3>'+(e.id?'Edit post':'New gallery post')+'</h3><div class="ed">'+
+    '<label>Caption / description</label><textarea id="ged-cap" rows="3" placeholder="What\u2019s happening in these photos?">'+esc(e.caption)+'</textarea>'+
+    '<label>Photos <span class="muted" style="font-weight:400">('+e.photos.length+'/'+GMAX+' \u2014 the \u2605 one is the cover)</span></label>'+
+    (e.photos.length<GMAX?'<input id="ged-file" type="file" accept="image/*" multiple>':'<p class="muted" style="font-size:.85rem;margin:0">You\u2019ve reached the '+GMAX+'-photo limit.</p>')+
+    (thumbs?'<div class="ged-grid">'+thumbs+'</div>':'')+
+    '<label>Photo drive link <span class="muted" style="font-weight:400">(optional)</span></label>'+
+    '<input id="ged-drive" type="url" value="'+escA(e.driveLink)+'" placeholder="https://drive.google.com/\u2026">'+
+    '<label class="ca-check" style="margin-top:6px"><input type="checkbox" id="ged-indrive"'+(e.inDrive?' checked':'')+'> <span>Photos live in the drive \u2014 saves space: the post text stays, the photos become a link.</span></label>'+
+    '</div><p class="err" id="ged-err"></p>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="saveGalleryPost()">Save post</button>');
+  const f=document.getElementById('ged-file'); if(f) f.addEventListener('change', addGPhotos);
+}
+function addGPhotos(){
+  syncGEd();
+  const files=Array.prototype.slice.call(this.files||[]);
+  const room=GMAX-_gEd.photos.length;
+  if(files.length>room) toast('Only '+room+' more photo'+(room===1?'':'s')+' fit \u2014 '+GMAX+' max.');
+  const take=files.slice(0,Math.max(0,room)); let pending=take.length; if(!pending)return;
+  take.forEach(function(file){ shrinkImage(file, function(dataUrl){ if(dataUrl)_gEd.photos.push(dataUrl); if(--pending===0) renderGalleryEditor(); }); });
+}
+// downscale before storing, so a post of 15 photos doesn't balloon the saved row
+function shrinkImage(file, cb, maxDim, quality){
+  maxDim=maxDim||1400; quality=quality||0.85;
+  const rd=new FileReader();
+  rd.onload=function(){ const img=new Image();
+    img.onload=function(){ const sc=Math.min(1, maxDim/Math.max(img.width,img.height));
+      const c=document.createElement('canvas'); c.width=Math.round(img.width*sc); c.height=Math.round(img.height*sc);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      try{ cb(c.toDataURL('image/jpeg',quality)); }catch(e){ cb(rd.result); } };
+    img.onerror=function(){ cb(null); }; img.src=rd.result; };
+  rd.onerror=function(){ cb(null); };
+  rd.readAsDataURL(file);
+}
+function setGThumb(i){ syncGEd(); _gEd.thumb=i; renderGalleryEditor(); }
+function removeGPhoto(i){ syncGEd(); _gEd.photos.splice(i,1); if(_gEd.thumb>=_gEd.photos.length)_gEd.thumb=0; renderGalleryEditor(); }
+function saveGalleryPost(){
+  syncGEd(); const e=_gEd, err=document.getElementById('ged-err');
+  if(!e.caption.trim() && !e.photos.length && !e.driveLink.trim()){ err.textContent='Add a caption or at least one photo.'; return; }
+  if(e.inDrive && !e.driveLink.trim()){ err.textContent='Add the drive link first, then tick the box.'; return; }
+  content.gallery=content.gallery||[];
+  const photos=e.inDrive?[]:e.photos, thumb=e.inDrive?0:e.thumb;
+  if(e.id){ const g=content.gallery.find(function(x){return sameId(x.id,e.id);});
+    if(g){ g.caption=e.caption; g.photos=photos; g.thumb=thumb; g.driveLink=e.driveLink; g.inDrive=e.inDrive; delete g.photo; } }
+  else { content.gallery.unshift({id:uid(), caption:e.caption, photos:photos, thumb:thumb, driveLink:e.driveLink, inDrive:e.inDrive, featured:false, ts:Date.now()}); }
+  gViewIdx={}; closeModal(); toast('Saved'); saveSiteContent(true); render();
+}
 
 function contactView(){
   const ed=canEdit('edit_content');
@@ -1605,29 +2249,68 @@ function contactView(){
 }
 
 const EVENT_COLORS={Green:'#3f8a5a',Blue:'#2f6f8f',Amber:'#b5813d',Rose:'#a1596b',Purple:'#6a5acd',Gray:'#6b7a72'};
+function gcalEmbed(gid, emptyMsg){
+  if(!gid) return '<div class="card" style="text-align:center;padding:26px"><p class="muted" style="margin:0">'+esc(emptyMsg)+'</p></div>';
+  const src='https://calendar.google.com/calendar/embed?src='+encodeURIComponent(gid)+'&ctz=local&mode=MONTH&showTitle=0&showPrint=0&showCalendars=0&showTz=0';
+  return '<div class="gcal-wrap"><iframe class="gcal" src="'+src+'" style="border:0" loading="lazy"></iframe></div>';
+}
+// one event row, reused by the main calendar and the Chapter Hub
+function eventRow(e, canManage, isChapter){
+  const col=EVENT_COLORS[e.color]||EVENT_COLORS.Green;
+  const meta=esc(fmtDate(e.date))+(e.time?' \u00b7 '+esc(e.time):'');
+  const eid=String(e.id), up=isUpcoming(e), n=eventCounts[eid]||0, mine=!!myEvents[eid];
+  const open=e.link?('window.open(\''+escA(safeUrl(e.link))+'\',\'_blank\',\'noopener\')'):('openEventDetails(\''+eid+'\')');
+  const join=up?('<button class="btn '+(mine?'btn-ghost':'btn-primary')+' btn-xs" onclick="joinEvent(\''+eid+'\')">'+(mine?'You\u2019re in \u2713':'I\u2019m in!')+'</button>'):'';
+  const admin=canManage?(isChapter
+    ?'<button class="btn btn-ghost btn-xs" onclick="editChapterEvent(\''+eid+'\')">Edit</button><button class="btn btn-ghost btn-xs" onclick="deleteChapterEvent(\''+eid+'\')">Delete</button>'
+    :editDel('event',e.id)):'';
+  return '<div class="cev" style="border-left-color:'+col+'"><div class="cev-main" onclick="'+open+'">'+
+    '<span class="cev-dot" style="background:'+col+'"></span><div><div class="cev-name">'+esc(e.name)+(e.link?' <span class="cev-link">\u2197</span>':'')+'</div>'+
+    '<div class="cev-date">'+meta+'</div></div></div>'+
+    '<div class="cev-side"><span class="cev-going" title="People signed up">👥 '+n+' going</span>'+join+admin+'</div></div>';
+}
+function openEventDetails(id){
+  let e=(content.events||[]).find(function(x){return String(x.id)===String(id);});
+  if(!e){ Object.keys(chapterEvents).forEach(function(k){ const f=(chapterEvents[k]||[]).find(function(x){return String(x.id)===String(id);}); if(f)e=f; }); }
+  if(!e)return;
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3>'+esc(e.name)+'</h3>'+
+    '<p class="muted">'+esc(fmtDate(e.date))+(e.time?' \u00b7 '+esc(e.time):'')+'</p>'+
+    '<p>'+(e.details?esc(e.details):'<span class="muted">No extra details.</span>')+'</p>');
+}
 function calendarView(){
   const canE=canEdit('calendar_edit');
+  ensureEventData(); ensureChapters();
+  const mine=myChapter(), led=myLedChapter();
   let h='<div class="wrap view"><h1 class="page-title">Calendar &amp; events</h1><p class="page-intro">Everything happening at Earth Sweet Earth, in one place.</p>';
+  if(led) h+='<p><button class="btn btn-blue btn-sm" onclick="go(\'chapterhub\')">\u2699 Manage my chapter \u2192</button></p>';
   if(content.meetingLink){ h+='<a class="mtg-rect" href="'+escA(safeUrl(content.meetingLink))+'" target="_blank" rel="noopener">Join the next meeting \u2197</a>'+(canE?'<div class="rowbtns" style="margin-top:-8px;margin-bottom:18px"><button class="btn btn-ghost btn-xs" onclick="editMeetingLink()">Edit link</button></div>':''); }
   else if(canE){ h+='<button class="addbtn" onclick="editMeetingLink()" style="padding:18px;margin-bottom:18px">+ Add the next meeting link</button>'; }
-  const gid=content.gcalId;
-  h+='<div class="sechead" style="margin:8px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Our shared calendar</h2>'+(canE?'<button class="btn btn-ghost btn-sm" onclick="editGcalId()">'+(gid?'Change calendar':'Connect a calendar')+'</button>':'')+'</div>';
-  if(gid){
-    const src='https://calendar.google.com/calendar/embed?src='+encodeURIComponent(gid)+'&ctz=local&mode=MONTH&showTitle=0&showPrint=0&showCalendars=0&showTz=0';
-    h+='<div class="gcal-wrap"><iframe class="gcal" src="'+src+'" style="border:0" loading="lazy"></iframe></div>';
-  } else {
-    h+='<div class="card" style="text-align:center;padding:30px"><p class="muted" style="margin:0">'+(canE?'Add your organization\u2019s Google Calendar ID (or email) above to embed the live calendar here \u2014 it maps your Google Calendar exactly.':'Our shared calendar will appear here soon.')+'</p></div>';
+
+  /* ---- the whole-of-ESE calendar ---- */
+  h+='<div class="sechead" style="margin:8px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Earth Sweet Earth calendar</h2>'+(canE?'<button class="btn btn-ghost btn-sm" onclick="editGcalId()">'+(content.gcalId?'Change calendar':'Connect a calendar')+'</button>':'')+'</div>';
+  h+=gcalEmbed(content.gcalId, canE?'Add the organisation\u2019s Google Calendar ID above to embed the live calendar here.':'Our shared calendar will appear here soon.');
+  const evs=(content.events||[]).slice().sort(function(a,b){return (a.date||'')<(b.date||'')?-1:1;});
+  h+='<div class="sechead" style="margin:26px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">ESE events</h2>'+(canE?'<button class="btn btn-primary btn-sm" onclick="addItem(\'event\')">+ Add event</button>':'')+'</div>';
+  let taggedNext=false;
+  h+=evs.length?('<div class="cev-list">'+evs.map(function(e){ const r=eventRow(e,canE,false);
+      if(isUpcoming(e) && !taggedNext){ taggedNext=true; return r.replace('class="cev"','class="cev next"'); }
+      return r; }).join('')+'</div>')
+              :'<p class="muted">No events listed yet.</p>';
+
+  /* ---- and, if you belong to one, your chapter's calendar ---- */
+  if(mine){
+    const cevs=(chapterEvents[mine.id]||[]).slice().sort(function(a,b){return (a.date||'')<(b.date||'')?-1:1;});
+    h+='<div class="chapter-cal">'+
+      '<div class="sechead" style="margin:0 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Your chapter \u2014 '+esc(mine.name)+'</h2>'+
+      (led?'<button class="btn btn-ghost btn-sm" onclick="go(\'chapterhub\')">Manage \u2192</button>':'')+'</div>'+
+      gcalEmbed(mine.gcalId, led?'Connect your chapter\u2019s Google Calendar in the Chapter Hub.':'Your chapter hasn\u2019t connected a calendar yet.')+
+      '<h3 class="nl-sub">Chapter events</h3>'+
+      (cevs.length?('<div class="cev-list">'+cevs.map(function(e){return eventRow(e,false,true);}).join('')+'</div>')
+                 :'<p class="muted">No chapter events yet.</p>')+
+    '</div>';
+  } else if(isLoggedIn()){
+    h+='<p class="muted" style="margin-top:26px">Belong to a chapter? Add it in <a href="#" onclick="openProfile();return false;">your profile</a> to see its calendar here too.</p>';
   }
-  const evs=content.events.slice().sort(function(a,b){return (a.date||'')<(b.date||'')?-1:(a.date||'')>(b.date||'')?1:0;});
-  h+='<div class="sechead" style="margin:28px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Upcoming events</h2>'+(canE?'<button class="btn btn-primary btn-sm" onclick="addItem(\'event\')">+ Add event</button>':'')+'</div>';
-  if(evs.length){
-    h+='<div class="cev-list">'+evs.map(function(e){
-      const col=EVENT_COLORS[e.color]||EVENT_COLORS.Green;
-      const meta=esc(fmtDate(e.date))+(e.time?' \u00b7 '+esc(e.time):'');
-      const open=e.link?('window.open(\''+escA(safeUrl(e.link))+'\',\'_blank\',\'noopener\')'):('openDetails(\'event\',\''+e.id+'\')');
-      return '<div class="cev" style="border-left-color:'+col+'"><div class="cev-main" onclick="'+open+'"><span class="cev-dot" style="background:'+col+'"></span><div><div class="cev-name">'+esc(e.name)+(e.link?' <span class="cev-link">\u2197</span>':'')+'</div><div class="cev-date">'+meta+'</div></div></div>'+(canE?'<div class="cev-admin">'+editDel('event',e.id)+'</div>':'')+'</div>';
-    }).join('')+'</div>';
-  } else { h+='<p class="muted">No events listed yet.</p>'; }
   return h+'</div>';
 }
 function editGcalId(){ openEditor('Google Calendar',[{key:'id',label:'Calendar ID or email (Google Calendar \u2192 Settings \u2192 Integrate calendar \u2192 Calendar ID)',type:'text',placeholder:'yourcalendar@group.calendar.google.com'}],{id:content.gcalId||''},function(v){ content.gcalId=(v.id||'').trim(); toast('Saved'); saveSiteContent(true); }); }
@@ -1637,12 +2320,13 @@ function isOwner(){ return isLoggedIn() && session && session.roleId==='owner'; 
 let analyticsData=null, analyticsLoading=false, notifCount=0;
 function ensureAnalytics(){ if(analyticsData!==null||analyticsLoading)return; analyticsLoading=true; loadAnalytics(); }
 async function loadAnalytics(){
-  if(!BACKEND){ analyticsData={members:people.length,countries:1,chApps:[],ylApps:[],chTotal:0,chPending:0,ylTotal:0,ylPending:0,traffic:{total:0,week:0,last7:[]}}; analyticsLoading=false; if(route()==='analytics')render(); return; }
-  const d={members:0,countries:0,chApps:[],ylApps:[],traffic:{total:0,week:0,last7:[]}};
+  if(!BACKEND){ analyticsData={members:people.length,countries:1,chApps:[],ylApps:[],parts:[],chTotal:0,chPending:0,ylTotal:0,ylPending:0,traffic:{total:0,week:0,last7:[]}}; analyticsLoading=false; if(route()==='analytics')render(); return; }
+  const d={members:0,countries:0,chApps:[],ylApps:[],parts:[],traffic:{total:0,week:0,last7:[]}};
   try{ const {data}=await sb.rpc('ese_stats'); if(data){ d.members=data.people||0; d.countries=data.countries||0; } }catch(e){}
   try{ const {data}=await sb.from('chapter_applications').select('id,data,reviewed,created_at').order('created_at',{ascending:false}); d.chApps=data||[]; }catch(e){}
   try{ const {data}=await sb.from('youth_applications').select('id,data,reviewed,created_at').order('created_at',{ascending:false}); d.ylApps=data||[]; }catch(e){}
   try{ const {data}=await sb.rpc('ese_traffic'); if(data) d.traffic=data; }catch(e){}
+  try{ const {data}=await sb.from('event_participants').select('event_id,username,email,created_at').order('created_at',{ascending:true}); d.parts=data||[]; }catch(e){ d.parts=[]; }
   d.chTotal=d.chApps.length; d.chPending=d.chApps.filter(function(a){return !a.reviewed;}).length;
   d.ylTotal=d.ylApps.length; d.ylPending=d.ylApps.filter(function(a){return !a.reviewed;}).length;
   analyticsData=d; notifCount=d.chPending+d.ylPending; analyticsLoading=false;
@@ -1666,7 +2350,7 @@ function analyticsView(){
     statCard('Members',d.members)+statCard('Countries',d.countries)+
     statCard('Chapter applications',d.chTotal,(d.chPending?d.chPending+' need review':'all reviewed'))+
     statCard('Leadership applications',d.ylTotal,(d.ylPending?d.ylPending+' need review':'all reviewed'))+
-    statCard('Chapters listed',(content.chapters||[]).length)+statCard('Newsletter posts',newsletters.length)+
+    statCard('Chapters listed',chaptersRows.length)+statCard('Newsletter posts',newsletters.length)+
     statCard('Events',(content.events||[]).length)+statCard('Gallery photos',(content.gallery||[]).length)+
   '</div>';
   const pending=[].concat(
@@ -1680,6 +2364,16 @@ function analyticsView(){
       return '<div class="notif"><span class="ndot"></span><div class="notif-main" onclick="viewApplication(\''+p.k+'\',\''+a.id+'\')"><div class="notif-title">New '+(p.k==='chapter'?'chapter':'leadership')+' application \u2014 '+esc(nm)+'</div><div class="notif-when">'+esc(when)+'</div></div><button class="btn btn-ghost btn-xs" onclick="markReviewed(\''+p.k+'\',\''+a.id+'\')">Mark reviewed</button></div>';
     }).join('')+'</div>';
   } else { h+='<p class="muted">You\u2019re all caught up \u2014 no applications waiting.</p>'; }
+  h+='<h2 class="acts-sub">Event sign-ups</h2>';
+  const byEv={}; (d.parts||[]).forEach(function(p){ (byEv[p.event_id]=byEv[p.event_id]||[]).push(p); });
+  const evIds=Object.keys(byEv);
+  if(evIds.length){
+    h+='<div class="notif-list">'+evIds.map(function(eid){
+      const ev=(content.events||[]).find(function(x){return String(x.id)===String(eid);});
+      const rows=byEv[eid].map(function(p){ return '<div class="ad-row"><span class="ad-k">'+esc(p.username||'member')+'</span><span class="ad-v">'+esc(p.email||'')+'</span></div>'; }).join('');
+      return '<details class="cont"><summary>'+esc(ev?ev.name:'Event '+eid)+' \u2014 '+byEv[eid].length+' signed up</summary><div class="body"><div class="ad-list">'+rows+'</div></div></details>';
+    }).join('')+'</div>';
+  } else { h+='<p class="muted">Nobody has signed up for an event yet.</p>'; }
   h+='<h2 class="acts-sub">Traffic</h2>';
   const t=d.traffic||{total:0,week:0,last7:[]};
   h+='<div class="stat-grid" style="margin-bottom:16px">'+statCard('Total page views',t.total||0)+statCard('Views this week',t.week||0)+'</div>';
@@ -1729,6 +2423,7 @@ function adminView(){
     '<div class="card" style="margin-bottom:22px"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><strong>Viewing &amp; filling out placeholders</strong><p class="muted" style="margin:4px 0 0;font-size:.85rem">When on, you see the ✎ edit and “+ Add” buttons across the whole site. Turn it off to preview the site the way visitors see it.</p></div><label class="switch"><input type="checkbox" '+(editUI?'checked':'')+' onchange="toggleEditUI(this.checked)"><span class="slider"></span></label></div><button class="btn btn-primary btn-sm" style="margin-top:14px" onclick="saveSiteContent()">Save changes</button></div>'+
     '<div class="sechead" style="margin:26px 0 10px"><h2 style="font-size:1.5rem">Roles &amp; permissions</h2><button class="btn btn-primary btn-sm" onclick="openCreateRole()">+ Create New Role</button></div>'+matrix+
     '<p class="muted" style="font-size:.85rem">Owner always has every permission and can\'t be changed.</p>'+
+    discordSettingsHtml()+
     '<h2 style="font-size:1.5rem;margin:32px 0 8px">Members</h2>'+
     '<p class="muted" style="font-size:.85rem;margin-bottom:12px">New members appear automatically when they sign up. Search by email to give someone a role or remove them.</p>'+
     '<div class="mrow"><input id="mem-q" class="search" style="margin-bottom:0" type="search" placeholder="🔎 Search members by email…" value="'+escA(memberQuery)+'" onkeydown="if(event.key===\'Enter\'){event.preventDefault();searchMembers();}"><button class="btn btn-primary btn-sm" onclick="searchMembers()">Search</button></div>'+
@@ -1812,7 +2507,7 @@ function render(){
     const msg=r==='calendar'?'The calendar opens up once you\'re signed in and it\'s switched on.':r==='admin'?'Owner Settings is only for the site owner.':'This section isn\'t open to everyone yet.';
     app.innerHTML=deniedView(msg);
   } else {
-    const views={home:homeView,about:aboutView,newsletter:newsletterView,activities:activitiesView,youthapply:youthApplyView,chapters:chaptersView,chapterslist:chaptersListView,chapterapply:chapterApplyView,gallery:galleryView,contact:contactView,calendar:calendarView,admin:adminView,challenges:challengesView,construction:underConstructionView,privacy:privacyView,terms:termsView,analytics:analyticsView,post:newsletterPostView};
+    const views={home:homeView,about:aboutView,newsletter:newsletterView,activities:activitiesView,youthapply:youthApplyView,chapters:chaptersView,chapterslist:chaptersListView,chapterapply:chapterApplyView,gallery:galleryView,contact:contactView,calendar:calendarView,admin:adminView,challenges:challengesView,construction:underConstructionView,privacy:privacyView,terms:termsView,analytics:analyticsView,speakers:speakersView,fundraising:fundraisingView,chapterhub:chapterHubView};
     app.innerHTML=views[r]();
     app.firstChild && app.firstChild.classList && app.firstChild.classList.add('fade');
   }
@@ -1822,6 +2517,7 @@ function render(){
   if(r==='chapters') requestAnimationFrame(fitChapterTitle);        // scale the heading to one line
   if(r==='about') ensureAboutStats();
   if(r==='analytics') ensureAnalytics();
+  if(r==='chapterhub'||r==='calendar'||r==='chapterslist') ensureChapters();
   if(r==='youthapply') requestAnimationFrame(initYouthApply);
 }
 
@@ -2346,8 +3042,8 @@ window.addEventListener('resize',()=>{ if(document.getElementById('hero')){ meas
 window.addEventListener('resize',()=>{ if(document.getElementById('chapTitle')) fitChapterTitle(); });
 
 /* ---- shared site content persisted for everyone via the site_content row ---- */
-const SITE_KEYS=['mission','tagline','discord','applyForm','featured','repThreshold','gcalId'];
-const SITE_ARRAYS=['socials','affiliations','chapters','board','advisory','youth'];
+const SITE_KEYS=['mission','tagline','discord','applyForm','featured','repThreshold','gcalId','aboutSeeded','driveUrl','donateUrl','discordVerify','discordRequired','discordMap'];
+const SITE_ARRAYS=['socials','affiliations','chapters','board','advisory','youth','gallery','events','speakers','schoolChallenges','indivChallenges'];
 async function loadSiteContent(){
   if(!BACKEND) return;
   try{
@@ -2355,10 +3051,12 @@ async function loadSiteContent(){
     if(data&&data.data){
       SITE_KEYS.forEach(k=>{ if(data.data[k]!=null) content[k]=data.data[k]; });
       SITE_ARRAYS.forEach(k=>{ if(Array.isArray(data.data[k])) content[k]=data.data[k]; });
+      if(Array.isArray(data.data.newsletters)) newsletters=data.data.newsletters;
       if(data.data.roles && typeof data.data.roles==='object'){
         roles=data.data.roles;
         if(!roles.owner) roles.owner={name:'Owner',locked:true,caps:allCaps(true)};
         roles.owner.locked=true; roles.owner.caps=allCaps(true);   // owner always keeps every permission
+        if(!roles.chapter_leader) roles.chapter_leader={name:'Chapter Leader',caps:Object.assign(allCaps(false),{chapter_manage:true,view_chapters:true,view_gallery:true,view_calendar:true})};
         if(!roles.public) roles.public=DEFAULT_PUBLIC();           // logged-out visitors always have a Public row
       }
     }
@@ -2366,7 +3064,7 @@ async function loadSiteContent(){
 }
 async function saveSiteContent(silent){
   if(!BACKEND){ if(!silent)toast('Saved (preview)'); return; }
-  const payload={roles:roles}; SITE_KEYS.forEach(k=>payload[k]=content[k]); SITE_ARRAYS.forEach(k=>payload[k]=content[k]);
+  const payload={roles:roles, newsletters:newsletters}; SITE_KEYS.forEach(k=>payload[k]=content[k]); SITE_ARRAYS.forEach(k=>payload[k]=content[k]);
   try{
     const {error}=await sb.from('site_content').upsert({id:1,data:payload});
     if(!silent) toast(error?('Couldn\'t save: '+error.message):'Saved for everyone');
@@ -2383,23 +3081,8 @@ function editText(kind){
    10) START
    ========================================================================== */
 async function init(){
-  if(!newsletters.length){
-    newsletters=[
-      {id:uid(),title:'We just passed 100 members!',body:'A quick but happy milestone: Earth Sweet Earth is now more than 100 young people strong, across a growing handful of countries. Thank you to everyone who has planted, cleaned, posted, and shown up. Here is to the next hundred \u2014 tell a friend!',publishedAt:Date.now()-2*86400000},
-      {id:uid(),title:'Recap: our first big Beach Cleanup',body:'What a morning. More than forty volunteers showed up at sunrise, gloves and buckets in hand, and by lunchtime we had filled 63 bags with litter pulled from a single half-mile stretch of shoreline. We sorted everything for recycling, logged the most common items (bottle caps and food wrappers, by a mile), and sent the data to a local conservation group tracking coastal pollution. A few first-timers told us it completely changed how they see \u201ca normal day at the beach.\u201d Huge thanks to the Riverside chapter for organizing, to the families who brought snacks, and to everyone who stayed late to make sure we left the sand cleaner than we found it. Photos are up in the Gallery \u2014 go leave a reaction on your favorite. Want to run one near you? Start a chapter, or bring the idea to your next chapter meeting. We are already scouting the next location, and we would love to make this a monthly tradition. If you have a spot in mind, drop it in our Discord.',publishedAt:Date.now()-9*86400000},
-      {id:uid(),title:'A new chapter just launched in Chicago',body:'Please give a warm welcome to our newest chapter! A group of students on the North Side applied last month and just held their first meeting. If you are in the area, reach out on Discord to get involved.',publishedAt:Date.now()-16*86400000},
-      {id:uid(),title:'Announcing our summer challenge lineup',body:'Summer is here, and so are three brand-new challenges anyone can take on \u2014 solo, with your club, or as a whole chapter. First up is Plastic-Free Week: go seven days without single-use plastics and share your swaps. Next is the Campus Cleanup Challenge, where teams compete to collect and correctly sort the most litter, with a before-and-after photo for proof. And finally, Meatless Mondays, a month-long push to shrink your food footprint one day a week. Each challenge comes with a simple scorecard, shout-outs for standout efforts, and small prizes for the most creative entries. The point is not perfection \u2014 it is momentum, and having fun while building habits that stick. Head to the Activities page to see the details, then rally a few friends. We will be tracking progress all summer and featuring the best stories right here in the newsletter. Let us show each other what a few thousand small choices can add up to.',publishedAt:Date.now()-25*86400000}
-    ];
-  }
-  if(!content.events.length){
-    content.events=[
-      {id:uid(),name:'Monthly all-chapters call',date:'2026-07-15',time:'18:00',color:'Blue',link:'https://meet.google.com/',details:''},
-      {id:uid(),name:'Community garden build',date:'2026-07-22',time:'10:00',color:'Green',link:'',details:'Meet at the Elm Street lot \u2014 bring gloves if you have them!'},
-      {id:uid(),name:'Fundraiser bake sale',date:'2026-07-29',time:'12:00',color:'Amber',link:'',details:'Proceeds support the fall tree-planting drive.'}
-    ];
-  }
   document.body.setAttribute('data-theme',theme);
-  if(BACKEND){ try{ await loadSession(); await loadSiteContent(); }catch(e){} loadNotifCount(); sb.auth.onAuthStateChange(()=>{loadSession().then(function(){render();loadNotifCount();}).catch(()=>{});}); }
+  if(BACKEND){ try{ await loadSession(); await loadSiteContent(); }catch(e){} loadNotifCount(); loadEventData(); ensureChapters(); checkDiscord(); sb.auth.onAuthStateChange(()=>{loadSession().then(function(){render();loadNotifCount();eventDataLoaded=false;ensureEventData();chaptersLoaded=false;ensureChapters();}).catch(()=>{});}); }
   if(!location.hash) location.hash='#/home';
   render();
 }
