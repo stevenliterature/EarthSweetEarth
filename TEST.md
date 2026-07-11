@@ -481,3 +481,45 @@ owner/admin-write-only, so a chapter leader writing there would have been able t
 ### Graceful failure
 - [ ] With Discord not configured, the site still works; the popup explains it isn't set up yet
 - [ ] Not in the ESE server → "join it, then try again"
+
+---
+
+## 27. Copy & polish pass (rev 6)
+
+### About
+- [ ] Placeholder circles **stay visible** in all three sections (Board, Advisory, Youth) — for visitors too
+- [ ] Owner: **+ Add** on a circle fills it; **×** deletes the circle; filled people have Edit/Delete — all persist **(live)**
+- [ ] "+ Add someone (any role)" still adds a person with a custom role
+- [ ] Board: no subtext, no "Interested? Reach out!" button
+- [ ] Advisory: no subtext, no "Interested? Reach out!" button
+- [ ] Youth Leadership: no subtext, no "Apply for a Position" button
+- [ ] New intro copy ("…homegrown environmental organization for youth across the world…")
+- [ ] The "X people across Y countries" stat still shows, on its own line under the intro
+
+### Newsletter
+- [ ] Nothing under the "News & updates" title (intro line gone)
+- [ ] Past-issue PDF links run **newest at the top, oldest at the bottom**
+
+### Activities
+- [ ] Challenges: the MyGreenSchools coming-soon notice is gone
+
+### Gallery
+- [ ] While the gallery is empty, the "Submit on Discord" button sits **low, near the footer**
+- [ ] Once photos exist, it moves back to sitting **directly under them**
+
+### Contact
+- [ ] No white card / no "Say hello" button — just text
+- [ ] Reads: "Questions, comments, suggestions, or find a bug?" then "Just **email us**!" (email us = mailto link)
+- [ ] With socials added: "Just **email us**, or find us at X, Y, Z!" (comma-separated)
+- [ ] Owner can still add/remove social accounts
+
+### Chapters ("Now what?" bullets)
+- [ ] 2nd: "Host weekly or biweekly get-togethers…" (parentheses gone)
+- [ ] 3rd: "…or have presenters from your chapter present! A few starters can be your local library or school." ("student" and "for the latter" gone)
+- [ ] 5th: ends with a period, not "…"
+- [ ] 6th: "Submit additional news, thoughts, or pictures in the #newsletter-submissions or #gallery-submissions channels on our Discord to be featured on our newsletter and gallery!"
+
+### Home
+- [ ] The quote uses the **Eagle Lake** font, same size
+- [ ] Quote and the two buttons sit **slightly lower**
+- [ ] Gap (cloud → quote) equals gap (quote → buttons)

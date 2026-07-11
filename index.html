@@ -20,7 +20,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,400;1,9..144,600&family=Eagle+Lake&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <!-- Supabase library — powers real accounts once you add your keys (CONFIG block in the script). -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -203,7 +203,7 @@
   [data-theme="dark"] .hero-content .scroll-hint{color:#bcc7d6;}
   @keyframes hintbob{0%,100%{transform:translateY(0);opacity:.5;}50%{transform:translateY(5px);opacity:.9;}}
   .hero-content{position:relative;z-index:7;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px 190px;}
-  .wordmark{font-size:clamp(2.6rem,9vw,6rem);font-weight:900;letter-spacing:-.03em;color:var(--green);margin:0 0 50px;position:relative;top:22px;z-index:0;}
+  .wordmark{font-size:clamp(2.6rem,9vw,6rem);font-weight:900;letter-spacing:-.03em;color:var(--green);margin:26px 0 34px;padding-bottom:.37em;position:relative;z-index:0;}
   .wordmark .cw{position:relative;display:inline-block;}
   .wordmark .cwsvg{position:absolute;left:50%;top:50%;width:174%;height:214%;transform:translate(-50%,-61%);z-index:-1;pointer-events:none;overflow:visible;}
   [data-theme="dark"] .wordmark .cwsvg{display:none;}
@@ -211,7 +211,7 @@
   [data-theme="dark"] .hero-content .wordmark{color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.5);}
   .wordmark .sw{color:var(--blue);font-style:italic;font-weight:600;}
   [data-theme="dark"] .hero-content .wordmark .sw{color:var(--sun);}
-  .tagline{font-size:clamp(1.55rem,3.5vw,2.4rem);color:var(--ink);max-width:640px;margin:0 auto 30px;}
+  .tagline{font-family:"Eagle Lake",Georgia,serif;font-size:clamp(1.55rem,3.5vw,2.4rem);line-height:1.55;color:var(--ink);max-width:640px;margin:0 auto 34px;}
   [data-theme="dark"] .hero-content .tagline{color:#dfe7ee;}
   .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
   .shooting{position:absolute;height:2px;width:120px;background:linear-gradient(90deg,rgba(255,255,255,0),#fff);border-radius:2px;z-index:1;pointer-events:none;}
@@ -577,6 +577,11 @@
   /* chapter hub / chapter calendar */
   .chapter-cal{margin-top:36px;padding-top:26px;border-top:1px solid var(--line);}
   .dc-status{padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-size:.9rem;background:var(--card);}
+  /* contact / about stat / gallery submit spacing */
+  .contact-q{font-size:1.35rem;color:var(--ink);margin-bottom:6px;}
+  .contact-line{font-size:1.15rem;color:var(--ink);}
+  .about-stat{font-size:1.05rem;color:var(--muted);margin:-4px 0 26px;}
+  .g-submit-far{margin-top:22vh;}
 </style>
 </head>
 <body>
@@ -1117,13 +1122,13 @@ function profileCard(p,kind,ed){
 }
 function aboutSection(kind,title,note,btnHtml){
   const arr=content[kind]||[], ed=canEditKind(kind);
-  const visible=ed?arr:arr.filter(function(p){return !p.placeholder;});
-  const cards=visible.map(function(p){return profileCard(p,kind,ed);}).join('');
+  const cards=arr.map(function(p){return profileCard(p,kind,ed);}).join('');
+  const btns=(btnHtml||'')+(ed?' <button class="btn btn-ghost btn-sm" onclick="addItem(\''+kind+'\')">+ Add someone (any role)</button>':'');
   return '<section class="about-sec">'+
     '<h2 class="acts-sub" style="margin-top:6px">'+title+(ed?' <span class="pill">you can edit</span>':'')+'</h2>'+
-    '<p class="muted about-note">'+note+'</p>'+
-    '<div class="about-btnrow">'+btnHtml+(ed?' <button class="btn btn-ghost btn-sm" onclick="addItem(\''+kind+'\')">+ Add someone (any role)</button>':'')+'</div>'+
-    (visible.length?'<div class="pgrid">'+cards+'</div>':'<p class="muted">Coming soon!</p>')+
+    (note?'<p class="muted about-note">'+note+'</p>':'')+
+    (btns.trim()?'<div class="about-btnrow">'+btns+'</div>':'')+
+    (arr.length?'<div class="pgrid">'+cards+'</div>':'<p class="muted">Coming soon!</p>')+
   '</section>';
 }
 function aboutView(){
@@ -1131,13 +1136,14 @@ function aboutView(){
   const s=(aboutStats&&aboutStats!=='error'&&aboutStats.people>0)
     ?('<strong>'+aboutStats.people+'</strong> '+(aboutStats.people===1?'person':'people')+' across <strong>'+aboutStats.countries+'</strong> '+(aboutStats.countries===1?'country':'countries'))
     :'a growing community across many countries';
-  const reach='<a class="btn btn-blue btn-sm" href="mailto:hello@earthsweetearth.org">Interested? Reach out!</a>';
+
   return '<div class="wrap view">'+
     '<h1 class="page-title">About Earth Sweet Earth</h1>'+
-    '<p class="page-intro">Earth Sweet Earth is a youth-led environmental project \u2014 students working together to grow a greener, kinder planet, one neighborhood at a time. From clean-ups and challenges to guest speakers and school chapters, we turn small actions into real change. Today, we\u2019re '+s+'.</p>'+
-    aboutSection('board','Board of Directors','The people who steer Earth Sweet Earth \u2014 setting direction, keeping us accountable, and making the big decisions.',reach)+
-    aboutSection('advisory','Advisory Council','Experienced mentors and advisors who guide our work and share their expertise along the way.',reach)+
-    aboutSection('youth','Youth Leadership Team','The students running the day-to-day \u2014 leading projects, chapters, and events. Want to help lead? Apply below.','<a class="btn btn-primary btn-sm" href="#/youthapply">Apply for a Position</a>')+
+    '<p class="page-intro">Earth Sweet Earth, known as ESE, is a homegrown environmental organization for youth across the world. Through collective efforts, such as a clean-up, to an act as small as choosing the reusable bag, we aim to promote environmental consciousness in the daily lives of young people. Afterall, the truth is that \u201csmall\u201d acts aren\u2019t really small\u2026. Each one adds up, and is a testament to the soliphilia we share. To the youth of this world, who will soon live on an Earth their parents wouldn\u2019t recognize \u2014 No. Let\u2019s change that. Let\u2019s rewrite the future. Let\u2019s keep the Earth clean, green, and pristine.</p>'+
+    '<p class="about-stat">Today, we\u2019re '+s+'.</p>'+
+    aboutSection('board','Board of Directors','','')+
+    aboutSection('advisory','Advisory Council','','')+
+    aboutSection('youth','Youth Leadership Team','','')+
   '</div>';
 }
 function homeView(){
@@ -1292,8 +1298,7 @@ function nlUpdates(){ return newsletters.filter(function(n){return n.kind!=='iss
 let nlOpen={};
 function newsletterView(){
   const ed=canEdit('newsletter_post');
-  let h='<div class="wrap view"><h1 class="page-title">News &amp; updates</h1>'+
-    '<p class="page-intro">Our newsletter, plus the smaller things happening week to week.</p>';
+  let h='<div class="wrap view"><h1 class="page-title">News &amp; updates</h1>';
   if(ed){
     h+='<div class="card composer" style="margin:20px 0;background:rgba(0,118,0,.04)"><h3 style="font-size:1.15rem;margin-bottom:12px">+ New post <span class="pill">you can post</span></h3>'+
       '<label style="display:block;font-size:.84rem;font-weight:600;color:var(--green);margin-bottom:5px">Type</label>'+
@@ -1301,7 +1306,8 @@ function newsletterView(){
       '<input id="np-title" type="text" placeholder="Title"><textarea id="np-body" rows="4" placeholder="Write it here."></textarea>'+
       '<div class="tools"><span style="flex:1"></span><button class="btn btn-primary btn-sm" onclick="publishPost()">Publish</button></div></div>';
   }
-  const issues=nlIssues(), feat=issues[0], past=issues.slice(1);
+  const issues=nlIssues(), feat=issues[0];
+  const past=issues.slice(1).sort(function(a,b){return b.publishedAt-a.publishedAt;});   // newest first, oldest at the bottom
   h+='<h2 class="acts-sub">Newsletter</h2>';
   if(feat){
     h+='<div class="nl-feat">'+
@@ -1514,7 +1520,6 @@ function challengesView(){
     '<h2 class="acts-sub">School challenges</h2>'+
     bulletList('schoolch',ed)+
     (ed?'<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" onclick="addItem(\'schoolch\')">+ Add a school challenge</button></div>':'')+
-    '<div class="mgs-note"><div class="mgs-emoji">🏫</div><div><strong>MyGreenSchools is coming soon.</strong><p class="muted" style="margin:4px 0 0">A way for whole schools to track and grow their green habits side by side. Check back soon to see how your school can take part!</p></div></div>'+
     '<h2 class="acts-sub">Individual challenges</h2>'+
     bulletList('indivch',ed)+
     (ed?'<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" onclick="addItem(\'indivch\')">+ Add an individual challenge</button></div>':'')+
@@ -1662,11 +1667,11 @@ function chaptersView(){                                  // top-bar landing pag
     '<h2 class="chaphead">I\u2019ve started a chapter. Now what?</h2>'+
     '<ul class="chapreqs">'+
       '<li>Encourage more people to join ESE through your chapter \u2014 your chapter may put up posters, send out emails, or just talk to people!</li>'+
-      '<li>Host biweekly (or even more often, if you\u2019d like) get-togethers to spread awareness. This can be online, through platforms like Zoom or Google Meet, or in person.</li>'+
-      '<li>Find guest speakers to present to your chapter, or have student presenters from your chapter present! A few starters for the latter can be your local library or school.</li>'+
+      '<li>Host weekly or biweekly get-togethers to spread awareness. This can be online, through platforms like Zoom or Google Meet, or in person.</li>'+
+      '<li>Find guest speakers to present to your chapter, or have presenters from your chapter present! A few starters can be your local library or school.</li>'+
       '<li>Join monthly meetings online to meet other chapters based in other countries\u2026. Remember, these people may be your future colleagues!</li>'+
-      '<li>Report back to our #Chapters category in Discord to update the ESE team on what your chapter has been doing\u2026</li>'+
-      '<li>Because you\u2019ll get a chance to be featured in our newsletter or gallery! You\u2019re also welcome to submit additional news, thoughts, or pictures in the #newsletter-submissions or #gallery-submissions channels.</li>'+
+      '<li>Report back to our #Chapters category in Discord to update the ESE team on what your chapter has been doing.</li>'+
+      '<li>Submit additional news, thoughts, or pictures in the #newsletter-submissions or #gallery-submissions channels on our Discord to be featured on our newsletter and gallery!</li>'+
     '</ul>'+
   '</div>';
 }
@@ -2112,7 +2117,7 @@ function galleryView(){
   h+='<h2 class="acts-sub">See our full gallery</h2>';
   h+=gen.length?('<div class="ggrid">'+gen.map(function(g){return galleryTile(g,ed);}).join('')+'</div>')
                :'<p class="muted">Nothing here yet \u2014 check back soon!</p>';
-  h+='<div class="g-submit">'+
+  h+='<div class="g-submit'+(items.length?'':' g-submit-far')+'">'+
        '<p>Submit your own highlights on Discord for a chance to have your photos posted!</p>'+
        ucHover('<button class="btn btn-blue" onclick="comingSoon()">Submit on Discord</button>')+
      '</div>';
@@ -2229,26 +2234,23 @@ function saveGalleryPost(){
 
 function contactView(){
   const ed=canEdit('edit_content');
-  const socialsInline = content.socials.map(x=>'<span style="display:inline-flex;align-items:center;gap:1px"><a href="'+escA(safeUrl(x.url))+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>'+(ed?'<button class="btn btn-ghost btn-xs" style="padding:1px 6px" title="Remove" onclick="deleteItem(\'social\','+x.id+')">×</button>':'')+'</span>').join(' ');
-  let findLine;
-  if(content.socials.length || ed){
-    findLine='<p style="font-size:1.1rem">You can find us at '+
-      (content.socials.length?'<span class="links" style="display:inline-flex;gap:8px;vertical-align:middle">'+socialsInline+'</span> ':'')+
-      (ed?'<button class="btn btn-ghost btn-xs" onclick="addItem(\'social\')">+ Add social account</button> ':'')+
-      'or just <a href="mailto:hello@earthsweetearth.org">email us</a>!</p>';
-  } else {
-    findLine='<p style="font-size:1.1rem">Reach us any time — just <a href="mailto:hello@earthsweetearth.org">email us</a>!</p>';
-  }
-  return '<div class="wrap view"><h1 class="page-title">Get in touch</h1>'+
-    '<div class="card" style="max-width:640px;margin-top:8px">'+
-      '<h3 style="color:var(--green)">Email us</h3>'+
-      findLine+
-      '<a class="btn btn-primary" href="mailto:hello@earthsweetearth.org">Say hello</a>'+
-      '<p class="muted" style="margin:14px 0 0">Contact us especially if you find a bug or have comments on our website!</p>'+
-    '</div></div>';
+  const socials=content.socials||[];
+  const links=socials.map(function(x){
+    return '<span style="display:inline-flex;align-items:center;gap:1px"><a href="'+escA(safeUrl(x.url))+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>'+
+      (ed?'<button class="btn btn-ghost btn-xs" style="padding:1px 6px" title="Remove" onclick="deleteItem(\'social\',\''+x.id+'\')">\u00d7</button>':'')+'</span>';
+  });
+  const mail='<a href="mailto:hello@earthsweetearth.org">email us</a>';
+  const line=links.length
+    ? 'Just '+mail+', or find us at '+links.join(', ')+'!'
+    : 'Just '+mail+'!';
+  return '<div class="wrap view">'+
+    '<h1 class="page-title">Get in touch</h1>'+
+    '<p class="contact-q">Questions, comments, suggestions, or find a bug?</p>'+
+    '<p class="contact-line">'+line+'</p>'+
+    (ed?'<div style="margin-top:16px"><button class="btn btn-ghost btn-sm" onclick="addItem(\'social\')">+ Add social account</button></div>':'')+
+  '</div>';
 }
 
-const EVENT_COLORS={Green:'#3f8a5a',Blue:'#2f6f8f',Amber:'#b5813d',Rose:'#a1596b',Purple:'#6a5acd',Gray:'#6b7a72'};
 function gcalEmbed(gid, emptyMsg){
   if(!gid) return '<div class="card" style="text-align:center;padding:26px"><p class="muted" style="margin:0">'+esc(emptyMsg)+'</p></div>';
   const src='https://calendar.google.com/calendar/embed?src='+encodeURIComponent(gid)+'&ctz=local&mode=MONTH&showTitle=0&showPrint=0&showCalendars=0&showTz=0';
