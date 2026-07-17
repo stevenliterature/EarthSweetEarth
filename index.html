@@ -1753,10 +1753,10 @@ function chapterApplyView(){
     '<div class="sechead"><h1 class="page-title" style="margin:0">Apply to start a chapter</h1><button class="btn btn-ghost btn-sm" onclick="go(\'chapters\')">\u2190 Back</button></div>'+
     '<p class="page-intro">The ESE team reviews every application. Take your time and answer honestly.</p>'+
     '<form id="caForm" onsubmit="return submitChapterApplication(event)" novalidate>'+
-      fld('Your real first name & last initial','<input class="in" id="ca-name" type="text" maxlength="40" autocomplete="off" placeholder="e.g. Steven L.">')+
-      fld('Your Discord username','<input class="in" id="ca-discord" type="text" maxlength="40" autocomplete="off" placeholder="e.g. soliphilia">')+
+      fld('Your real first name & last initial','<input class="in" id="ca-name" type="text" maxlength="40" autocomplete="off" placeholder="e.g. John S.">')+
+      fld('Your Discord username','<input class="in" id="ca-discord" type="text" maxlength="40" autocomplete="off" placeholder="e.g. john123">')+
       fld('Country or territory','<select class="in" id="ca-country" onchange="caCountryChange()"><option value="">Choose\u2026</option>'+optList(CA_COUNTRIES)+'</select><div id="ca-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="ca-sublabel" style="font-weight:500">State / province</label><select class="in" id="ca-sub"></select></div>')+
-      fld('Full school name','<input class="in" id="ca-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. North Forest Middle School \u2014 ">')+
+      fld('Full school name','<input class="in" id="ca-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. North Forest Middle School">')+
       fld('Incoming grade <span class="muted">(the grade you\u2019ll be in next school year)</span>','<select class="in" id="ca-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
       fld('The 5 other youth starting with you <span class="muted">(real first name & last initial each)</span>', five('ca-p','Person'))+
       // fld('Their 5 Discord usernames', five('ca-d','Username'))+
