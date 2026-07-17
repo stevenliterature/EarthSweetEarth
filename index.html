@@ -583,7 +583,16 @@
   .about-stat{font-size:1.5rem;color:var(--muted);margin:-4px 0 26px;}
   .g-submit-far{margin-top:22vh;}
   /* ===== language intro splash ===== */
+  .li-hidden{display:none!important;}
   .lang-intro{position:fixed;inset:0;z-index:9000;background:#0F7A24;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:background-color .85s ease;}
+  .li-close{position:fixed;top:20px;right:26px;width:44px;height:44px;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:1.7rem;line-height:1;border-radius:50%;cursor:pointer;z-index:5;transition:background .18s ease;}
+  .li-close:hover{background:rgba(255,255,255,.3);}
+  .langnavbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;width:138px;box-sizing:border-box;padding:0 12px;border:1.5px solid rgba(0,0,0,.2);background:rgba(255,255,255,.5);border-radius:100px;cursor:pointer;font-family:inherit;color:#33261a;font-size:.9rem;font-weight:600;transition:background .18s ease,border-color .18s ease;}
+  .langnavbtn:hover{background:rgba(255,255,255,.85);border-color:rgba(0,0,0,.38);}
+  .langnavbtn .globe{width:16px;height:16px;flex-shrink:0;opacity:.7;}
+  .langnavbtn #navLangText{transition:opacity .3s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  [data-theme="dark"] .langnavbtn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#eadfce;}
+  [data-theme="dark"] .langnavbtn:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.45);}
   .lang-intro.revealing{background-color:rgba(15,122,36,0);}
   .li-bg{position:absolute;inset:0;overflow:hidden;transition:opacity .85s ease;}
   .lang-intro.revealing .li-bg{opacity:0;}
@@ -651,7 +660,7 @@
 <footer id="footer"></footer>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
-<div id="langIntro" class="lang-intro"><div class="li-bg" id="liBg" aria-hidden="true"></div><div class="li-stage" id="liStage"><button class="li-cycle" id="liCycle" onclick="liOpenList()"><span id="liCycleText">English</span></button></div></div>
+<div id="langIntro" class="lang-intro li-hidden"><div class="li-bg" id="liBg" aria-hidden="true"></div><div class="li-stage" id="liStage"></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1086,15 +1095,17 @@ function renderChrome(){
   const moon='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg>';
   const suni='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>';
   const themeBtn='<button class="iconbtn" title="Toggle dark mode" aria-label="Toggle dark mode" onclick="toggleTheme()">'+(theme==='dark'?suni:moon)+'</button>';
+  const langBtn='<button class="langnavbtn" data-notranslate title="Choose language" aria-label="Choose language" onclick="openLangPicker()"><svg class="globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"></path></svg><span id="navLangText" dir="'+(LANGS[navLangI].rtl?'rtl':'ltr')+'">'+esc(LANGS[navLangI].name)+'</span></button>';
   let acct;
   // top-right always reflects the REAL account (you stay logged in while previewing other roles)
   if(account){
     const av=account.avatar?'<span class="avatar"><img src="'+escA(account.avatar)+'" style="width:100%;height:100%;object-fit:cover"></span>':'<span class="avatar">'+esc((account.username||'?').charAt(0).toUpperCase())+'</span>';
-    acct=themeBtn+'<button class="userbtn" onclick="openProfile()">'+av+'<span class="uname">'+esc(account.username)+'</span></button>';
+    acct=themeBtn+langBtn+'<button class="userbtn" onclick="openProfile()">'+av+'<span class="uname">'+esc(account.username)+'</span></button>';
   } else {
-    acct=themeBtn+'<button class="btn btn-blue btn-sm" onclick="openLogin()">Log In</button>';
+    acct=themeBtn+langBtn+'<button class="btn btn-blue btn-sm" onclick="openLogin()">Log In</button>';
   }
   document.getElementById('acct').innerHTML=acct;
+  startNavLangCycle();
   renderFooter();
 }
 
@@ -2809,16 +2820,29 @@ function logLangView(code){ if(!BACKEND) return; try{ sb.from('lang_views').inse
    THE INTRO SPLASH
    ========================================================================== */
 let liLetters=[], liRAF=null, liLast=0, liSpawn=0, liActive=false, liCycleTimer=null, liCycleI=0;
-function startLangIntro(){
+let navLangTimer=null, navLangI=0;
+function startNavLangCycle(){                       // the top-right button keeps cycling through language names
+  if(navLangTimer) return;
+  navLangTimer=setInterval(function(){
+    const t=document.getElementById('navLangText'); if(!t) return;
+    t.style.opacity='0';
+    setTimeout(function(){ navLangI=(navLangI+1)%LANGS.length; const t2=document.getElementById('navLangText'); if(t2){ t2.textContent=LANGS[navLangI].name; t2.setAttribute('dir',LANGS[navLangI].rtl?'rtl':'ltr'); t2.style.opacity='1'; } },300);
+  },2200);
+}
+function openLangPicker(){                          // open the overlay straight at the search + list (skip the old start screen), keep the background
   const el=document.getElementById('langIntro'); if(!el) return;
+  el.classList.remove('li-hidden'); el.classList.remove('revealing');
+  el.style.opacity=''; el.style.transition='';
   document.body.style.overflow='hidden';
+  const bg=document.getElementById('liBg'); if(bg) bg.innerHTML='';
   liActive=true; liLast=performance.now(); liSpawn=0; liLetters=[];
   liRAF=requestAnimationFrame(liFrame);
-  const txt=document.getElementById('liCycleText'); if(txt){
-    liCycleI=0; txt.textContent=LANGS[0].name; txt.setAttribute('dir',LANGS[0].rtl?'rtl':'ltr');
-    liCycleTimer=setInterval(function(){ txt.style.opacity='0';
-      setTimeout(function(){ liCycleI=(liCycleI+1)%LANGS.length; txt.textContent=LANGS[liCycleI].name; txt.setAttribute('dir',LANGS[liCycleI].rtl?'rtl':'ltr'); txt.style.opacity='1'; },420); },2200);
-  }
+  liOpenList();
+}
+function liHidePicker(){                            // close without choosing (X / Escape)
+  liActive=false; if(liRAF) cancelAnimationFrame(liRAF);
+  const el=document.getElementById('langIntro'); if(el){ el.classList.add('li-hidden'); el.classList.remove('revealing'); el.style.opacity=''; el.style.transition=''; const bg=document.getElementById('liBg'); if(bg) bg.innerHTML=''; const st=document.getElementById('liStage'); if(st) st.innerHTML=''; }
+  document.body.style.overflow='';
 }
 function liFrame(now){
   if(!liActive) return;
@@ -2862,7 +2886,7 @@ function liFilter(q){
 function liOpenList(){
   if(liCycleTimer) clearInterval(liCycleTimer);
   const stage=document.getElementById('liStage'); if(!stage) return;
-  stage.innerHTML='<div class="li-list-wrap">'+
+  stage.innerHTML='<button class="li-close" onclick="liHidePicker()" aria-label="Close">\u00d7</button><div class="li-list-wrap">'+
     '<div class="li-search-wrap"><svg class="li-search-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>'+
       '<input id="liSearch" class="li-search" type="text" dir="auto" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="liFilter(this.value)"></div>'+
     '<div class="li-list" id="liListBox">'+langButtons(LANGS)+'</div>'+
@@ -2925,7 +2949,13 @@ function liFinishIntro(){
   liActive=false; if(liRAF) cancelAnimationFrame(liRAF);
   const el=document.getElementById('langIntro'); if(!el){ document.body.style.overflow=''; return; }
   el.style.transition='opacity .55s ease'; el.style.opacity='0';   // gentle final fade -> the real home wordmark (identical, same spot) is underneath
-  setTimeout(function(){ if(el.parentNode) el.remove(); document.body.style.overflow=''; }, 560);
+  setTimeout(function(){
+    el.classList.add('li-hidden'); el.classList.remove('revealing'); el.style.opacity=''; el.style.transition='';
+    const ese=document.getElementById('liESE'); if(ese) ese.remove();
+    const bg=document.getElementById('liBg'); if(bg) bg.innerHTML='';
+    const st=document.getElementById('liStage'); if(st) st.innerHTML='';
+    document.body.style.overflow='';
+  }, 560);
 }
 
 let _lastLoggedView=0;
@@ -3520,7 +3550,7 @@ async function init(){
   if(!location.hash) location.hash='#/home';
   render();
 }
-startLangIntro();
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ const el=document.getElementById('langIntro'); if(el && !el.classList.contains('li-hidden') && !el.classList.contains('revealing')) liHidePicker(); } });
 init();
 </script>
 </body>
