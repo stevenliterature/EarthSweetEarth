@@ -64,23 +64,30 @@ Deno.serve(async (req) => {
     // 3) Email the person the reason (optional; needs RESEND_API_KEY) -----------
     const RESEND = Deno.env.get("RESEND_API_KEY");
     const FROM = Deno.env.get("FROM_EMAIL") ?? "Earth Sweet Earth <noreply@earthsweetearth.org>";
+    let emailed = false;
     if (RESEND && email) {
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${RESEND}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          from: FROM,
-          to: email,
-          subject: "Your Earth Sweet Earth account was removed",
-          text:
-            `Hi,\n\nYour Earth Sweet Earth account (${email}) has been removed.\n\n` +
-            `Reason: ${reason || "(no reason given)"}\n\n` +
-            `You're welcome to sign up again any time.\n\n— Earth Sweet Earth`,
-        }),
-      }).catch(() => {/* don't fail the delete if the email service hiccups */});
+      try {
+        const r = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${RESEND}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            from: FROM,
+            to: email,
+            subject: "Your Earth Sweet Earth account was removed",
+            text:
+              `Hi,\n\nYour Earth Sweet Earth account (${email}) has been removed.\n\n` +
+              `Reason: ${reason || "(no reason given)"}\n\n` +
+              `You're welcome to sign up again any time.\n\n— Earth Sweet Earth`,
+          }),
+        });
+        emailed = r.ok;                 // true only if Resend accepted the message
+      } catch {
+        emailed = false;                // don't fail the delete if the email service hiccups
+      }
     }
 
-    return json({ ok: true });
+    // emailed=false means no email went out (usually: RESEND_API_KEY isn't set yet)
+    return json({ ok: true, emailed });
   } catch (e) {
     return json({ error: String(e) }, 500);
   }

@@ -7,7 +7,7 @@
 <meta name="description" content="Empowering and educating youth to be environmentally conscious and take initiative.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Earth Sweet Earth">
-<meta property="og:description" content="Empowering and enducating youth to be environmentally conscious and take initiative.">
+<meta property="og:description" content="Empowering and educating youth to be environmentally conscious and take initiative.">
 <meta property="og:url" content="https://earthsweetearth.org">
 <meta property="og:image" content="https://earthsweetearth.org/social.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -50,7 +50,7 @@
   p{margin:0 0 1rem;}
   a{color:var(--blue);}
   img{max-width:100%;display:block;}
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(18px,3.5vw,40px);}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(22px,3.5vw,40px);}
 
   a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:6px;}
   .skip{position:absolute;left:16px;top:-60px;background:var(--green);color:#fff;padding:10px 18px;border-radius:8px;font-weight:600;z-index:200;transition:top .2s;}
@@ -132,7 +132,7 @@
   .avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;display:inline-flex;align-items:center;justify-content:center;background:var(--green);color:#fff;font-weight:700;font-size:.85rem;overflow:hidden;}
 
   /* page bits */
-  .view{padding:52px 0 84px;}
+  .view{padding-top:52px;padding-bottom:84px;}   /* vertical only — horizontal gutter comes from .wrap */
   .fade{animation:fade .45s ease;}
   @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
   .eyebrow{font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:var(--blue);margin-bottom:12px;}
@@ -397,7 +397,7 @@
   [data-theme="dark"] footer .cpy{color:#fff;}
 
   @media (max-width:900px){.g4{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:1fr;}.g2{grid-template-columns:1fr;}}
-  @media (max-width:640px){.view{padding:38px 0 60px;}}
+  @media (max-width:640px){.view{padding-top:38px;padding-bottom:60px;}}
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}*{transition:none!important;}.foliage,.star,.snow span{animation:none!important;}}
   /* activities */
   .acts-sub{font-family:"Fraunces",serif;font-size:1.5rem;color:var(--green);margin:34px 0 14px;}
@@ -887,7 +887,7 @@ function noteHtml(){return BACKEND?'':'<div class="modal-note">Preview mode: not
 function openSignup(){
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Sign up</h3>'+noteHtml()+
     '<label>Email</label><input id="su-email" type="email" placeholder="you@example.com">'+
-    '<label>Username</label><input id="su-user" type="text" placeholder="e.g. Soliphilia">'+
+    '<label>Username</label><input id="su-user" type="text" placeholder="e.g. john123">'+
     '<label>Password</label><input id="su-pass" type="password" placeholder="Create a password">'+
     '<label>Country <span style="font-weight:400;color:var(--muted)">(optional — you can add it later)</span></label><select id="su-country"><option value="">Select a country</option>'+CA_COUNTRIES.map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+'</select>'+
     '<label>Chapter <span style="font-weight:400;color:var(--muted)">(optional \u2014 start typing to search)</span></label><input id="su-chapter" list="chapterList" type="text" placeholder="e.g. North Forest">'+chapterDatalist()+
@@ -1799,7 +1799,7 @@ function startChapter(){ applyForChapter(); }   // kept for any existing callers
 
 /* ---------- chapter application form (reached from "Start your own chapter"; not in the nav) ---------- */
 const RECAPTCHA_SITE_KEY = "";   // paste your reCAPTCHA v2 ("I'm not a robot") site key here — google.com/recaptcha/admin. Empty shows a simple stand-in.
-const CA_CONSENT = "I understand and consent that I am fully aware of the responsibilities and obligations of my position and that I will make every effort within reasonable capability to fulfill these. I recognize that exploitation or abuse of this power and privilege may lead to the revoke and transfer of my position to another ESE member.";
+const CA_CONSENT = "I am fully aware of my obligations, and recognize that negligence of responsibilities or abuse of power may lead to the revocation of my position.";
 const CA_GRADES = ["6th grade","7th grade","8th grade","9th grade","10th grade","11th grade","12th grade","College / University","Other"];
 const CA_COUNTRIES = ["Afghanistan","Albania","Algeria","Argentina","Australia","Austria","Bangladesh","Belgium","Bolivia","Brazil","Bulgaria","Cambodia","Cameroon","Canada","Chile","China","Colombia","Costa Rica","Croatia","Cuba","Czechia","Denmark","Dominican Republic","Ecuador","Egypt","El Salvador","Estonia","Ethiopia","Finland","France","Georgia","Germany","Ghana","Greece","Guatemala","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Ivory Coast","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kuwait","Latvia","Lebanon","Lithuania","Luxembourg","Malaysia","Mexico","Morocco","Nepal","Netherlands","New Zealand","Nigeria","Norway","Pakistan","Panama","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Saudi Arabia","Serbia","Singapore","Slovakia","Slovenia","South Africa","South Korea","Spain","Sri Lanka","Sweden","Switzerland","Taiwan","Tanzania","Thailand","Trinidad and Tobago","Tunisia","Turkey","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Venezuela","Vietnam","Zambia","Zimbabwe","Other / not listed"];
 const CA_SUBDIV = {
@@ -2664,9 +2664,9 @@ async function doDeleteUser(id){
   closeModal();
   if(!BACKEND){ toast('Deleted (preview): '+m.email); memberResults=memberResults.filter(x=>x!==m); render(); return; }
   try{
-    const {error}=await sb.functions.invoke('delete-user',{body:{userId:m.id,email:m.email,reason:reason}});
+    const {data,error}=await sb.functions.invoke('delete-user',{body:{userId:m.id,email:m.email,reason:reason}});
     if(error) toast('Delete needs the delete-user server function — see setup notes.');
-    else { toast('Account deleted and email sent.'); memberResults=memberResults.filter(x=>x!==m); }
+    else { toast(data&&data.emailed?'Account deleted, and they were emailed.':'Account deleted.'); memberResults=memberResults.filter(x=>x!==m); }
   }catch(e){ toast('Delete needs the delete-user Edge Function deployed.'); }
   render();
 }
