@@ -1742,7 +1742,7 @@ function chaptersView(){                                  // top-bar landing pag
   return '<div class="wrap view">'+
     '<h1 class="page-title" id="chapTitle" style="margin-bottom:22px;white-space:nowrap;max-width:100%">Flip the page. Take the pen. Start <em>your</em> chapter today.<span class="info" tabindex="0">i<span class="tip">A chapter is a regional branch of ESE \u2014 a school club led by a student president. Youth apply to start one at their own school.</span></span></h1>'+
     '<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:0 0 24px">'+
-      '<button class="btn btn-primary" onclick="go(\'chapterapply\')">Start your own chapter</button>'+
+      '<button class="btn btn-primary" onclick="applyForChapter()">Start your own chapter</button>'+
       '<button class="btn btn-blue" onclick="go(\'chapterslist\')">View our chapters</button>'+
     '</div>'+
     '<p class="muted" style="font-size:.95rem;margin:0 0 30px">Fill out the application form to start your school\u2019s chapter and become its president. The ESE team reviews each one, and if approved, it will show up here!</p>'+
@@ -1763,7 +1763,22 @@ function chaptersView(){                                  // top-bar landing pag
     '</ul>'+
   '</div>';
 }
-function startChapter(){ go('chapterapply'); }
+function applyForChapter(){
+  // Gate the "Start your own chapter" button that leads to the application form.
+  // Non-members can't apply; members are asked to confirm they've read this page first.
+  if(!isLoggedIn()){
+    popup('Become a member','You have to be a member to start a chapter. It only takes 30 seconds to <a href="#" onclick="closeModal();openSignup();return false;">sign up</a>!');
+    return;
+  }
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button>'+
+    '<h3>Before you apply</h3>'+
+    '<p>Have you read everything on the chapters page?</p>'+
+    '<div style="display:flex;gap:10px;margin-top:16px">'+
+      '<button class="btn btn-primary" style="flex:1" onclick="closeModal();go(\'chapterapply\')">Yes</button>'+
+      '<button class="btn btn-ghost" style="flex:1" onclick="closeModal()">No</button>'+
+    '</div>');
+}
+function startChapter(){ applyForChapter(); }   // kept for any existing callers — now gated too
 
 /* ---------- chapter application form (reached from "Start your own chapter"; not in the nav) ---------- */
 const RECAPTCHA_SITE_KEY = "";   // paste your reCAPTCHA v2 ("I'm not a robot") site key here — google.com/recaptcha/admin. Empty shows a simple stand-in.
@@ -1793,10 +1808,10 @@ function chapterApplyView(){
     '<p class="page-intro">The ESE team reviews every application. Take your time and answer honestly.</p>'+
     '<form id="caForm" onsubmit="return submitChapterApplication(event)" novalidate>'+
       fld('Your real first name & last initial','<input class="in" id="ca-name" type="text" maxlength="40" autocomplete="off" placeholder="e.g. John S.">')+
-      fld('Your Discord username','<input class="in" id="ca-discord" type="text" maxlength="40" autocomplete="off" placeholder="e.g. john123">')+
+      fld('Your Discord username <span class="muted">(optional)</span>','<input class="in" id="ca-discord" type="text" maxlength="40" autocomplete="off" placeholder="e.g. john123">')+
       fld('Country or territory','<select class="in" id="ca-country" onchange="caCountryChange()"><option value="">Choose\u2026</option>'+optList(CA_COUNTRIES)+'</select><div id="ca-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="ca-sublabel" style="font-weight:500">State / province</label><select class="in" id="ca-sub"></select></div>')+
       fld('Full school name','<input class="in" id="ca-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. North Forest Middle School">')+
-      fld('Incoming grade <span class="muted">(the grade you\u2019ll be in next school year)</span>','<select class="in" id="ca-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
+      fld('Grade','<select class="in" id="ca-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
       fld('The 5 other youth starting with you <span class="muted">(real first name & last initial each)</span>', five('ca-p','Person'))+
       // fld('Their 5 Discord usernames', five('ca-d','Username'))+
       fld('Type this statement out, word for word','<canvas class="consent-img" id="ca-consent-img"></canvas><textarea class="in" id="ca-consent" rows="4" autocomplete="off" placeholder="Type the statement above here\u2026"></textarea>')+
@@ -1862,16 +1877,15 @@ async function submitChapterApplication(e){
   const fail=(msg,id)=>{ if(errBox){ errBox.textContent=msg; errBox.style.display='block'; errBox.scrollIntoView({behavior:'smooth',block:'center'}); } const f=id&&document.getElementById(id); if(f&&f.focus)f.focus(); return false; };
   const val=(id)=>{ const el=document.getElementById(id); return el?el.value.trim():''; };
   if(!val('ca-name')) return fail('Please enter your first name and last initial.','ca-name');
-  if(!val('ca-discord')) return fail('Please enter your Discord username.','ca-discord');
-  if(!val('ca-grade')) return fail('Please choose your incoming grade.','ca-grade');
+  if(!val('ca-grade')) return fail('Please choose your grade.','ca-grade');
   if(!val('ca-country')) return fail('Please choose your country or territory.','ca-country');
   const subShown=document.getElementById('ca-subwrap').style.display!=='none';
   if(subShown && !val('ca-sub')) return fail('Please choose your state / province.','ca-sub');
   if(!val('ca-school')) return fail('Please enter your full school name and district.','ca-school');
   const members=[]; for(let i=1;i<=5;i++){ const v=val('ca-p'+i); if(!v) return fail('Please list all five other starting members (person '+i+').','ca-p'+i); members.push(v); }
-  const memberDiscords=[]; for(let i=1;i<=5;i++){ const v=val('ca-d'+i); if(!v) return fail('Please list all five Discord usernames (username '+i+').','ca-d'+i); memberDiscords.push(v); }
+  const memberDiscords=[];   // members' Discord usernames are no longer collected or required
   const norm=(s)=>s.toLowerCase().replace(/\s+/g,' ').replace(/[\u2018\u2019]/g,"'").trim();
-  if(norm(val('ca-consent'))!==norm(CA_CONSENT)) return fail('The statement doesn\u2019t match exactly \u2014 you may have a typo or missing words. Please type it out in full.','ca-consent');
+  if(norm(val('ca-consent'))!==norm(CA_CONSENT)) return fail('You have a mistake in the statement. Please type it out fully and correctly.','ca-consent');
   const why=val('ca-why'); if(!why) return fail('Please tell us why you want to start a chapter.','ca-why');
   if(caWords(why)>500) return fail('Please keep your answer to 500 words or fewer.','ca-why');
   if(!document.getElementById('ca-privacy').checked) return fail('Please tick the privacy confirmation box.','ca-privacy');
