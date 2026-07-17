@@ -873,7 +873,7 @@ function openSignup(){
     '<label>Username</label><input id="su-user" type="text" placeholder="e.g. Soliphilia">'+
     '<label>Password</label><input id="su-pass" type="password" placeholder="Create a password">'+
     '<label>Country <span style="font-weight:400;color:var(--muted)">(optional — you can add it later)</span></label><select id="su-country"><option value="">Select a country</option>'+CA_COUNTRIES.map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+'</select>'+
-    '<label>Chapter <span style="font-weight:400;color:var(--muted)">(optional \u2014 start typing to search)</span></label><input id="su-chapter" list="chapterList" type="text" placeholder="e.g. South Woods">'+chapterDatalist()+
+    '<label>Chapter <span style="font-weight:400;color:var(--muted)">(optional \u2014 start typing to search)</span></label><input id="su-chapter" list="chapterList" type="text" placeholder="e.g. North Forest">'+chapterDatalist()+
     '<p class="err" id="su-err"></p><button class="btn btn-primary" id="su-btn" style="width:100%;margin-top:6px" onclick="doSignup()">Create account</button>');
 }
 async function doSignup(){
