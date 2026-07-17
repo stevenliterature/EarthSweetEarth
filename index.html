@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Earth Sweet Earth</title>
-<meta name="description" content="Uniting and empowering young people worldwide to promote environmental consciousness and inspire initiative.">
+<meta name="description" content="Earth Sweet Earth — a youth-led project growing a greener, kinder planet, one neighborhood at a time.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Earth Sweet Earth">
 <meta property="og:description" content="A youth-led project growing a greener, kinder planet — one neighborhood at a time.">
@@ -582,6 +582,44 @@
   .contact-line{font-size:1.15rem;color:var(--ink);}
   .about-stat{font-size:1.5rem;color:var(--muted);margin:-4px 0 26px;}
   .g-submit-far{margin-top:22vh;}
+  /* ===== language intro splash ===== */
+  .lang-intro{position:fixed;inset:0;z-index:9000;background:#0F7A24;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:background-color .85s ease;}
+  .lang-intro.revealing{background-color:rgba(15,122,36,0);}
+  .li-bg{position:absolute;inset:0;overflow:hidden;transition:opacity .85s ease;}
+  .lang-intro.revealing .li-bg{opacity:0;}
+  .li-letter{position:absolute;top:0;left:0;color:#fff;font-family:"Fraunces",Georgia,serif;font-weight:600;pointer-events:none;user-select:none;will-change:transform,opacity;line-height:1;}
+  .li-stage{position:relative;z-index:2;width:100%;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .li-cycle{background:rgba(255,255,255,.14);border:2px solid #fff;color:#fff;font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.7rem,5vw,3rem);padding:.42em 1.3em;border-radius:100px;cursor:pointer;width:min(90vw,560px);min-height:1.9em;box-shadow:0 12px 44px rgba(0,0,0,.28);transition:background .2s ease,transform .2s ease;display:inline-flex;align-items:center;justify-content:center;}
+  .li-cycle:hover{background:rgba(255,255,255,.26);transform:translateY(-2px);}
+  .li-cycle:active{transform:translateY(0);}
+  #liCycleText{display:inline-block;transition:opacity .3s ease;}
+  .li-list-wrap{text-align:center;width:100%;}
+  .li-search-wrap{position:relative;width:min(90vw,560px);margin:0 auto 18px;}
+  .li-search-ic{position:absolute;left:20px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:#fff;opacity:.8;pointer-events:none;}
+  .li-search{width:100%;box-sizing:border-box;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.6);color:#fff;font-family:inherit;font-size:1.25rem;text-align:center;padding:14px 46px;border-radius:100px;outline:none;transition:border-color .18s ease,background .18s ease;}
+  .li-search::placeholder{color:rgba(255,255,255,.55);}
+  .li-search:focus{border-color:#fff;background:rgba(255,255,255,.22);}
+  .li-noresult{color:rgba(255,255,255,.7);text-align:center;padding:22px;font-size:1.1rem;}
+  .li-globe{font-size:2.4rem;color:rgba(255,255,255,.9);margin-bottom:18px;}
+  .li-list{display:grid;grid-template-columns:repeat(auto-fill,182px);justify-content:center;gap:12px;max-width:min(96vw,960px);max-height:70vh;overflow-y:auto;margin:0 auto;padding:6px;}
+  .li-lang{width:100%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.55);color:#fff;font-family:inherit;font-size:1.12rem;padding:15px 10px;border-radius:13px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .18s ease,border-color .18s ease,transform .12s ease;}
+  .li-lang:hover{background:rgba(255,255,255,.26);border-color:#fff;transform:translateY(-1px);}
+  .li-seq{display:flex;flex-direction:column;align-items:center;gap:.28em;text-align:center;}
+  .li-word{color:#fff;font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(2.4rem,8vw,5rem);line-height:1.1;opacity:0;transition:opacity .8s ease;}
+  .li-word.show{opacity:1;}
+  .li-ese{opacity:0;transition:opacity 1.4s ease;z-index:3;pointer-events:none;}
+  .li-ese.show{opacity:1;}
+  .li-ese.fade-out{opacity:0;}
+  .ctrans{background:none;border:none;color:var(--blue-dk);font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer;padding:2px 0;margin-top:2px;}
+  [data-theme="dark"] .ctrans{color:var(--blue);}
+  .ctrans:hover{text-decoration:underline;}
+  /* analytics language bars */
+  .lang-bars{display:flex;flex-direction:column;gap:10px;}
+  .lang-bar-h{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;margin-bottom:4px;}
+  .lang-bar-t{height:9px;background:var(--line);border-radius:100px;overflow:hidden;}
+  .lang-bar-f{height:100%;background:linear-gradient(90deg,var(--green),var(--green-dk));border-radius:100px;}
+  /* RTL niceties */
+  [dir="rtl"] .wrap,[dir="rtl"] .view{text-align:right;}
 </style>
 </head>
 <body>
@@ -613,6 +651,7 @@
 <footer id="footer"></footer>
 
 <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+<div id="langIntro" class="lang-intro"><div class="li-bg" id="liBg" aria-hidden="true"></div><div class="li-stage" id="liStage"><button class="li-cycle" id="liCycle" onclick="liOpenList()"><span id="liCycleText">English</span></button></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -713,7 +752,7 @@ function safeUrl(u){u=String(u||'').trim();return /^https?:\/\//i.test(u)?u:'htt
 function fmtDate(d){ if(!d) return ''; const p=d.split('-'); return p.length===3?(p[1]+'/'+p[2]+'/'+p[0].slice(2)):d; }
 
 const modal=document.getElementById('modal');
-function openModal(html){modal.innerHTML='<div class="modal-card">'+html+'</div>';modal.classList.add('open');}
+function openModal(html){modal.innerHTML='<div class="modal-card">'+html+'</div>';modal.classList.add('open');if(lang!=='en'&&langChosen)applyTranslations();}
 function closeModal(){modal.classList.remove('open');modal.innerHTML='';if(typeof _openSocial!=='undefined')_openSocial=null;}
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
@@ -1133,7 +1172,7 @@ function aboutSection(kind,title,note,btnHtml){
 }
 function aboutView(){
   seedAbout();
-  const s=(aboutStats&&aboutStats!=='error'&&aboutStats.people>0)
+  const s=(aboutStats&&aboutStats!=='error')
     ?('<strong>'+aboutStats.people+'</strong> '+(aboutStats.people===1?'person':'people')+' across <strong>'+aboutStats.countries+'</strong> '+(aboutStats.countries===1?'country':'countries'))
     :'a growing community across many countries';
 
@@ -1183,7 +1222,7 @@ function homeView(){
     '</svg>'+
     snowLayer()+
     '<div class="hero-content">'+
-      '<h1 class="wordmark"><span class="cw">'+wordCloud(0)+'Earth</span> <span class="cw sw">'+wordCloud(1)+'Sweet</span> <span class="cw">'+wordCloud(2)+'Earth</span></h1>'+
+      '<h1 class="wordmark" data-notranslate><span class="cw">'+wordCloud(0)+'Earth</span> <span class="cw sw">'+wordCloud(1)+'Sweet</span> <span class="cw">'+wordCloud(2)+'Earth</span></h1>'+
       '<p class="tagline">'+esc(content.tagline||'If not us, who?\nIf not now, when?').replace(/\n/g,'<br>')+'</p>'+
       (canEdit('edit_content')?'<div style="margin-bottom:14px"><button class="btn btn-ghost btn-xs" onclick="editText(\'tagline\')">✎ Edit subtitle</button></div>':'')+
       '<div class="cta-row"><button class="btn btn-primary" onclick="go(\'activities\')">See Our Activities</button><button class="btn btn-blue" onclick="go(\'chapters\')">Start a Chapter</button></div>'+
@@ -1705,11 +1744,11 @@ function chapterApplyView(){
     '<form id="caForm" onsubmit="return submitChapterApplication(event)" novalidate>'+
       fld('Your real first name & last initial','<input class="in" id="ca-name" type="text" maxlength="40" autocomplete="off" placeholder="e.g. Steven L.">')+
       fld('Your Discord username','<input class="in" id="ca-discord" type="text" maxlength="40" autocomplete="off" placeholder="e.g. soliphilia">')+
-      fld('Incoming grade <span class="muted">(the grade you\u2019ll be in next school year)</span>','<select class="in" id="ca-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
       fld('Country or territory','<select class="in" id="ca-country" onchange="caCountryChange()"><option value="">Choose\u2026</option>'+optList(CA_COUNTRIES)+'</select><div id="ca-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="ca-sublabel" style="font-weight:500">State / province</label><select class="in" id="ca-sub"></select></div>')+
-      fld('Full school name, with district','<input class="in" id="ca-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. South Woods Middle School \u2014 Syosset">')+
+      fld('Full school name','<input class="in" id="ca-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. North Forest Middle School \u2014 ">')+
+      fld('Incoming grade <span class="muted">(the grade you\u2019ll be in next school year)</span>','<select class="in" id="ca-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
       fld('The 5 other youth starting with you <span class="muted">(real first name & last initial each)</span>', five('ca-p','Person'))+
-      fld('Their 5 Discord usernames', five('ca-d','Username'),'\u26a0\ufe0f All five must be ESE members (just a quick email sign-up), and each needs their own Discord account. If someone is under 13, Discord requires them to use a parent’s account instead.')+
+      // fld('Their 5 Discord usernames', five('ca-d','Username'))+
       fld('Type this statement out, word for word','<canvas class="consent-img" id="ca-consent-img"></canvas><textarea class="in" id="ca-consent" rows="4" autocomplete="off" placeholder="Type the statement above here\u2026"></textarea>')+
       fld('Why do you want to start a chapter? <span class="muted">(500 words max)</span>','<textarea class="in" id="ca-why" rows="6" oninput="caWordCount()" placeholder="Briefly tell us why \u2014 and anything else we should know."></textarea>','<span id="ca-why-count">0 / 500 words</span>')+
       '<label class="ca-check"><input type="checkbox" id="ca-privacy"> <span>I confirm I haven\u2019t shared any private information about myself or anyone else beyond what this form asks for.</span></label>'+
@@ -1823,12 +1862,12 @@ function youthApplyView(){
     '<p class="page-intro">Want to help lead Earth Sweet Earth? Tell us about yourself and the role(s) you\u2019re interested in. The ESE team reviews every application.</p>'+
     '<div class="yl-rep">💬 You should have at least <strong>'+rep+'</strong> reputation points in our Discord server to apply.'+(ownerEdit?' <button class="btn btn-ghost btn-xs" onclick="editRepThreshold()">\u270E Edit</button>':'')+'</div>'+
     '<form id="ylForm" onsubmit="return submitYouthApplication(event)" novalidate>'+
-      fld('Your real first name & last initial','<input class="in" id="yl-name" type="text" maxlength="40" autocomplete="off" placeholder="e.g. Steven L.">')+
-      fld('Your Discord username','<input class="in" id="yl-discord" type="text" maxlength="40" autocomplete="off" placeholder="e.g. soliphilia">')+
+      fld('Your real first name & last initial','<input class="in" id="yl-name" type="text" maxlength="40" autocomplete="off" placeholder="e.g. John S">')+
+      fld('Your ESE username, of your current account','<input class="in" id="yl-discord" type="text" maxlength="40" autocomplete="off" placeholder="e.g. john123">')+
       fld('Your email <span class="muted">(or a parent/guardian\u2019s)</span>','<input class="in" id="yl-email" type="email" autocomplete="off" placeholder="you@example.com"><label class="ca-check" style="margin-top:8px"><input type="checkbox" id="yl-under13" onchange="ylUnder13()"> <span>I\u2019m under 13</span></label><div id="yl-under-note" class="yl-under-note" style="display:none">Please use a parent or guardian\u2019s email above, and make sure they\u2019re okay with you applying. Discord also requires users to be at least 13, so you\u2019d use their Discord account too.</div>')+
       fld('Incoming grade','<select class="in" id="yl-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
       fld('Country or territory','<select class="in" id="yl-country" onchange="ylCountryChange()"><option value="">Choose\u2026</option>'+optList(CA_COUNTRIES)+'</select><div id="yl-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="yl-sublabel" style="font-weight:500">State / province</label><select class="in" id="yl-sub"></select></div>')+
-      fld('Full school name, with district','<input class="in" id="yl-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. South Woods Middle School \u2014 Syosset">')+
+      fld('Full school name','<input class="in" id="yl-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. North Forest Middle School \u2014 Syosset">')+
       fld('Which role(s) are you interested in? <span class="muted">(select all that apply \u2014 details appear when you pick one)</span>', rolesHtml)+
       fld('What have you accomplished in ESE so far? <span class="muted">(500 words max)</span>','<textarea class="in" id="yl-acc" rows="6" oninput="ylCount(\'yl-acc\',\'yl-acc-c\',500)" placeholder="Projects, chapters, events, contributions \u2014 anything you\u2019ve helped with."></textarea>','<span id="yl-acc-c">0 / 500 words</span>')+
       fld('How do you plan on making ESE better? <span class="muted">(500 words max)</span>','<textarea class="in" id="yl-improve" rows="6" oninput="ylCount(\'yl-improve\',\'yl-improve-c\',500)" placeholder="Your ideas, goals, and what you\u2019d do in the role."></textarea>','<span id="yl-improve-c">0 / 500 words</span>')+
@@ -2155,7 +2194,8 @@ function commentRow(photoId,c){
   const av=live?'<img src="'+escA(live)+'">':'<span class="cinit">'+esc((c.user||'?').charAt(0).toUpperCase())+'</span>';
   return '<div class="crow"><div class="cav">'+av+'</div><div class="cbody">'+
     '<div class="cmeta"><strong>'+esc(c.user||'Member')+'</strong><span class="ctime">'+timeAgo(c.ts)+'</span></div>'+
-    '<div class="ctext">'+esc(c.body)+'</div>'+
+    '<div class="ctext" data-notranslate>'+esc(c.body)+'</div>'+
+    (lang!=='en'?'<button class="ctrans" onclick="translateComment(this)">Translate</button>':'')+
     '<div class="crx">'+reactionChips({reactions:c.reactions||{},mine:c.mine},'commentReact(\''+photoId+'\',\''+c.id+'\',')+
       '<button class="rx-add sm" title="Add reaction" onclick="openEmojiPicker(this,\'comment\',\''+photoId+'\',\''+c.id+'\')">🙂+</button></div>'+
   '</div></div>';
@@ -2327,6 +2367,7 @@ async function loadAnalytics(){
   try{ const {data}=await sb.from('chapter_applications').select('id,data,reviewed,created_at').order('created_at',{ascending:false}); d.chApps=data||[]; }catch(e){}
   try{ const {data}=await sb.from('youth_applications').select('id,data,reviewed,created_at').order('created_at',{ascending:false}); d.ylApps=data||[]; }catch(e){}
   try{ const {data}=await sb.rpc('ese_traffic'); if(data) d.traffic=data; }catch(e){}
+  try{ const {data}=await sb.rpc('ese_lang_stats'); d.langs=data||{}; }catch(e){ d.langs={}; }
   try{ const {data}=await sb.from('event_participants').select('event_id,username,email,created_at').order('created_at',{ascending:true}); d.parts=data||[]; }catch(e){ d.parts=[]; }
   d.chTotal=d.chApps.length; d.chPending=d.chApps.filter(function(a){return !a.reviewed;}).length;
   d.ylTotal=d.ylApps.length; d.ylPending=d.ylApps.filter(function(a){return !a.reviewed;}).length;
@@ -2375,6 +2416,13 @@ function analyticsView(){
       return '<details class="cont"><summary>'+esc(ev?ev.name:'Event '+eid)+' \u2014 '+byEv[eid].length+' signed up</summary><div class="body"><div class="ad-list">'+rows+'</div></div></details>';
     }).join('')+'</div>';
   } else { h+='<p class="muted">Nobody has signed up for an event yet.</p>'; }
+  const lv=d.langs||{}; const lcodes=Object.keys(lv).sort(function(a,b){return (lv[b].total||0)-(lv[a].total||0);});
+  h+='<h2 class="acts-sub">Views by language</h2>';
+  if(lcodes.length){
+    const lmax=Math.max.apply(null,[1].concat(lcodes.map(function(c){return lv[c].total||0;})));
+    h+='<div class="lang-bars">'+lcodes.map(function(c){ const nm=(LANGS.find(function(x){return x.code===c;})||{}).name||c; const n=lv[c].total||0; const wk=lv[c].week||0;
+      return '<div class="lang-bar"><div class="lang-bar-h"><span>'+esc(nm)+'</span><span class="muted">'+n+' total \u00b7 '+wk+' this week</span></div><div class="lang-bar-t"><div class="lang-bar-f" style="width:'+Math.max(3,Math.round(n/lmax*100))+'%"></div></div></div>'; }).join('')+'</div>';
+  } else { h+='<p class="muted">No language views recorded yet.</p>'; }
   h+='<h2 class="acts-sub">Traffic</h2>';
   const t=d.traffic||{total:0,week:0,last7:[]};
   h+='<div class="stat-grid" style="margin-bottom:16px">'+statCard('Total page views',t.total||0)+statCard('Views this week',t.week||0)+'</div>';
@@ -2496,6 +2544,390 @@ function fitChapterTitle(){
   if(el.scrollWidth>avail) el.style.whiteSpace='normal';       // still too wide at min size -> let it wrap so it stays readable (not tiny)
   tips.forEach(function(t){t.style.display='';});
 }
+/* ==========================================================================
+   LANGUAGES: intro splash + on-the-fly, cached, whole-site translation
+   ========================================================================== */
+const SCRIPT_RANGES={
+  latn:[[0x41,0x5A],[0x61,0x7A],[0xC0,0xD6],[0xD8,0xF6],[0xF8,0x17F]],
+  cyrl:[[0x410,0x44F],[0x400,0x40F]],
+  grek:[[0x391,0x3A9],[0x3B1,0x3C9]],
+  arab:[[0x621,0x63A],[0x641,0x64A],[0x66E,0x6D3]],
+  hebr:[[0x5D0,0x5EA]],
+  deva:[[0x905,0x939],[0x958,0x961]],
+  beng:[[0x985,0x9B9]],
+  guru:[[0xA05,0xA39]],
+  gujr:[[0xA85,0xAB9]],
+  orya:[[0xB05,0xB39]],
+  taml:[[0xB85,0xBB9]],
+  telu:[[0xC05,0xC39]],
+  knda:[[0xC85,0xCB9]],
+  mlym:[[0xD05,0xD39]],
+  sinh:[[0xD85,0xDC6]],
+  thai:[[0xE01,0xE3A]],
+  laoo:[[0xE81,0xEAE]],
+  mymr:[[0x1000,0x1021]],
+  geor:[[0x10D0,0x10F0]],
+  hang:[[0xAC00,0xD7A3]],
+  ethi:[[0x1200,0x1248],[0x1290,0x12B0]],
+  khmr:[[0x1780,0x17A2]],
+  hani:[[0x4E00,0x9FA0]],
+  jpan:[[0x3041,0x3096],[0x30A1,0x30FA]],
+  armn:[[0x531,0x556]]
+};
+const LANGS=[
+  {code:'en',name:'English',script:'latn'},
+  {code:'es',name:'Español',script:'latn'},
+  {code:'fr',name:'Français',script:'latn'},
+  {code:'de',name:'Deutsch',script:'latn'},
+  {code:'it',name:'Italiano',script:'latn'},
+  {code:'pt',name:'Português',script:'latn'},
+  {code:'nl',name:'Nederlands',script:'latn'},
+  {code:'pl',name:'Polski',script:'latn'},
+  {code:'ro',name:'Română',script:'latn'},
+  {code:'sv',name:'Svenska',script:'latn'},
+  {code:'da',name:'Dansk',script:'latn'},
+  {code:'no',name:'Norsk',script:'latn'},
+  {code:'fi',name:'Suomi',script:'latn'},
+  {code:'is',name:'Íslenska',script:'latn'},
+  {code:'cs',name:'Čeština',script:'latn'},
+  {code:'sk',name:'Slovenčina',script:'latn'},
+  {code:'sl',name:'Slovenščina',script:'latn'},
+  {code:'hr',name:'Hrvatski',script:'latn'},
+  {code:'hu',name:'Magyar',script:'latn'},
+  {code:'et',name:'Eesti',script:'latn'},
+  {code:'lv',name:'Latviešu',script:'latn'},
+  {code:'lt',name:'Lietuvių',script:'latn'},
+  {code:'ga',name:'Gaeilge',script:'latn'},
+  {code:'cy',name:'Cymraeg',script:'latn'},
+  {code:'gd',name:'Gàidhlig',script:'latn'},
+  {code:'gl',name:'Galego',script:'latn'},
+  {code:'ca',name:'Català',script:'latn'},
+  {code:'eu',name:'Euskara',script:'latn'},
+  {code:'mt',name:'Malti',script:'latn'},
+  {code:'sq',name:'Shqip',script:'latn'},
+  {code:'af',name:'Afrikaans',script:'latn'},
+  {code:'sw',name:'Kiswahili',script:'latn'},
+  {code:'id',name:'Bahasa Indonesia',script:'latn'},
+  {code:'ms',name:'Bahasa Melayu',script:'latn'},
+  {code:'tl',name:'Filipino',script:'latn'},
+  {code:'ceb',name:'Cebuano',script:'latn'},
+  {code:'jw',name:'Basa Jawa',script:'latn'},
+  {code:'su',name:'Basa Sunda',script:'latn'},
+  {code:'haw',name:'ʻŌlelo Hawaiʻi',script:'latn'},
+  {code:'mi',name:'Māori',script:'latn'},
+  {code:'sm',name:'Gagana Sāmoa',script:'latn'},
+  {code:'mg',name:'Malagasy',script:'latn'},
+  {code:'ny',name:'Chichewa',script:'latn'},
+  {code:'sn',name:'ChiShona',script:'latn'},
+  {code:'st',name:'Sesotho',script:'latn'},
+  {code:'so',name:'Soomaali',script:'latn'},
+  {code:'yo',name:'Yorùbá',script:'latn'},
+  {code:'ig',name:'Asụsụ Igbo',script:'latn'},
+  {code:'ha',name:'Hausa',script:'latn'},
+  {code:'zu',name:'isiZulu',script:'latn'},
+  {code:'xh',name:'isiXhosa',script:'latn'},
+  {code:'rw',name:'Ikinyarwanda',script:'latn'},
+  {code:'lb',name:'Lëtzebuergesch',script:'latn'},
+  {code:'fy',name:'Frysk',script:'latn'},
+  {code:'co',name:'Corsu',script:'latn'},
+  {code:'la',name:'Latina',script:'latn'},
+  {code:'eo',name:'Esperanto',script:'latn'},
+  {code:'vi',name:'Tiếng Việt',script:'latn'},
+  {code:'az',name:'Azərbaycanca',script:'latn'},
+  {code:'uz',name:'Oʻzbekcha',script:'latn'},
+  {code:'tk',name:'Türkmençe',script:'latn'},
+  {code:'tr',name:'Türkçe',script:'latn'},
+  {code:'hmn',name:'Hmoob',script:'latn'},
+  {code:'ln',name:'Lingála',script:'latn'},
+  {code:'om',name:'Afaan Oromoo',script:'latn'},
+  {code:'qu',name:'Runa Simi',script:'latn'},
+  {code:'ru',name:'Русский',script:'cyrl'},
+  {code:'uk',name:'Українська',script:'cyrl'},
+  {code:'bg',name:'Български',script:'cyrl'},
+  {code:'sr',name:'Српски',script:'cyrl'},
+  {code:'be',name:'Беларуская',script:'cyrl'},
+  {code:'mk',name:'Македонски',script:'cyrl'},
+  {code:'mn',name:'Монгол',script:'cyrl'},
+  {code:'kk',name:'Қазақ',script:'cyrl'},
+  {code:'ky',name:'Кыргызча',script:'cyrl'},
+  {code:'tg',name:'Тоҷикӣ',script:'cyrl'},
+  {code:'el',name:'Ελληνικά',script:'grek'},
+  {code:'ar',name:'عربي',script:'arab',rtl:true},
+  {code:'ur',name:'اردو',script:'arab',rtl:true},
+  {code:'fa',name:'فارسی',script:'arab',rtl:true},
+  {code:'ps',name:'پښتو',script:'arab',rtl:true},
+  {code:'sd',name:'سنڌي',script:'arab',rtl:true},
+  {code:'ug',name:'ئۇيغۇرچە',script:'arab',rtl:true},
+  {code:'ckb',name:'کوردی',script:'arab',rtl:true},
+  {code:'he',name:'עברית',script:'hebr',rtl:true},
+  {code:'yi',name:'ייִדיש',script:'hebr',rtl:true},
+  {code:'hi',name:'हिन्दी',script:'deva'},
+  {code:'mr',name:'मराठी',script:'deva'},
+  {code:'ne',name:'नेपाली',script:'deva'},
+  {code:'sa',name:'संस्कृतम्',script:'deva'},
+  {code:'bho',name:'भोजपुरी',script:'deva'},
+  {code:'mai',name:'मैथिली',script:'deva'},
+  {code:'doi',name:'डोगरी',script:'deva'},
+  {code:'kok',name:'कोंकणी',script:'deva'},
+  {code:'bn',name:'বাংলা',script:'beng'},
+  {code:'as',name:'অসমীয়া',script:'beng'},
+  {code:'pa',name:'ਪੰਜਾਬੀ',script:'guru'},
+  {code:'gu',name:'ગુજરાતી',script:'gujr'},
+  {code:'or',name:'ଓଡ଼ିଆ',script:'orya'},
+  {code:'ta',name:'தமிழ்',script:'taml'},
+  {code:'te',name:'తెలుగు',script:'telu'},
+  {code:'kn',name:'ಕನ್ನಡ',script:'knda'},
+  {code:'ml',name:'മലയാളം',script:'mlym'},
+  {code:'si',name:'සිංහල',script:'sinh'},
+  {code:'th',name:'ไทย',script:'thai'},
+  {code:'lo',name:'ລາວ',script:'laoo'},
+  {code:'my',name:'မြန်မာ',script:'mymr'},
+  {code:'km',name:'ខ្មែរ',script:'khmr'},
+  {code:'ka',name:'ქართული',script:'geor'},
+  {code:'hy',name:'Հայերեն',script:'armn'},
+  {code:'am',name:'አማርኛ',script:'ethi'},
+  {code:'ti',name:'ትግርኛ',script:'ethi'},
+  {code:'zh-CN',name:'中文（简体）',script:'hani'},
+  {code:'zh-TW',name:'繁體中文',script:'hani'},
+  {code:'ja',name:'日本語',script:'jpan'},
+  {code:'ko',name:'한국어',script:'hang'}
+];
+function randGlyph(){
+  const L=LANGS[Math.floor(Math.random()*LANGS.length)];
+  const rs=SCRIPT_RANGES[L.script]||SCRIPT_RANGES.latn;
+  const rg=rs[Math.floor(Math.random()*rs.length)];
+  return String.fromCharCode(rg[0]+Math.floor(Math.random()*(rg[1]-rg[0]+1)));
+}
+let lang='en', langChosen=false;
+const transCache={};
+function isRtl(c){ const l=LANGS.find(function(x){return x.code===c;}); return !!(l&&l.rtl); }
+
+/* ---- translation engine (cache-first; Edge Function, then MyMemory fallback) ---- */
+async function preloadTranslations(code){
+  if(code==='en'||!BACKEND) return;
+  transCache[code]=transCache[code]||{};
+  try{ const {data}=await sb.from('translations').select('source_text,translated').eq('target',code);
+    (data||[]).forEach(function(r){ transCache[code][r.source_text]=r.translated; }); }catch(e){}
+}
+function mmLang(c){ return ({'zh-CN':'zh-CN'})[c]||c; }
+let _edgeXlate=(typeof BACKEND!=='undefined'&&BACKEND);   // Edge Function available? disabled after a failure
+async function gtxTranslate(text, target){
+  const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl='+encodeURIComponent(target)+'&dt=t&q='+encodeURIComponent(text);
+  const r=await fetch(url); if(!r.ok) throw new Error('gtx '+r.status);
+  const j=await r.json(); return (j[0]||[]).map(function(s){return s[0];}).join('');
+}
+async function translateBatch(texts, target){
+  if(target==='en') return;
+  const cache=transCache[target]||(transCache[target]={});
+  const todo=[]; texts.forEach(function(t){ if(t&&cache[t]==null&&todo.indexOf(t)<0) todo.push(t); });
+  if(!todo.length) return;
+  // 1) Edge Function (batched + cached in the DB for identical results every time)
+  if(_edgeXlate){
+    try{
+      const {data,error}=await sb.functions.invoke('translate',{body:{q:todo,target:target,source:'en'}});
+      if(!error && data && data.translations){ todo.forEach(function(t,i){ if(data.translations[i]!=null) cache[t]=data.translations[i]; }); }
+      else { _edgeXlate=false; }
+    }catch(e){ _edgeXlate=false; }
+  }
+  // 2) Google endpoint directly, in PARALLEL (fast; needs no deployment)
+  let still=todo.filter(function(t){return cache[t]==null;});
+  if(still.length){
+    await Promise.all(still.map(function(t){ return gtxTranslate(t,target).then(function(tr){ if(tr)cache[t]=tr; },function(){}); }));
+  }
+  // 3) last resort: MyMemory, one at a time
+  const left=todo.filter(function(t){return cache[t]==null;});
+  for(var i=0;i<left.length;i++){
+    try{ const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(left[i])+'&langpair=en|'+mmLang(target));
+      const j=await r.json(); cache[left[i]]=(j&&j.responseData&&j.responseData.translatedText)||left[i]; }
+    catch(e){ cache[left[i]]=left[i]; }
+  }
+}
+function t(s){ if(lang==='en'||!s) return s; const c=transCache[lang]||{}; return c[s]!=null?c[s]:s; }
+
+/* ---- apply translations to whatever is on screen (skips [data-notranslate]) ---- */
+function txReplace(node,tr){ const v=node.nodeValue, lead=(v.match(/^\s*/)||[''])[0], trail=(v.match(/\s*$/)||[''])[0]; node.nodeValue=lead+tr+trail; }
+function txCollect(root){
+  const out=[]; if(!root) return out;
+  const w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  let n; while(n=w.nextNode()){
+    const val=n.nodeValue; if(!val||!val.trim()) continue;
+    if(/^[\s\d.,:;/#%()\[\]\-–—•|+×✓✕→←↗▾★☆]*$/.test(val)) continue;
+    const p=n.parentElement; if(!p) continue;
+    const tag=p.tagName; if(tag==='SCRIPT'||tag==='STYLE'||tag==='TEXTAREA'||tag==='CODE') continue;
+    if(p.closest('[data-notranslate]')) continue;
+    out.push(n);
+  }
+  return out;
+}
+let _txRun=0;
+async function applyTranslations(){
+  if(lang==='en'||!langChosen) return;
+  const myRun=++_txRun;
+  const roots=[document.getElementById('app'),document.getElementById('modal')];
+  let nodes=[]; roots.forEach(function(r){ nodes=nodes.concat(txCollect(r)); });
+  const cache=transCache[lang]||(transCache[lang]={});
+  const pending=[], need=[];
+  nodes.forEach(function(n){ const k=n.nodeValue.trim(); if(cache[k]!=null){ txReplace(n,cache[k]); } else { pending.push({n:n,k:k}); if(need.indexOf(k)<0)need.push(k); } });
+  const attrPending=[];
+  roots.forEach(function(r){ if(!r)return; Array.prototype.forEach.call(r.querySelectorAll('[placeholder],[title]'),function(el){
+    ['placeholder','title'].forEach(function(a){ const val=el.getAttribute(a); if(val&&val.trim()&&!/^[\s\d]*$/.test(val)&&!el.closest('[data-notranslate]')){ if(cache[val]!=null)el.setAttribute(a,cache[val]); else{ attrPending.push({el:el,a:a,k:val}); if(need.indexOf(val)<0)need.push(val);} } }); }); });
+  translateWordmark();
+  if(!need.length) return;
+  await translateBatch(need, lang);
+  if(myRun!==_txRun) return;
+  pending.forEach(function(p){ if(cache[p.k]!=null && p.n.parentNode && p.n.nodeValue.trim()===p.k) txReplace(p.n,cache[p.k]); });
+  attrPending.forEach(function(p){ if(cache[p.k]!=null && p.el.getAttribute(p.a)===p.k) p.el.setAttribute(p.a,cache[p.k]); });
+}
+/* the wordmark translates as a phrase (not word-by-word) and keeps its clouds */
+async function translateWordmark(){
+  if(lang==='en'||!langChosen) return;
+  const wm=document.querySelector('#app .wordmark'); if(!wm) return;
+  const phrase='Earth Sweet Earth', cache=transCache[lang]||(transCache[lang]={});
+  if(cache[phrase]==null){ await translateBatch([phrase], lang); }
+  const tr=cache[phrase]||phrase;
+  if(wm.getAttribute('data-wm')===tr) return;
+  const words=tr.split(/\s+/).filter(Boolean);
+  wm.setAttribute('data-wm',tr);
+  wm.innerHTML=words.map(function(w,i){ const sw=(words.length===3&&i===1)?' sw':''; return '<span class="cw'+sw+'">'+wordCloud(i%3)+esc(w)+'</span>'; }).join(' ');
+}
+/* comment translate button (comments stay in their original language) */
+async function translateComment(btn){
+  const box=btn.previousElementSibling; if(!box) return;
+  if(btn.getAttribute('data-shown')==='1'){ box.textContent=btn.getAttribute('data-orig'); btn.textContent=t('Translate'); btn.setAttribute('data-shown','0'); return; }
+  if(!btn.getAttribute('data-orig')) btn.setAttribute('data-orig',box.textContent);
+  btn.textContent=t('Translating')+'\u2026';
+  const src=btn.getAttribute('data-orig');
+  await translateBatch([src], lang);
+  box.textContent=(transCache[lang]||{})[src]||src;
+  btn.textContent=t('Show original'); btn.setAttribute('data-shown','1');
+}
+
+/* ---- analytics: one row per view-in-a-language ---- */
+function logLangView(code){ if(!BACKEND) return; try{ sb.from('lang_views').insert({lang:code}).then(function(){},function(){}); }catch(e){} }
+
+/* ==========================================================================
+   THE INTRO SPLASH
+   ========================================================================== */
+let liLetters=[], liRAF=null, liLast=0, liSpawn=0, liActive=false, liCycleTimer=null, liCycleI=0;
+function startLangIntro(){
+  const el=document.getElementById('langIntro'); if(!el) return;
+  document.body.style.overflow='hidden';
+  liActive=true; liLast=performance.now(); liSpawn=0; liLetters=[];
+  liRAF=requestAnimationFrame(liFrame);
+  const txt=document.getElementById('liCycleText'); if(txt){
+    liCycleI=0; txt.textContent=LANGS[0].name; txt.setAttribute('dir',LANGS[0].rtl?'rtl':'ltr');
+    liCycleTimer=setInterval(function(){ txt.style.opacity='0';
+      setTimeout(function(){ liCycleI=(liCycleI+1)%LANGS.length; txt.textContent=LANGS[liCycleI].name; txt.setAttribute('dir',LANGS[liCycleI].rtl?'rtl':'ltr'); txt.style.opacity='1'; },420); },2200);
+  }
+}
+function liFrame(now){
+  if(!liActive) return;
+  const bg=document.getElementById('liBg'); if(!bg) return;
+  const dt=Math.min(64, now-liLast); liLast=now;
+  liSpawn-=dt; if(liSpawn<=0 && liLetters.length<42){ liSpawn=230+Math.random()*280; liSpawnLetter(bg); }
+  for(let i=liLetters.length-1;i>=0;i--){ const L=liLetters[i];
+    L.x+=L.vx*dt; L.y+=L.vy*dt; L.life+=dt;
+    const fin=Math.min(1,L.life/1500), fout=(L.life>L.hold)?Math.max(0,1-(L.life-L.hold)/1500):1;
+    L.el.style.transform='translate('+L.x.toFixed(1)+'px,'+L.y.toFixed(1)+'px)';
+    L.el.style.opacity=(Math.min(fin,fout)*L.max).toFixed(3);
+    if(L.life>L.hold+1500){ if(L.el.parentNode)bg.removeChild(L.el); liLetters.splice(i,1); }
+  }
+  liRAF=requestAnimationFrame(liFrame);
+}
+function liSpawnLetter(bg){
+  const el=document.createElement('span'); el.className='li-letter';
+  el.textContent=randGlyph();                       // random LANGUAGE first, then a glyph from it -> equal chance per language
+  el.style.fontSize=(16+Math.random()*56).toFixed(0)+'px';
+  const W=window.innerWidth,H=window.innerHeight, ang=Math.random()*Math.PI*2, sp=0.005+Math.random()*0.032;
+  const L={el:el, x:Math.random()*W, y:Math.random()*H, vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp, life:0, hold:2200+Math.random()*4200, max:0.14+Math.random()*0.42, op:0};
+  el.style.transform='translate('+L.x.toFixed(1)+'px,'+L.y.toFixed(1)+'px)'; el.style.opacity='0';
+  bg.appendChild(el); liLetters.push(L);
+}
+function langButtons(list){
+  return list.map(function(l){ return '<button class="li-lang" dir="'+(l.rtl?'rtl':'ltr')+'" onclick="liSelect(\''+l.code+'\')">'+esc(l.name)+'</button>'; }).join('');
+}
+function liFilter(q){
+  const box=document.getElementById('liListBox'); if(!box) return;
+  q=(q||'').trim().toLowerCase();
+  let list=LANGS;
+  if(q){
+    list=LANGS.filter(function(l){
+      const n=l.name.toLowerCase();
+      if(n.indexOf(q)===0) return true;                             // whole name starts with what they typed
+      return n.split(/[\s\u00b7,()\uFF08\uFF09]+/).some(function(w){ return w && w.indexOf(q)===0; });  // or any word does
+    });
+  }
+  box.innerHTML = list.length ? langButtons(list) : '<div class="li-noresult">\u2014</div>';
+}
+function liOpenList(){
+  if(liCycleTimer) clearInterval(liCycleTimer);
+  const stage=document.getElementById('liStage'); if(!stage) return;
+  stage.innerHTML='<div class="li-list-wrap">'+
+    '<div class="li-search-wrap"><svg class="li-search-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>'+
+      '<input id="liSearch" class="li-search" type="text" dir="auto" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="liFilter(this.value)"></div>'+
+    '<div class="li-list" id="liListBox">'+langButtons(LANGS)+'</div>'+
+    '</div>';
+  const inp=document.getElementById('liSearch'); if(inp){ try{ inp.focus(); }catch(e){} }
+}
+function liWait(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+async function liSelect(code){
+  if(liCycleTimer) clearInterval(liCycleTimer);
+  lang=code; langChosen=true;
+  document.documentElement.setAttribute('dir', isRtl(code)?'rtl':'ltr');
+  document.documentElement.setAttribute('lang', code);
+  logLangView(code);
+  const stage=document.getElementById('liStage'); if(stage) stage.innerHTML='';   // button + list disappear
+  // start translating immediately in the background; we only WAIT on the three splash words
+  let words3=Promise.resolve();
+  if(code!=='en'){
+    words3=translateBatch(['Welcome','To','Earth Sweet Earth'], code);
+    preloadTranslations(code).then(function(){ applyTranslations(); });
+    words3.then(function(){ applyTranslations(); });
+  }
+  await liWait(2000);                 // deliberate ~2s pause after selecting, regardless of the network
+  try{ await words3; }catch(e){}
+  const wWelcome=t('Welcome'), wTo=t('To');
+  if(stage) stage.innerHTML='<div class="li-seq"><div class="li-word" id="liW1" dir="'+(isRtl(code)?'rtl':'ltr')+'">'+esc(wWelcome)+'</div><div class="li-word" id="liW2" dir="'+(isRtl(code)?'rtl':'ltr')+'">'+esc(wTo)+'</div></div>';
+  await liWait(300);  const w1=document.getElementById('liW1'); if(w1) w1.classList.add('show');   // "Welcome" fades in
+  await liWait(1700); const w2=document.getElementById('liW2'); if(w2) w2.classList.add('show');   // "To" fades in below; "Welcome" stays
+  await liWait(2000);
+  if(w1) w1.classList.remove('show'); if(w2) w2.classList.remove('show');                          // both fade out together
+  await liWait(1400);                                                                              // fully gone — no overlap
+  liShowESE(isRtl(code));                                                                          // Earth Sweet Earth (real colors + exact cloud) fades in at the wordmark's spot
+  await liWait(1900);
+  liFinishIntro();
+}
+function liShowESE(rtl){
+  const intro=document.getElementById('langIntro'); if(!intro) return;
+  const wm=document.querySelector('#app .wordmark');
+  const d=document.createElement('div'); d.className='li-ese'; d.id='liESE';
+  if(wm){
+    const r=wm.getBoundingClientRect(), cs=getComputedStyle(wm);
+    // pin the box to the real wordmark's exact rect; no flex, so nothing re-flows
+    d.style.cssText='position:fixed;left:'+r.left.toFixed(2)+'px;top:'+r.top.toFixed(2)+'px;width:'+r.width.toFixed(2)+'px;height:'+r.height.toFixed(2)+'px;overflow:visible;';
+    const clone=wm.cloneNode(true); clone.removeAttribute('id');   // exact same wordmark: clouds, colours, translated words
+    clone.style.margin='0'; clone.style.top='0'; clone.style.position='static';
+    clone.style.width='100%'; clone.style.boxSizing='border-box'; clone.style.whiteSpace='nowrap';   // force ONE line
+    // carry over the real metrics so it matches perfectly even outside the hero
+    clone.style.padding=cs.padding; clone.style.fontSize=cs.fontSize; clone.style.fontFamily=cs.fontFamily;
+    clone.style.fontWeight=cs.fontWeight; clone.style.letterSpacing=cs.letterSpacing;
+    clone.style.lineHeight=cs.lineHeight; clone.style.textAlign=cs.textAlign;
+    d.appendChild(clone);
+  } else {
+    d.textContent=t('Earth Sweet Earth');
+    d.style.cssText='position:fixed;left:0;right:0;top:38%;text-align:center;white-space:nowrap;color:#fff;font-family:"Fraunces",Georgia,serif;font-weight:900;font-size:clamp(2.6rem,9vw,6rem);';
+  }
+  intro.appendChild(d);
+  intro.classList.add('revealing');                               // green + letters fade out (faster than the wordmark appears)
+  requestAnimationFrame(function(){ d.classList.add('show'); });  // wordmark fades in
+}
+function liFinishIntro(){
+  liActive=false; if(liRAF) cancelAnimationFrame(liRAF);
+  const el=document.getElementById('langIntro'); if(!el){ document.body.style.overflow=''; return; }
+  el.style.transition='opacity .55s ease'; el.style.opacity='0';   // gentle final fade -> the real home wordmark (identical, same spot) is underneath
+  setTimeout(function(){ if(el.parentNode) el.remove(); document.body.style.overflow=''; }, 560);
+}
+
 let _lastLoggedView=0;
 function logPageView(r){ if(!BACKEND)return; const now=Date.now(); if(now-_lastLoggedView<800)return; _lastLoggedView=now; try{ sb.from('page_views').insert({path:r}).then(function(){},function(){}); }catch(e){} }
 function render(){
@@ -2520,6 +2952,7 @@ function render(){
   if(r==='analytics') ensureAnalytics();
   if(r==='chapterhub'||r==='calendar'||r==='chapterslist') ensureChapters();
   if(r==='youthapply') requestAnimationFrame(initYouthApply);
+  if(lang!=='en'&&langChosen) applyTranslations();
 }
 
 /* ==========================================================================
@@ -3087,6 +3520,7 @@ async function init(){
   if(!location.hash) location.hash='#/home';
   render();
 }
+startLangIntro();
 init();
 </script>
 </body>

@@ -453,3 +453,49 @@ alter table public.profiles add column if not exists discord_id       text;
 alter table public.profiles add column if not exists discord_username text;
 create unique index if not exists profiles_discord_id_key
   on public.profiles (discord_id) where discord_id is not null;
+
+
+-- ============================================================================
+-- TRANSLATIONS + LANGUAGE VIEWS (worldwide languages)
+-- ----------------------------------------------------------------------------
+-- We never store copies of the site per language. The `translate` Edge Function
+-- translates text on demand and CACHES each (target, source_text) pair here, so
+-- every translation is identical every time and only ever fetched once.
+-- Safe to re-run.
+-- ============================================================================
+create table if not exists public.translations (
+  id          bigint generated always as identity primary key,
+  target      text not null,
+  source_text text not null,
+  translated  text not null,
+  created_at  timestamptz not null default now(),
+  unique (target, source_text)
+);
+alter table public.translations enable row level security;
+drop policy if exists "anyone reads translations" on public.translations;
+create policy "anyone reads translations" on public.translations for select using (true);
+-- writes happen only via the translate Edge Function (service role), so nobody
+-- can poison the cache from the browser.
+
+-- One row per "someone viewed the site in language X", for Owner Analytics.
+create table if not exists public.lang_views (
+  id         bigint generated always as identity primary key,
+  lang       text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.lang_views enable row level security;
+drop policy if exists "anyone logs a lang view" on public.lang_views;
+drop policy if exists "admins read lang views"  on public.lang_views;
+create policy "anyone logs a lang view" on public.lang_views for insert with check (true);
+create policy "admins read lang views"  on public.lang_views for select using (public.is_admin());
+
+create or replace function public.ese_lang_stats()
+returns json language sql security definer set search_path = public stable as $$
+  select coalesce(json_object_agg(lang, json_build_object('total', total, 'week', week)), '{}'::json)
+  from (
+    select lang, count(*) as total,
+           count(*) filter (where created_at >= current_date - 6) as week
+    from public.lang_views group by lang
+  ) t;
+$$;
+grant execute on function public.ese_lang_stats() to authenticated;
