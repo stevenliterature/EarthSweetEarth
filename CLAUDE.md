@@ -57,22 +57,27 @@ After re-applying, `grep` that **no `Steven L` / `soliphilia`** remain anywhere.
 
 **Chapter application flow** (also dropped on regeneration): the "Start your own chapter" button — the one that leads to the application form, *not* the homepage "Start a Chapter" (→ `chapters`) or other buttons — is gated via `applyForChapter()`: non-members get a "Become a member" popup; members get a "Have you read everything on the chapters page?" Yes/No confirm (Yes → `chapterapply`, No → close). **Chapter form:** grade label is just `Grade` (no "Incoming", no comment); the applicant Discord field is optional (`(optional)` in the label) and **not required on submit**; the 5 members' Discord usernames are neither collected (field commented out) nor required; the "type this statement" check must match (normalized) or it errors *"You have a mistake in the statement."* (The youth form's `yl-grade` intentionally still says "Incoming grade" — only the chapter form was changed.)
 
+**Captcha** (both application forms, also dropped on regeneration): the reCAPTCHA placeholder was replaced with a **self-contained "slide the puzzle piece" captcha** — a canvas scene (sunrise over hills, drawn in code) plus an accessible `<input type=range>` slider, all in the `PCAP` / `initPuzzleCaptcha()` / `puzzleSolved()` block. **No third-party service, no site key, no external script** (chosen for privacy). The forms mount it with `initPuzzleCaptcha('ca-cap')` / `('yl-cap')` and gate submit on `puzzleSolved('ca-cap')` / `('yl-cap')`. The old `RECAPTCHA_SITE_KEY` + `caLoadRecaptcha` / `ylLoadRecaptcha` are left in place but **dead (never called)**. If a regeneration reintroduces the reCAPTCHA / `notrobot` widget, re-apply the puzzle.
+
 **Gotchas:** in the JS source the em-dash is written as the literal escape `\u2014` (backslash-u-2014), not the `—` byte — so match on `\u2014`. When removing a town from a school placeholder, strip the whole ` \u2014 <town>`, not just the town, or a trailing dash is left behind.
 
 **Always verify before commit:** render with **0 JS exceptions**, and confirm the anon key + Supabase base URL + embedded logo are unchanged.
 
 ## Design tokens — preserve these; don't introduce new colors/fonts without asking
 
+These are the **actual** tokens in `:root` (light) with a `[data-theme="dark"]` override — verified 2026-07-17. (An earlier pine/honey/cream palette is gone; don't reintroduce it.)
+
 ```
---pine:       #14312a   /* deep forest green: hero bg + headings */
---forest:     #2f5d4a
---moss:       #6a9a6f
---honey:      #f0b24a   /* warm accent (the "sweet") */
---honey-deep: #d9932a
---cream:      #f9f6ee   /* light section bg */
---paper:      #fffdf8   /* cards */
---ink:        #23342d   /* body text on light */
---mist:       #dcebe2
+--green:    #007600   /* primary green: headings + primary buttons   (dark #49b76e) */
+--green-dk: #005800
+--blue:     #2083C4   /* secondary blue: "Sweet", links, blue buttons (dark #5cb3ea) */
+--blue-dk:  #186098
+--sun:      #F4C430   /* golden accent: the top nav bar, highlights */
+--bg:       #D5E3DA   /* page background (dark #0e1720) */
+--card:     #ffffff   /* cards + inputs (dark #17222c) */
+--ink:      #20302a   /* body text    (dark #e7eef3) */
+--muted:    #5f7168   /* secondary text (dark #9db0bb) */
+--line:     #c4d6cb   /* borders       (dark #2a3742) */
 ```
 Display font: **Fraunces**. Body font: **Inter**.
 

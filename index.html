@@ -309,6 +309,23 @@
   .ca-recap{border:1px solid var(--line);border-radius:10px;padding:14px;display:inline-flex;align-items:center;gap:12px;background:var(--card);}
   .ca-recap input{width:26px;height:26px;flex:none;cursor:pointer;}
   .ca-note{font-size:.82rem;color:var(--muted);margin:6px 0 0;}
+  /* homemade "slide the puzzle piece" captcha — no third-party service, drawn on a canvas */
+  .pcap{margin-top:2px;max-width:420px;}
+  .pcap-stage{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#0b131a;line-height:0;}
+  .pcap-canvas{width:100%;height:auto;display:block;-webkit-user-select:none;user-select:none;}
+  .pcap-refresh{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:8px;border:none;background:rgba(255,255,255,.9);color:#2a3b32;cursor:pointer;font-size:16px;line-height:30px;text-align:center;padding:0;}
+  .pcap-refresh:hover{background:#fff;}
+  .pcap-done{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,118,0,.6);color:#fff;font-weight:700;font-size:1.05rem;}
+  .pcap.solved .pcap-done{display:flex;}
+  .pcap-slider{width:100%;margin:12px 0 4px;-webkit-appearance:none;appearance:none;height:16px;border-radius:9px;background:var(--bg);border:1px solid var(--line);outline:none;cursor:grab;}
+  .pcap-slider:focus-visible{box-shadow:0 0 0 3px rgba(32,131,196,.45);}
+  .pcap-slider:active{cursor:grabbing;}
+  .pcap-slider:disabled{opacity:.75;cursor:default;}
+  .pcap-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:44px;height:28px;border-radius:7px;background:var(--sun);border:1.5px solid #c79a12;box-shadow:0 2px 6px rgba(0,0,0,.28);cursor:grab;}
+  .pcap-slider::-moz-range-thumb{width:44px;height:28px;border-radius:7px;background:var(--sun);border:1.5px solid #c79a12;box-shadow:0 2px 6px rgba(0,0,0,.28);cursor:grab;}
+  .pcap.solved .pcap-slider{background:var(--green);border-color:var(--green-dk);}
+  .pcap-label{font-size:.82rem;color:var(--muted);margin:2px 0 0;}
+  .pcap.solved .pcap-label{color:var(--green);font-weight:600;}
   .ed-select{width:100%;font-family:inherit;font-size:1rem;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);}
 
   /* calendar */
@@ -1819,7 +1836,7 @@ function chapterApplyView(){
       '<label class="ca-check"><input type="checkbox" id="ca-privacy"> <span>I confirm I haven\u2019t shared any private information about myself or anyone else beyond what this form asks for.</span></label>'+
       fld('Parent or guardian\u2019s signature <span class="muted">(sign in the box)</span>', sig('ca-sig-parent'))+
       fld('Your signature <span class="muted">(sign in the box)</span>', sig('ca-sig-self'))+
-      fld('One last check', (RECAPTCHA_SITE_KEY?'<div id="ca-recaptcha"></div>':'<label class="ca-recap"><input type="checkbox" id="ca-notrobot"> I\u2019m not a robot</label><p class="ca-note">A full reCAPTCHA appears here once a site key is added in the code.</p>'))+
+      fld('One last check','<div id="ca-cap"></div>')+
       '<p class="ca-hint bad" id="ca-err" style="display:none"></p>'+
       '<button class="btn btn-primary" type="submit" style="margin-top:6px">Submit application</button>'+
     '</form>'+
@@ -1868,8 +1885,72 @@ function caLoadRecaptcha(){
   if(!document.getElementById('ca-recaptcha-js')){ const s=document.createElement('script'); s.id='ca-recaptcha-js'; s.src='https://www.google.com/recaptcha/api.js'; s.async=true; s.defer=true; document.head.appendChild(s); }
   let tries=0; const iv=setInterval(()=>{ if((window.grecaptcha&&grecaptcha.render)||++tries>40){ clearInterval(iv); doRender(); } },250);
 }
+/* ---------- homemade "slide the puzzle piece" captcha (no third-party service) ---------- */
+const PCAP={};
+function pcapR(a,b){ return a+Math.random()*(b-a); }
+function pcapShape(ctx,x,y,s){
+  const k=s*0.2, m=x+s*0.5;
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.lineTo(m-k,y);
+  ctx.arc(m,y,k,Math.PI,0,false);          // a knob bulging up out of the top edge
+  ctx.lineTo(x+s,y);
+  ctx.lineTo(x+s,y+s);
+  ctx.lineTo(x,y+s);
+  ctx.closePath();
+}
+function pcapScene(ctx,W,H,d){
+  const sky=ctx.createLinearGradient(0,0,0,H);
+  sky.addColorStop(0,'#a9d6ea'); sky.addColorStop(.55,'#dfe7cf'); sky.addColorStop(1,'#f6dca0');
+  ctx.fillStyle=sky; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#F4C430'; ctx.beginPath(); ctx.arc(d.sunX,d.sunY,d.sunR,0,7); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.82)';
+  d.clouds.forEach(function(c){ ctx.beginPath(); ctx.ellipse(c.x,c.y,c.r,c.r*0.55,0,0,7); ctx.fill(); });
+  const hills=['#7cbb80','#3f8f5c','#1f6b3f'];
+  hills.forEach(function(col,i){ ctx.fillStyle=col; const b=H*(0.62+i*0.13);
+    ctx.beginPath(); ctx.moveTo(0,H); ctx.lineTo(0,b); ctx.quadraticCurveTo(W*d.hx[i], b-d.hh[i], W, b-6); ctx.lineTo(W,H); ctx.closePath(); ctx.fill(); });
+}
+function pcapRender(st){
+  const ctx=st.ctx, W=st.W, H=st.H, s=st.s;
+  ctx.clearRect(0,0,W,H);
+  ctx.drawImage(st.scene,0,0,W,H);
+  ctx.save(); pcapShape(ctx,st.tx,st.py,s); ctx.fillStyle='rgba(0,0,0,.42)'; ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=2; ctx.stroke(); ctx.restore();       // the gap
+  ctx.save(); pcapShape(ctx,st.px,st.py,s); ctx.clip(); ctx.drawImage(st.scene,st.px-st.tx,0,W,H); ctx.restore();   // the moving piece
+  ctx.save(); pcapShape(ctx,st.px,st.py,s); ctx.strokeStyle='rgba(255,255,255,.95)'; ctx.lineWidth=2;
+  ctx.shadowColor='rgba(0,0,0,.4)'; ctx.shadowBlur=6; ctx.stroke(); ctx.restore();
+}
+function pcapNew(st){
+  const W=st.W, H=st.H, s=st.s, dpr=window.devicePixelRatio||1;
+  st.d={ sunX:pcapR(W*.15,W*.85), sunY:pcapR(18,H*.4), sunR:pcapR(15,24),
+    hx:[pcapR(.2,.8),pcapR(.2,.8),pcapR(.2,.8)], hh:[pcapR(8,34),pcapR(8,34),pcapR(8,34)],
+    clouds:[{x:pcapR(0,W),y:pcapR(14,H*.32),r:pcapR(10,20)},{x:pcapR(0,W),y:pcapR(14,H*.36),r:pcapR(8,15)}] };
+  st.tx=pcapR(W*.42,W-s-6); st.py=pcapR(s*0.26,H-s-6); st.px=0;
+  const sc=document.createElement('canvas'); sc.width=W*dpr; sc.height=H*dpr;
+  const sx=sc.getContext('2d'); sx.setTransform(dpr,0,0,dpr,0,0); pcapScene(sx,W,H,st.d);
+  st.scene=sc; pcapRender(st);
+}
+function initPuzzleCaptcha(id){
+  const host=document.getElementById(id); if(!host) return;
+  host.classList.add('pcap'); host.classList.remove('solved');
+  host.innerHTML='<div class="pcap-stage"><canvas class="pcap-canvas"></canvas>'+
+    '<button type="button" class="pcap-refresh" title="Get a new puzzle" aria-label="Get a new puzzle">↻</button>'+
+    '<div class="pcap-done">✓ Verified</div></div>'+
+    '<input type="range" class="pcap-slider" min="0" max="100" value="0" step="1" aria-label="Slide the puzzle piece into the gap to complete the picture and show you are human">'+
+    '<p class="pcap-label">Slide the piece into the gap to finish the picture.</p>';
+  const canvas=host.querySelector('.pcap-canvas'), slider=host.querySelector('.pcap-slider');
+  const dpr=window.devicePixelRatio||1, W=Math.max(240,Math.min(420,host.clientWidth||300)), H=168, s=46;
+  canvas.width=W*dpr; canvas.height=H*dpr; canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  const st={id:id,ctx:ctx,W:W,H:H,s:s,solved:false}; PCAP[id]=st; pcapNew(st);
+  function move(){ if(st.solved)return; st.px=(slider.value/100)*(W-s); pcapRender(st);
+    if(Math.abs(st.px-st.tx)<=10){ st.solved=true; st.px=st.tx; slider.value=Math.round(st.tx/(W-s)*100); pcapRender(st); host.classList.add('solved'); slider.disabled=true; } }
+  slider.addEventListener('input',move);
+  host.querySelector('.pcap-refresh').addEventListener('click',function(){ st.solved=false; slider.disabled=false; slider.value=0; host.classList.remove('solved'); pcapNew(st); });
+}
+function puzzleSolved(id){ return !!(PCAP[id]&&PCAP[id].solved); }
 function initChapterApply(){
-  caDrawConsent(); caSetupSig('ca-sig-parent'); caSetupSig('ca-sig-self'); caWordCount(); caCountryChange(); caLoadRecaptcha();
+  caDrawConsent(); caSetupSig('ca-sig-parent'); caSetupSig('ca-sig-self'); caWordCount(); caCountryChange(); initPuzzleCaptcha('ca-cap');
 }
 async function submitChapterApplication(e){
   if(e&&e.preventDefault)e.preventDefault();
@@ -1892,8 +1973,7 @@ async function submitChapterApplication(e){
   const par=document.getElementById('ca-sig-parent'), self=document.getElementById('ca-sig-self');
   if(!par||!par._drawn) return fail('A parent or guardian needs to sign in the box.','ca-sig-parent');
   if(!self||!self._drawn) return fail('Please add your own signature.','ca-sig-self');
-  if(RECAPTCHA_SITE_KEY){ const resp=(window.grecaptcha&&caRecaptchaId!=null)?grecaptcha.getResponse(caRecaptchaId):''; if(!resp) return fail('Please complete the reCAPTCHA.'); }
-  else { const nr=document.getElementById('ca-notrobot'); if(nr&&!nr.checked) return fail('Please tick the box to confirm you\u2019re human.','ca-notrobot'); }
+  if(!puzzleSolved('ca-cap')) return fail('Please slide the puzzle piece into the gap to show you are human.');
   if(errBox) errBox.style.display='none';
   const app={ name:val('ca-name'), discord:val('ca-discord'), grade:val('ca-grade'), country:val('ca-country'), subdivision:subShown?val('ca-sub'):'', school:val('ca-school'), members, memberDiscords, why, parentSignature:par.toDataURL('image/png'), selfSignature:self.toDataURL('image/png'), submittedAt:new Date().toISOString() };
   const btn=document.querySelector('#caForm button[type="submit"]'); if(btn){ btn.disabled=true; btn.textContent='Submitting\u2026'; }
@@ -1936,7 +2016,7 @@ function youthApplyView(){
       fld('What have you accomplished in ESE so far? <span class="muted">(500 words max)</span>','<textarea class="in" id="yl-acc" rows="6" oninput="ylCount(\'yl-acc\',\'yl-acc-c\',500)" placeholder="Projects, chapters, events, contributions \u2014 anything you\u2019ve helped with."></textarea>','<span id="yl-acc-c">0 / 500 words</span>')+
       fld('How do you plan on making ESE better? <span class="muted">(500 words max)</span>','<textarea class="in" id="yl-improve" rows="6" oninput="ylCount(\'yl-improve\',\'yl-improve-c\',500)" placeholder="Your ideas, goals, and what you\u2019d do in the role."></textarea>','<span id="yl-improve-c">0 / 500 words</span>')+
       fld('Nominate a peer <span class="muted">(150 words max)</span>','<textarea class="in" id="yl-nominate" rows="4" oninput="ylCount(\'yl-nominate\',\'yl-nominate-c\',150)" placeholder="Name a fellow member for a specific position and briefly say why they\u2019d be a great fit."></textarea>','<span id="yl-nominate-c">0 / 150 words</span>')+
-      fld('One last check', (RECAPTCHA_SITE_KEY?'<div id="yl-recaptcha"></div>':'<label class="ca-recap"><input type="checkbox" id="yl-notrobot"> I\u2019m not a robot</label><p class="ca-note">A full reCAPTCHA appears here once a site key is added in the code.</p>'))+
+      fld('One last check','<div id="yl-cap"></div>')+
       '<p class="ca-hint bad" id="yl-err" style="display:none"></p>'+
       '<button class="btn btn-primary" type="submit" style="margin-top:6px">Submit application</button>'+
     '</form>'+
@@ -1953,7 +2033,7 @@ function ylLoadRecaptcha(){
   if(!document.getElementById('ca-recaptcha-js')){ const s=document.createElement('script'); s.id='ca-recaptcha-js'; s.src='https://www.google.com/recaptcha/api.js'; s.async=true; s.defer=true; document.head.appendChild(s); }
   let tries=0; const iv=setInterval(function(){ if((window.grecaptcha&&grecaptcha.render)||++tries>40){ clearInterval(iv); doRender(); } },250);
 }
-function initYouthApply(){ ylCount('yl-acc','yl-acc-c',500); ylCount('yl-improve','yl-improve-c',500); ylCount('yl-nominate','yl-nominate-c',150); ylCountryChange(); ylLoadRecaptcha(); }
+function initYouthApply(){ ylCount('yl-acc','yl-acc-c',500); ylCount('yl-improve','yl-improve-c',500); ylCount('yl-nominate','yl-nominate-c',150); ylCountryChange(); initPuzzleCaptcha('yl-cap'); }
 function editRepThreshold(){ openEditor('Minimum Discord reputation',[{key:'n',label:'Minimum reputation points required',type:'text',placeholder:'e.g. 50'}],{n:content.repThreshold!=null?String(content.repThreshold):'50'},function(v){ const n=parseInt(v.n,10); content.repThreshold=isNaN(n)?0:n; toast('Saved'); saveSiteContent(true); }); }
 async function submitYouthApplication(e){
   if(e&&e.preventDefault)e.preventDefault();
@@ -1975,8 +2055,7 @@ async function submitYouthApplication(e){
   const improve=val('yl-improve'); if(!improve) return fail('Please answer how you\u2019d make ESE better.','yl-improve');
   if(caWords(improve)>500) return fail('Please keep the second answer to 500 words or fewer.','yl-improve');
   const nominate=val('yl-nominate'); if(caWords(nominate)>150) return fail('Please keep the nomination to 150 words or fewer.','yl-nominate');
-  if(RECAPTCHA_SITE_KEY){ const resp=(window.grecaptcha&&ylRecaptchaId!=null)?grecaptcha.getResponse(ylRecaptchaId):''; if(!resp) return fail('Please complete the reCAPTCHA.'); }
-  else { const nr=document.getElementById('yl-notrobot'); if(nr&&!nr.checked) return fail('Please tick the box to confirm you\u2019re human.','yl-notrobot'); }
+  if(!puzzleSolved('yl-cap')) return fail('Please slide the puzzle piece into the gap to show you are human.');
   if(errBox) errBox.style.display='none';
   const app={ name:val('yl-name'), discord:val('yl-discord'), email:email, under13:!!(document.getElementById('yl-under13')||{}).checked, grade:val('yl-grade'), country:val('yl-country'), subdivision:subShown?val('yl-sub'):'', school:val('yl-school'), roles:roles, accomplished:acc, improve:improve, nomination:nominate, submittedAt:new Date().toISOString() };
   const btn=document.querySelector('#ylForm button[type="submit"]'); if(btn){ btn.disabled=true; btn.textContent='Submitting\u2026'; }
