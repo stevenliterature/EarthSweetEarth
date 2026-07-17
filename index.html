@@ -108,6 +108,7 @@
   [data-theme="dark"] .userbtn:hover{background:rgba(92,179,234,.18);}
   .userbtn .uname{font-size:.9rem;font-weight:600;}
   .acct-profile{position:relative;display:inline-flex;}
+  .acct-profile.out{display:none;}   /* logged-out "more" (three-dot) menu: only shown on narrow screens (see media query) */
   .nav-menu{position:absolute;top:calc(100% + 10px);right:0;min-width:188px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(20,48,42,.16);padding:6px;display:none;flex-direction:column;gap:2px;z-index:60;}
   [data-theme="dark"] .nav-menu{box-shadow:0 14px 34px rgba(0,0,0,.45);}
   .nav-menu.open{display:flex;}
@@ -122,7 +123,8 @@
     .acct{gap:7px;}
     .iconbtn{width:34px;height:34px;}
     .langnavbtn{height:34px;width:120px;font-size:.82rem;padding:0 10px;}
-    .acct.has-profile .iconbtn,.acct.has-profile .langnavbtn{display:none;}
+    .acct>.iconbtn,.acct>.langnavbtn{display:none;}   /* condense theme + language into the dropdown, whether logged in OR out */
+    .acct-profile.out{display:inline-flex;}           /* ...reached via the logged-out "more" menu */
     .acct.has-profile .userbtn .uname{display:none;}
     .acct.has-profile .userbtn{padding:3px;border-radius:50%;}
     .nav-menu{min-width:174px;}
@@ -1129,7 +1131,16 @@ function renderChrome(){
       '</div>';
     acct=themeBtn+langBtn+'<div class="acct-profile"><button class="userbtn" onclick="onProfileBtn()">'+av+'<span class="uname">'+esc(account.username)+'</span></button>'+navMenu+'</div>';
   } else {
-    acct=themeBtn+langBtn+'<button class="btn btn-blue btn-sm" onclick="openLogin()">Log In</button>';
+    // logged out: on wide screens the theme + language buttons show directly; on narrow
+    // screens they condense into this "more" (three-dot) dropdown so the nav tabs get room.
+    const kebab='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.9"></circle><circle cx="12" cy="12" r="1.9"></circle><circle cx="12" cy="19" r="1.9"></circle></svg>';
+    const outMenu='<div class="nav-menu" id="navMenu">'+
+      '<button onclick="langComingSoon()">'+glb+'<span>Languages</span></button>'+
+      '<button onclick="closeNavMenu();toggleTheme()">'+(theme==='dark'?suni:moon)+'<span>'+(theme==='dark'?'Light mode':'Dark mode')+'</span></button>'+
+      '</div>';
+    acct=themeBtn+langBtn+
+      '<div class="acct-profile out"><button class="iconbtn navtrigger" title="More options" aria-label="More options" aria-haspopup="true" onclick="toggleNavMenu()">'+kebab+'</button>'+outMenu+'</div>'+
+      '<button class="btn btn-blue btn-sm" onclick="openLogin()">Log In</button>';
   }
   document.getElementById('acct').innerHTML=acct;
   document.getElementById('acct').classList.toggle('has-profile', !!account);
