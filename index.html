@@ -1888,7 +1888,7 @@ async function submitChapterApplication(e){
   if(norm(val('ca-consent'))!==norm(CA_CONSENT)) return fail('You have a mistake in the statement. Please type it out fully and correctly.','ca-consent');
   const why=val('ca-why'); if(!why) return fail('Please tell us why you want to start a chapter.','ca-why');
   if(caWords(why)>500) return fail('Please keep your answer to 500 words or fewer.','ca-why');
-  if(!document.getElementById('ca-privacy').checked) return fail('Please tick the privacy confirmation box.','ca-privacy');
+  if(!document.getElementById('ca-privacy').checked) return fail('Please check the privacy confirmation box.','ca-privacy');
   const par=document.getElementById('ca-sig-parent'), self=document.getElementById('ca-sig-self');
   if(!par||!par._drawn) return fail('A parent or guardian needs to sign in the box.','ca-sig-parent');
   if(!self||!self._drawn) return fail('Please add your own signature.','ca-sig-self');
