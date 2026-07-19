@@ -1829,7 +1829,7 @@ function chapterApplyView(){
       fld('Country or territory','<select class="in" id="ca-country" onchange="caCountryChange()"><option value="">Choose\u2026</option>'+optList(CA_COUNTRIES)+'</select><div id="ca-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="ca-sublabel" style="font-weight:500">State / province</label><select class="in" id="ca-sub"></select></div>')+
       fld('Full school name','<input class="in" id="ca-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. North Forest Middle School">')+
       fld('Grade','<select class="in" id="ca-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
-      fld('The 5 youth starting with you --- write your own name on the first blank <span class="muted">()</span>', five('ca-p','Person'))+
+      fld('Write the name of each person. <span class="muted">(Write your own name in the first blank.)</span>', five('ca-p','Person'))+
       // fld('Their 5 Discord usernames', five('ca-d','Username'))+
       fld('Type this statement out, word for word','<canvas class="consent-img" id="ca-consent-img"></canvas><textarea class="in" id="ca-consent" rows="4" autocomplete="off" placeholder="Type the statement above here\u2026"></textarea>')+
       fld('Why do you want to start a chapter? <span class="muted">(500 words max)</span>','<textarea class="in" id="ca-why" rows="6" oninput="caWordCount()" placeholder="Briefly tell us why \u2014 and anything else we should know."></textarea>','<span id="ca-why-count">0 / 500 words</span>')+
