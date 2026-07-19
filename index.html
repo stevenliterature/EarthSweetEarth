@@ -2884,25 +2884,20 @@ async function translateBatch(texts, target){
   const cache=transCache[target]||(transCache[target]={});
   const todo=[]; texts.forEach(function(t){ if(t&&cache[t]==null&&todo.indexOf(t)<0) todo.push(t); });
   if(!todo.length) return;
-  // 1) Edge Function (batched + cached in the DB for identical results every time)
+  // 1) Edge Function (Claude, context-aware; cached in the DB so results are identical every time)
   if(_edgeXlate){
     try{
-      const {data,error}=await sb.functions.invoke('translate',{body:{q:todo,target:target,source:'en'}});
+      const L=LANGS.find(function(x){return x.code===target;});
+      const {data,error}=await sb.functions.invoke('translate',{body:{q:todo,target:target,source:'en',targetName:(L&&L.name)||target}});
       if(!error && data && data.translations){ todo.forEach(function(t,i){ if(data.translations[i]!=null) cache[t]=data.translations[i]; }); }
       else { _edgeXlate=false; }
     }catch(e){ _edgeXlate=false; }
   }
-  // 2) Google endpoint directly, in PARALLEL (fast; needs no deployment)
+  // 2) fallback only if the Edge Function is unavailable: Google endpoint directly, in parallel
+  //    (MyMemory was removed — it produced low-quality junk)
   let still=todo.filter(function(t){return cache[t]==null;});
   if(still.length){
     await Promise.all(still.map(function(t){ return gtxTranslate(t,target).then(function(tr){ if(tr)cache[t]=tr; },function(){}); }));
-  }
-  // 3) last resort: MyMemory, one at a time
-  const left=todo.filter(function(t){return cache[t]==null;});
-  for(var i=0;i<left.length;i++){
-    try{ const r=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(left[i])+'&langpair=en|'+mmLang(target));
-      const j=await r.json(); cache[left[i]]=(j&&j.responseData&&j.responseData.translatedText)||left[i]; }
-    catch(e){ cache[left[i]]=left[i]; }
   }
 }
 function t(s){ if(lang==='en'||!s) return s; const c=transCache[lang]||{}; return c[s]!=null?c[s]:s; }
