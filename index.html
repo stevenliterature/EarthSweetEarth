@@ -655,6 +655,7 @@
   .li-seq{display:flex;flex-direction:column;align-items:center;gap:.28em;text-align:center;}
   .li-word{color:#fff;font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(2.4rem,8vw,5rem);line-height:1.1;opacity:0;transition:opacity .8s ease;}
   .li-word.show{opacity:1;}
+  .li-ese-text{font-weight:900;font-size:clamp(2.9rem,10vw,6rem);line-height:1.05;margin-top:.12em;}
   .li-ese{opacity:0;transition:opacity 1.4s ease;z-index:3;pointer-events:none;}
   .li-ese.show{opacity:1;}
   .li-ese.fade-out{opacity:0;}
@@ -2841,6 +2842,25 @@ function randGlyph(){
   const rg=rs[Math.floor(Math.random()*rs.length)];
   return String.fromCharCode(rg[0]+Math.floor(Math.random()*(rg[1]-rg[0]+1)));
 }
+/* Pictographic (CJK) languages: a single random character can be an odd word, so the
+   drifting background shows real, gentle nature words instead. (No worms/mushrooms.) */
+const NATURE_WORDS={
+  'zh-CN':['叶子','树','大地','鸟','花','河流','山','太阳','云','雨','森林','海洋','天空','幼苗','花园','草地','花瓣','树根'],
+  'zh-TW':['葉子','樹','大地','鳥','花','河流','山','太陽','雲','雨','森林','海洋','天空','幼苗','花園','草地','花瓣','樹根'],
+  'ja':['葉','木','大地','鳥','花','川','山','太陽','雲','雨','森','海','空','芽','庭','草原','花びら','根'],
+  'ko':['잎','나무','대지','새','꽃','강','산','해','구름','비','숲','바다','하늘','새싹','정원','초원','꽃잎','뿌리']
+};
+const PICTO_CODES=Object.keys(NATURE_WORDS);
+function randToken(){
+  // pictographic languages appear a little more often, and show a whole word (not a lone glyph)
+  let L;
+  if(Math.random()<0.18){ const code=PICTO_CODES[Math.floor(Math.random()*PICTO_CODES.length)]; L=LANGS.find(function(x){return x.code===code;}); }
+  else { L=LANGS[Math.floor(Math.random()*LANGS.length)]; }
+  if(L && NATURE_WORDS[L.code]){ const w=NATURE_WORDS[L.code]; return {text:w[Math.floor(Math.random()*w.length)], word:true, rtl:!!L.rtl}; }
+  const rs=SCRIPT_RANGES[(L&&L.script)||'latn']||SCRIPT_RANGES.latn;
+  const rg=rs[Math.floor(Math.random()*rs.length)];
+  return {text:String.fromCharCode(rg[0]+Math.floor(Math.random()*(rg[1]-rg[0]+1))), word:false, rtl:!!(L&&L.rtl)};
+}
 let lang='en', langChosen=false;
 const transCache={};
 function isRtl(c){ const l=LANGS.find(function(x){return x.code===c;}); return !!(l&&l.rtl); }
@@ -3004,8 +3024,10 @@ function liFrame(now){
 }
 function liSpawnLetter(bg){
   const el=document.createElement('span'); el.className='li-letter';
-  el.textContent=randGlyph();                       // random LANGUAGE first, then a glyph from it -> equal chance per language
-  el.style.fontSize=(16+Math.random()*56).toFixed(0)+'px';
+  const tok=randToken();
+  el.textContent=tok.text;
+  if(tok.rtl) el.setAttribute('dir','rtl');
+  el.style.fontSize=(tok.word ? (15+Math.random()*30) : (16+Math.random()*56)).toFixed(0)+'px';   // whole words a bit smaller
   const W=window.innerWidth,H=window.innerHeight, ang=Math.random()*Math.PI*2, sp=0.005+Math.random()*0.032;
   const L={el:el, x:Math.random()*W, y:Math.random()*H, vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp, life:0, hold:2200+Math.random()*4200, max:0.14+Math.random()*0.42, op:0};
   el.style.transform='translate('+L.x.toFixed(1)+'px,'+L.y.toFixed(1)+'px)'; el.style.opacity='0';
@@ -3052,54 +3074,31 @@ async function liSelect(code){
     preloadTranslations(code).then(function(){ applyTranslations(); });
     words3.then(function(){ applyTranslations(); });
   }
-  await liWait(2000);                 // deliberate ~2s pause after selecting, regardless of the network
+  await liWait(2000);                 // deliberate ~2s pause after selecting (lets the three words translate)
   try{ await words3; }catch(e){}
-  const wWelcome=t('Welcome'), wTo=t('To');
-  if(stage) stage.innerHTML='<div class="li-seq"><div class="li-word" id="liW1" dir="'+(isRtl(code)?'rtl':'ltr')+'">'+esc(wWelcome)+'</div><div class="li-word" id="liW2" dir="'+(isRtl(code)?'rtl':'ltr')+'">'+esc(wTo)+'</div></div>';
+  const dir=isRtl(code)?'rtl':'ltr';
+  const wWelcome=t('Welcome'), wTo=t('To'), wEse=t('Earth Sweet Earth');
+  if(stage) stage.innerHTML='<div class="li-seq" id="liSeq">'+
+    '<div class="li-word" id="liW1" dir="'+dir+'">'+esc(wWelcome)+'</div>'+
+    '<div class="li-word" id="liW2" dir="'+dir+'">'+esc(wTo)+'</div>'+
+    '<div class="li-word li-ese-text" id="liW3" dir="'+dir+'">'+esc(wEse)+'</div>'+
+    '</div>';
   await liWait(300);  const w1=document.getElementById('liW1'); if(w1) w1.classList.add('show');   // "Welcome" fades in
-  await liWait(1700); const w2=document.getElementById('liW2'); if(w2) w2.classList.add('show');   // "To" fades in below; "Welcome" stays
-  await liWait(2000);
-  if(w1) w1.classList.remove('show'); if(w2) w2.classList.remove('show');                          // both fade out together
-  await liWait(1400);                                                                              // fully gone — no overlap
-  liShowESE(isRtl(code));                                                                          // Earth Sweet Earth (real colors + exact cloud) fades in at the wordmark's spot
-  await liWait(1900);
+  await liWait(900);  const w2=document.getElementById('liW2'); if(w2) w2.classList.add('show');   // "To" fades in below
+  await liWait(900);  const w3=document.getElementById('liW3'); if(w3) w3.classList.add('show');   // "Earth Sweet Earth" fades in
+  await liWait(2000);                                                                              // hold ~2s -- nothing fades yet
+  const intro=document.getElementById('langIntro');
+  if(intro){ intro.style.transition='opacity 1.1s ease'; intro.style.opacity='0'; }               // EVERYTHING fades together at one rate
+  await liWait(1150);
   liFinishIntro();
-}
-function liShowESE(rtl){
-  const intro=document.getElementById('langIntro'); if(!intro) return;
-  const wm=document.querySelector('#app .wordmark');
-  const d=document.createElement('div'); d.className='li-ese'; d.id='liESE';
-  if(wm){
-    const r=wm.getBoundingClientRect(), cs=getComputedStyle(wm);
-    // pin the box to the real wordmark's exact rect; no flex, so nothing re-flows
-    d.style.cssText='position:fixed;left:'+r.left.toFixed(2)+'px;top:'+r.top.toFixed(2)+'px;width:'+r.width.toFixed(2)+'px;height:'+r.height.toFixed(2)+'px;overflow:visible;';
-    const clone=wm.cloneNode(true); clone.removeAttribute('id');   // exact same wordmark: clouds, colours, translated words
-    clone.style.margin='0'; clone.style.top='0'; clone.style.position='static';
-    clone.style.width='100%'; clone.style.boxSizing='border-box'; clone.style.whiteSpace='nowrap';   // force ONE line
-    // carry over the real metrics so it matches perfectly even outside the hero
-    clone.style.padding=cs.padding; clone.style.fontSize=cs.fontSize; clone.style.fontFamily=cs.fontFamily;
-    clone.style.fontWeight=cs.fontWeight; clone.style.letterSpacing=cs.letterSpacing;
-    clone.style.lineHeight=cs.lineHeight; clone.style.textAlign=cs.textAlign;
-    d.appendChild(clone);
-  } else {
-    d.textContent=t('Earth Sweet Earth');
-    d.style.cssText='position:fixed;left:0;right:0;top:38%;text-align:center;white-space:nowrap;color:#fff;font-family:"Fraunces",Georgia,serif;font-weight:900;font-size:clamp(2.6rem,9vw,6rem);';
-  }
-  intro.appendChild(d);
-  intro.classList.add('revealing');                               // green + letters fade out (faster than the wordmark appears)
-  requestAnimationFrame(function(){ d.classList.add('show'); });  // wordmark fades in
 }
 function liFinishIntro(){
   liActive=false; if(liRAF) cancelAnimationFrame(liRAF);
   const el=document.getElementById('langIntro'); if(!el){ document.body.style.overflow=''; return; }
-  el.style.transition='opacity .55s ease'; el.style.opacity='0';   // gentle final fade -> the real home wordmark (identical, same spot) is underneath
-  setTimeout(function(){
-    el.classList.add('li-hidden'); el.classList.remove('revealing'); el.style.opacity=''; el.style.transition='';
-    const ese=document.getElementById('liESE'); if(ese) ese.remove();
-    const bg=document.getElementById('liBg'); if(bg) bg.innerHTML='';
-    const st=document.getElementById('liStage'); if(st) st.innerHTML='';
-    document.body.style.overflow='';
-  }, 560);
+  el.classList.add('li-hidden'); el.classList.remove('revealing'); el.style.opacity=''; el.style.transition='';
+  const bg=document.getElementById('liBg'); if(bg) bg.innerHTML='';
+  const st=document.getElementById('liStage'); if(st) st.innerHTML='';
+  document.body.style.overflow='';
 }
 
 let _lastLoggedView=0;
