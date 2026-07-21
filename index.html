@@ -285,11 +285,15 @@
   .chp-list li{padding:3px 0;color:var(--ink);}
   .chaphead{color:var(--green);font-size:1.5rem;margin:30px 0 14px;}
   /* membership "what we plan to do" list */
-  .mem-list{list-style:none;margin:8px 0 0;padding:0;}
-  .mem-item{margin:0 0 26px;max-width:760px;}
-  .mem-h{color:var(--green);font-size:1.3rem;margin:0 0 6px;}
-  .mem-p{margin:0;line-height:1.65;color:var(--ink);}
-  .mem-p a{color:var(--blue);font-weight:600;text-decoration:underline;}
+  .mem-titlerow{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin:0 0 30px;}
+  .mem-titlerow .page-title{margin:0;flex:1 1 340px;}
+  .mem-signup{white-space:nowrap;align-self:flex-end;}
+  .mem-list{list-style:none;margin:0;padding:0;}
+  .mem-item{margin:0 0 32px;}
+  .mem-h{color:var(--green);font-size:1.35rem;margin:0 0 10px;}
+  .mem-p{margin:0;line-height:1.8;font-size:1.05rem;color:var(--ink);}
+  .mem-p a,.mem-close a{color:var(--blue);font-weight:600;text-decoration:underline;}
+  .mem-close{margin:36px 0 0;line-height:1.8;font-size:1.12rem;font-weight:600;}
   .chapreqs{margin:0 0 8px;padding-left:20px;line-height:1.7;}
   .chapreqs li{margin-bottom:9px;color:var(--ink);padding-left:4px;}
   .chapreqs li::marker{color:var(--green);}
@@ -776,7 +780,7 @@ const can=(cap)=>{ const r=myRole(); return r ? !!r.caps[cap] : false; };
 function canView(r){
   if(r==='chapters'||r==='chapterslist') return can('view_chapters');
   if(r==='gallery')  return can('view_gallery');
-  if(r==='calendar') return can('view_calendar');
+  if(r==='calendar') return true;   // calendar is open to everyone to view (member-only actions stay gated)
   if(r==='chapterhub') return can('chapter_manage');
   if(r==='admin' || r==='analytics' || r==='about') return isLoggedIn() && session.roleId==='owner';   // About is owner-only for now (hidden from the public)
   return true;
@@ -1763,38 +1767,55 @@ function termsView(){
 }
 function createChapter(){ if(!isLoggedIn()){popup('Become a member','Become a member to start your own chapter!');return;} comingSoon(); }
 
+function latestNewsletter(){
+  if(newsletters && newsletters.length){ go('newsletter'); }
+  else { popup('Coming soon','Our first newsletter isn’t out yet — check back soon!'); }
+}
 function membershipView(){
-  // "however you format it will probably be fine" — a numbered list with a green heading per point.
+  const bullets=[
+    'Learn about environmental issues worldwide',
+    'Improve your communication skills',
+    'Meet others from different countries and continents',
+    'See the world from different perspectives',
+    'Become future leaders!!'
+  ].map(function(b){ return '<li>'+esc(b)+'</li>'; }).join('');
   const items=[
     ['A Worldwide Memberbase',
-      'We hope to connect youth all over the world who care about the environment in as many continents and countries as possible! It does appear as if no one cares, but these people do exist, and we hope to find them.'],
+      'We connect youth all over the world who care about the environment in as many continents and countries as possible! And you can be one of our founding members! Join <a href="#" onclick="openSignup();return false;">here</a>!'],
     ['School Chapters',
-      'A chapter is a small branch of our organization that hosts their own activities. You can read more about this on the <a href="#/chapters">chapters page</a>!'],
+      'A chapter is a branch of our organization that hosts their own activities, such as recruiting members, raising awareness, discussing environmental news, organizing clean-ups, etc. They are also expected to coordinate with our headquarters to participate in challenges, contests, and meetings. Want to start a chapter of your school? Click <a href="#/chapters">here</a>!'],
     ['Monthly Newsletter',
-      'The newsletter sums up the month’s highlights, both positive and negative. We take suggestions, thoughts, and pictures from individuals and chapters! These highlights can be about us, regional events, or even global environmental news.'],
+      'The newsletter sums up the month’s highlights, both positive and negative. We take suggestions, thoughts, stories, and pictures from individual members and school chapters. These highlights can be about us (such as the establishment of a new chapter or a milestone), regional events, global environmental news, and more! Click <a href="#" onclick="latestNewsletter();return false;">here</a> to see our last newsletter.'],
     ['Discord',
-      'The Discord server will be where we discuss, plan, and chat. We’re still organizing it, and we’d love to have your help if you’re tech savvy! Find the link on the bottom of the homepage!'],
+      'The Discord server will be where we discuss, plan, and chat. Announcements will also be made there, in addition to the website. We’re still organizing it, and we’d love to have your help if you’re tech savvy! Find the link on the bottom of the homepage or click <a href="#" onclick="joinDiscord();return false;">here</a>.'],
     ['Meetings',
-      'We’ll host monthly meetings digitally for available members to attend. We may be planning goals and events, talking about recent environmental news, or participating in a fun activity!'],
+      'We’ll host monthly meetings digitally for available members to attend. We may be planning goals and events, talking about recent environmental news, or participating in a fun activity! It’s a great way to meet likeminded people! Meeting schedules can be found <a href="#/calendar">here</a>.'],
     ['Activities',
-      'Activities include contests, challenges, presentations, discussions, or even more serious things such as speaking with towns about potential improvements. We’re still thinking about it, but we’ll put everything in the <a href="#/activities">activities page</a>. Suggestions? Email us!'],
+      'Activities include contests, various challenges, presentations, discussions, or even speaking with towns about potential improvements. Activities can be found <a href="#/activities">here</a>. We welcome your suggestions for more activities!'],
     ['Gallery',
-      'The gallery is the picture version of the newsletter! Recent highlights, but in pictures this time! Individuals and chapters can add submissions here, as well as to the newsletter!'],
+      'The gallery is a showcase of what our chapters and members are doing. You can submit pictures of what you’ve been up to on our Discord! You can view our gallery <a href="#/gallery">here</a>.'],
     ['Yearly Summit',
-      'We hope to have a summit at the end of the year, where we can cover what’s been done, what we want to achieve in the following years, and maybe potential projects and goals.'],
+      'We will have a summit each year, where we can cover what’s been done, what we want to achieve in the following years, and potential projects and goals. We may also host student or guest presentations for inspiration!'],
     ['Fundraising',
-      'Fundraising will help us maintain our website, give awards for contests, and pay for other activities. This will most likely be done through donations and fundraising events. We encourage chapters to do their individual fundraising as well.'],
+      'Fundraising will help us maintain our website, give awards for contests, and pay for other activities. We will get funds through donations and fundraising events. We encourage chapters to do their individual fundraising as well.'],
     ['Petitions',
-      'Petitioning is still a potential idea, and we may scrap it. However, if we were to do this, it’d be nonpolitical and purely environmentally focused.']
+      'We may do petitions as needed. This way, we can stand up and make our voices heard on environmentally destructive activities or starting sustainability projects.']
   ];
   const list=items.map(function(it,i){
     return '<li class="mem-item"><h2 class="mem-h">'+(i+1)+'. '+esc(it[0])+'</h2><p class="mem-p">'+it[1]+'</p></li>';
   }).join('');
   return '<div class="wrap view">'+
-    '<h1 class="page-title">What we plan to do</h1>'+
+    '<h2 class="chaphead" style="margin-top:0">Why become a member?</h2>'+
+    '<ul class="chapreqs">'+bullets+'</ul>'+
+    '<div class="mem-titlerow">'+
+      '<h1 class="page-title">Curious about what we do? Here’s what our organization will encompass.</h1>'+
+      '<button class="btn btn-primary mem-signup" onclick="openSignup()">Member Sign-Up</button>'+
+    '</div>'+
     '<ol class="mem-list">'+list+'</ol>'+
+    '<p class="mem-close">There is so much more we can imagine! If you are passionate about making a positive impact, <a href="#" onclick="openSignup();return false;">become a member</a> or <a href="#/chapters">start a chapter</a>!</p>'+
   '</div>';
 }
+
 function chaptersView(){                                  // top-bar landing page
   return '<div class="wrap view">'+
     '<h1 class="page-title" id="chapTitle" style="margin-bottom:22px;white-space:nowrap;max-width:100%">Flip the page. Take the pen. Start <em>your</em> chapter today.<span class="info" tabindex="0">i<span class="tip">A chapter is a regional branch of ESE \u2014 a school club led by a student president. Youth apply to start one at their own school.</span></span></h1>'+
