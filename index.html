@@ -285,15 +285,12 @@
   .chp-list li{padding:3px 0;color:var(--ink);}
   .chaphead{color:var(--green);font-size:1.5rem;margin:30px 0 14px;}
   /* membership "what we plan to do" list */
-  .mem-titlerow{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin:0 0 30px;}
-  .mem-titlerow .page-title{margin:0;flex:1 1 340px;}
-  .mem-signup{white-space:nowrap;align-self:flex-end;}
   .mem-list{list-style:none;margin:0;padding:0;}
   .mem-item{margin:0 0 32px;}
   .mem-h{color:var(--green);font-size:1.35rem;margin:0 0 10px;}
-  .mem-p{margin:0;line-height:1.8;font-size:1.05rem;color:var(--ink);}
+  .mem-p{margin:0;line-height:1.8;color:var(--ink);}   /* normal body text size (same as other pages) */
   .mem-p a,.mem-close a{color:var(--blue);font-weight:600;text-decoration:underline;}
-  .mem-close{margin:36px 0 0;line-height:1.8;font-size:1.12rem;font-weight:600;}
+  .mem-close{margin:36px 0 0;line-height:1.8;font-weight:600;}
   .chapreqs{margin:0 0 8px;padding-left:20px;line-height:1.7;}
   .chapreqs li{margin-bottom:9px;color:var(--ink);padding-left:4px;}
   .chapreqs li::marker{color:var(--green);}
@@ -1805,12 +1802,10 @@ function membershipView(){
     return '<li class="mem-item"><h2 class="mem-h">'+(i+1)+'. '+esc(it[0])+'</h2><p class="mem-p">'+it[1]+'</p></li>';
   }).join('');
   return '<div class="wrap view">'+
-    '<h2 class="chaphead" style="margin-top:0">Why become a member?</h2>'+
+    '<div style="margin:0 0 20px"><button class="btn btn-primary" onclick="openSignup()">Member Sign-Up</button></div>'+
+    '<h1 class="page-title" style="margin:0 0 12px">Why become a member?</h1>'+
     '<ul class="chapreqs">'+bullets+'</ul>'+
-    '<div class="mem-titlerow">'+
-      '<h1 class="page-title">Curious about what we do? Here’s what our organization will encompass.</h1>'+
-      '<button class="btn btn-primary mem-signup" onclick="openSignup()">Member Sign-Up</button>'+
-    '</div>'+
+    '<h2 class="page-title" style="margin:34px 0 16px">Curious about what we do? Here’s what our organization will encompass.</h2>'+
     '<ol class="mem-list">'+list+'</ol>'+
     '<p class="mem-close">There is so much more we can imagine! If you are passionate about making a positive impact, <a href="#" onclick="openSignup();return false;">become a member</a> or <a href="#/chapters">start a chapter</a>!</p>'+
   '</div>';
@@ -1818,7 +1813,7 @@ function membershipView(){
 
 function chaptersView(){                                  // top-bar landing page
   return '<div class="wrap view">'+
-    '<h1 class="page-title" id="chapTitle" style="margin-bottom:22px;white-space:nowrap;max-width:100%">Flip the page. Take the pen. Start <em>your</em> chapter today.<span class="info" tabindex="0">i<span class="tip">A chapter is a regional branch of ESE \u2014 a school club led by a student president. Youth apply to start one at their own school.</span></span></h1>'+
+    '<h1 class="page-title" id="chapTitle" style="margin-bottom:22px">Flip the page. Take the pen. Start <em>your</em> chapter today.<span class="info" tabindex="0">i<span class="tip">A chapter is a regional branch of ESE \u2014 a school club led by a student president. Youth apply to start one at their own school.</span></span></h1>'+
     '<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:0 0 24px">'+
       '<button class="btn btn-primary" onclick="applyForChapter()">Start your own chapter</button>'+
       '<button class="btn btn-blue" onclick="go(\'chapterslist\')">View our chapters</button>'+
@@ -2171,7 +2166,7 @@ function chapterHubView(){
   ensureChapters();
   const led=myLedChapter();
   let h='<div class="wrap view"><h1 class="page-title">Chapter Hub</h1>'+
-    '<p class="page-intro">Your space to run your chapter \u2014 its details, its own calendar, and its events.</p>';
+    '<p class="page-intro">Your space to run your chapter \u2014 its details and its events.</p>';
   if(!led){
     h+='<div class="card"><h3 style="font-size:1.25rem;margin-bottom:6px">Set up your chapter</h3>'+
       '<p class="muted">You haven\u2019t created your chapter yet. Once you do, it shows up on <a href="#/chapterslist">Our Chapters</a>, students can pick it in their profile, and you can start adding events.</p>'+
@@ -2182,9 +2177,6 @@ function chapterHubView(){
       '<div><h3 style="font-size:1.4rem;color:var(--green);margin:0">'+esc(led.name)+'</h3>'+
       '<p class="muted" style="margin:4px 0 0">'+esc(led.country||'')+(led.continent?' \u00b7 '+esc(led.continent):'')+'</p></div>'+
       '<button class="btn btn-ghost btn-sm" onclick="editMyChapter()">\u270E Edit details</button></div></div>';
-  h+='<div class="sechead" style="margin:8px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Your chapter\u2019s calendar</h2>'+
-     '<button class="btn btn-ghost btn-sm" onclick="editMyChapterGcal()">'+(led.gcalId?'Change calendar':'Connect a calendar')+'</button></div>';
-  h+=gcalEmbed(led.gcalId, 'Add your chapter\u2019s Google Calendar ID to show it here \u2014 members of your chapter will see it alongside the main ESE calendar.');
   const evs=(chapterEvents[led.id]||[]).slice().sort(function(a,b){return (a.date||'')<(b.date||'')?-1:1;});
   h+='<div class="sechead" style="margin:28px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Your chapter\u2019s events</h2>'+
      '<button class="btn btn-primary btn-sm" onclick="addChapterEvent()">+ Add event</button></div>';
@@ -2524,9 +2516,9 @@ function openEventDetails(id){
 }
 function calendarView(){
   const canE=canEdit('calendar_edit');
-  ensureEventData(); ensureChapters();
-  const mine=myChapter(), led=myLedChapter();
-  let h='<div class="wrap view"><h1 class="page-title">Calendar &amp; events</h1><p class="page-intro">Everything happening at Earth Sweet Earth, in one place.</p>';
+  ensureChapters();
+  const led=myLedChapter();
+  let h='<div class="wrap view"><h1 class="page-title">Calendar</h1><p class="page-intro">Everything happening at Earth Sweet Earth, in one place.</p>';
   if(led) h+='<p><button class="btn btn-blue btn-sm" onclick="go(\'chapterhub\')">\u2699 Manage my chapter \u2192</button></p>';
   if(content.meetingLink){ h+='<a class="mtg-rect" href="'+escA(safeUrl(content.meetingLink))+'" target="_blank" rel="noopener">Join the next meeting \u2197</a>'+(canE?'<div class="rowbtns" style="margin-top:-8px;margin-bottom:18px"><button class="btn btn-ghost btn-xs" onclick="editMeetingLink()">Edit link</button></div>':''); }
   else if(canE){ h+='<button class="addbtn" onclick="editMeetingLink()" style="padding:18px;margin-bottom:18px">+ Add the next meeting link</button>'; }
@@ -2534,28 +2526,6 @@ function calendarView(){
   /* ---- the whole-of-ESE calendar ---- */
   h+='<div class="sechead" style="margin:8px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Earth Sweet Earth calendar</h2>'+(canE?'<button class="btn btn-ghost btn-sm" onclick="editGcalId()">'+(content.gcalId?'Change calendar':'Connect a calendar')+'</button>':'')+'</div>';
   h+=gcalEmbed(content.gcalId, canE?'Add the organisation\u2019s Google Calendar ID above to embed the live calendar here.':'Our shared calendar will appear here soon.');
-  const evs=(content.events||[]).slice().sort(function(a,b){return (a.date||'')<(b.date||'')?-1:1;});
-  h+='<div class="sechead" style="margin:26px 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">ESE events</h2>'+(canE?'<button class="btn btn-primary btn-sm" onclick="addItem(\'event\')">+ Add event</button>':'')+'</div>';
-  let taggedNext=false;
-  h+=evs.length?('<div class="cev-list">'+evs.map(function(e){ const r=eventRow(e,canE,false);
-      if(isUpcoming(e) && !taggedNext){ taggedNext=true; return r.replace('class="cev"','class="cev next"'); }
-      return r; }).join('')+'</div>')
-              :'<p class="muted">No events listed yet.</p>';
-
-  /* ---- and, if you belong to one, your chapter's calendar ---- */
-  if(mine){
-    const cevs=(chapterEvents[mine.id]||[]).slice().sort(function(a,b){return (a.date||'')<(b.date||'')?-1:1;});
-    h+='<div class="chapter-cal">'+
-      '<div class="sechead" style="margin:0 0 12px"><h2 style="font-size:1.4rem;color:var(--green)">Your chapter \u2014 '+esc(mine.name)+'</h2>'+
-      (led?'<button class="btn btn-ghost btn-sm" onclick="go(\'chapterhub\')">Manage \u2192</button>':'')+'</div>'+
-      gcalEmbed(mine.gcalId, led?'Connect your chapter\u2019s Google Calendar in the Chapter Hub.':'Your chapter hasn\u2019t connected a calendar yet.')+
-      '<h3 class="nl-sub">Chapter events</h3>'+
-      (cevs.length?('<div class="cev-list">'+cevs.map(function(e){return eventRow(e,false,true);}).join('')+'</div>')
-                 :'<p class="muted">No chapter events yet.</p>')+
-    '</div>';
-  } else if(isLoggedIn()){
-    h+='<p class="muted" style="margin-top:26px">Belong to a chapter? Add it in <a href="#" onclick="openProfile();return false;">your profile</a> to see its calendar here too.</p>';
-  }
   return h+'</div>';
 }
 function editGcalId(){ openEditor('Google Calendar',[{key:'id',label:'Calendar ID or email (Google Calendar \u2192 Settings \u2192 Integrate calendar \u2192 Calendar ID)',type:'text',placeholder:'yourcalendar@group.calendar.google.com'}],{id:content.gcalId||''},function(v){ content.gcalId=(v.id||'').trim(); toast('Saved'); saveSiteContent(true); }); }
@@ -3157,7 +3127,8 @@ function liFinishIntro(){
 }
 
 let _lastLoggedView=0;
-function logPageView(r){ if(!BACKEND)return; const now=Date.now(); if(now-_lastLoggedView<800)return; _lastLoggedView=now; try{ sb.from('page_views').insert({path:r}).then(function(){},function(){}); }catch(e){} }
+function logPageView(r){ if(!BACKEND)return; try{ const key='ese_pv_'+r; if(sessionStorage.getItem(key))return;   // count each page once per visit (a refresh no longer adds a view)
+  sessionStorage.setItem(key,'1'); sb.from('page_views').insert({path:r}).then(function(){},function(){}); }catch(e){} }
 function render(){
   recomputeSession();
   renderChrome();
@@ -3175,7 +3146,7 @@ function render(){
   if(r!==lastRoute){ window.scrollTo(0,0); lastRoute=r; logPageView(r); }   // only jump to top on real page change
   if(r==='home') initHero();
   if(r==='chapterapply') requestAnimationFrame(initChapterApply);   // set up consent image, signature pads, reCAPTCHA after layout
-  if(r==='chapters') requestAnimationFrame(fitChapterTitle);        // scale the heading to one line
+  // chapters title now uses the normal page-title size (no one-line scaling)
   if(r==='about') ensureAboutStats();
   if(r==='analytics') ensureAnalytics();
   if(r==='chapterhub'||r==='calendar'||r==='chapterslist') ensureChapters();
@@ -3701,7 +3672,7 @@ function birdStream(streamId){
 }
 window.addEventListener('scroll',()=>{ if(document.getElementById('heroScroll')){ curP=computeP(); if(reduceMotion) updateScene(curP, performance.now()); } },{passive:true});
 window.addEventListener('resize',()=>{ if(document.getElementById('hero')){ measureHero(); curP=computeP(); buildConstellations(); } });
-window.addEventListener('resize',()=>{ if(document.getElementById('chapTitle')) fitChapterTitle(); });
+/* (chapter-title one-line scaling removed — it now uses the standard page-title size) */
 
 /* ---- shared site content persisted for everyone via the site_content row ---- */
 const SITE_KEYS=['mission','tagline','discord','applyForm','featured','repThreshold','gcalId','aboutSeeded','driveUrl','donateUrl','discordVerify','discordRequired','discordMap'];
