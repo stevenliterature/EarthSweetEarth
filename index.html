@@ -1181,7 +1181,7 @@ function renderFooter(){
   if(socials.length||ed){ s='<div class="fcol"><div class="flab">Follow us</div>'+ (socials.length?'<div class="links">'+socials.map(x=>'<a href="'+escA(safeUrl(x.url))+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>').join('')+'</div>':'') + (ed?'<div style="margin-top:10px"><button class="addbtn" onclick="addItem(\'social\')">+ Add social account</button></div>':'')+'</div>'; }
   let a='';
   if(affs.length||ed){ a='<div class="fcol"><div class="flab">Affiliations</div>'+ (affs.length?'<div class="links">'+affs.map(x=>x.url?'<a href="'+escA(safeUrl(x.url))+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>':'<span class="lk">'+esc(x.label)+'</span>').join('')+'</div>':'') + (ed?'<div style="margin-top:10px"><button class="addbtn" onclick="addItem(\'affiliation\')">+ Add affiliation</button></div>':'')+'</div>'; }
-  document.getElementById('footer').innerHTML='<div class="wrap"><div class="fm">Earth <span class="sw">Sweet</span> Earth</div>'+s+a+'<div class="flegal"><a href="#/privacy">Privacy Policy</a> · <a href="#/terms">Terms &amp; Conditions</a></div><div class="cpy">© 2026 Earth Sweet Earth</div></div>';
+  document.getElementById('footer').innerHTML='<div class="wrap"><div class="fm" data-notranslate>Earth <span class="sw">Sweet</span> Earth</div>'+s+a+'<div class="flegal"><a href="#/privacy">Privacy Policy</a> · <a href="#/terms">Terms &amp; Conditions</a></div><div class="cpy" data-notranslate>© 2026 Earth Sweet Earth</div></div>';
 }
 
 /* ==========================================================================
@@ -2951,7 +2951,7 @@ let _txRun=0;
 async function applyTranslations(){
   if(lang==='en'||!langChosen) return;
   const myRun=++_txRun;
-  const roots=[document.getElementById('app'),document.getElementById('modal')];
+  const roots=[document.getElementById('app'),document.getElementById('modal'),document.querySelector('.topbar'),document.getElementById('footer')];   // translate the nav + footer too, not just page content
   let nodes=[]; roots.forEach(function(r){ nodes=nodes.concat(txCollect(r)); });
   const cache=transCache[lang]||(transCache[lang]={});
   const pending=[], need=[];
