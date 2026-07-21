@@ -36,35 +36,49 @@ const json = (b: unknown, s = 200) =>
 // --- Claude: translate a batch of strings together, with website context ---
 async function claudeBatch(texts: string[], target: string, targetName: string): Promise<string[]> {
   const sys =
-    `You are a professional translator for the website of Earth Sweet Earth, a youth-led environmental nonprofit. ` +
-    `Translate each English string into ${targetName} (BCP-47 code: ${target}). ` +
-    `These are short website UI strings: buttons, labels, headings, and short messages. Rules:\n` +
-    `- Translate the MEANING in website context, not word-by-word (e.g. "Home" = the home page; "To" as in "Welcome to").\n` +
-    `- Keep it natural, warm, and concise, the way a friendly nonprofit would write.\n` +
-    `- Preserve HTML tags, {placeholders}, emoji, URLs, numbers, and leading/trailing punctuation and spacing exactly.\n` +
-    `- Render "Earth Sweet Earth" as a natural equivalent phrase in the target language when it reads well.\n` +
+    `You are a professional translator localizing the website of Earth Sweet Earth (ESE), a youth-led environmental nonprofit run by students. ` +
+    `ESE connects young people around the world who care about the environment; members can start school "chapters" (local branches), join a Discord community, take part in activities and challenges, read a monthly newsletter, and share photos in a gallery. ` +
+    `The tone is warm, hopeful, and encouraging, written in plain language that a teenager or a general visitor easily understands.\n\n` +
+    `Translate each English string into ${targetName} (BCP-47 language code: ${target}). ` +
+    `These are short website UI strings: navigation labels, buttons, headings, form fields, and short messages. Rules:\n` +
+    `- Translate the MEANING in this website context, not word-by-word (e.g. "Home" = the homepage; "To" as in "Welcome to ..."; "Chapters" = local branches of the organization, not book chapters).\n` +
+    `- Keep it natural, warm, and concise, the way a friendly youth nonprofit would write in that language.\n` +
+    `- KEEP the brand name "Earth Sweet Earth" in English, exactly as written; never translate it, even inside a sentence.\n` +
+    `- Preserve HTML tags, {placeholders}, emoji, URLs, numbers, and any leading/trailing punctuation and spacing exactly.\n` +
     `- Return ONLY a JSON array of strings: the translations in the SAME order and SAME count as the input. No commentary, no code fences.`;
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": ANTHROPIC_KEY as string,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 4096,
-      system: sys,
-      messages: [{ role: "user", content: JSON.stringify(texts) }],
-    }),
+  const payload = JSON.stringify({
+    model: MODEL,
+    max_tokens: 8192,
+    system: sys,
+    messages: [{ role: "user", content: JSON.stringify(texts) }],
   });
-  if (!r.ok) throw new Error("anthropic " + r.status);
-  const j = await r.json();
-  let txt = String(j?.content?.[0]?.text || "").trim();
-  txt = txt.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-  const arr = JSON.parse(txt);
-  if (!Array.isArray(arr) || arr.length !== texts.length) throw new Error("bad shape");
-  return arr.map((x) => (x == null ? "" : String(x)));
+  const backoff = (a: number) => new Promise((res) => setTimeout(res, Math.min(20000, 1200 * Math.pow(2, a)) + Math.floor(Math.random() * 900)));
+  let lastErr = "";
+  for (let attempt = 0; attempt < 7; attempt++) {
+    let r: Response;
+    try {
+      r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "x-api-key": ANTHROPIC_KEY as string, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+        body: payload,
+      });
+    } catch (e) { lastErr = "fetch " + e; await backoff(attempt); continue; }
+    if (r.ok) {
+      try {
+        const j = await r.json();
+        let txt = String(j?.content?.[0]?.text || "").trim();
+        txt = txt.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+        const arr = JSON.parse(txt);
+        if (Array.isArray(arr) && arr.length === texts.length) return arr.map((x) => (x == null ? "" : String(x)));
+        lastErr = "bad shape " + (Array.isArray(arr) ? arr.length : typeof arr) + "/" + texts.length;
+      } catch (e) { lastErr = "parse " + e; }
+      await backoff(attempt); continue;   // malformed / wrong length -> retry the same request (stay on Claude)
+    }
+    lastErr = "http " + r.status;
+    if (r.status === 429 || r.status === 529 || r.status >= 500) { await backoff(attempt); continue; }   // transient -> retry
+    throw new Error("anthropic " + r.status);   // e.g. 400 (bad request / low credit) -> caller falls back to Google
+  }
+  throw new Error("anthropic retries exhausted: " + lastErr);
 }
 
 // --- Google free endpoint: per-string fallback if Claude is unavailable ---
@@ -107,8 +121,10 @@ serve(async (req) => {
     }
 
     // 3) anything still missing (no key set, or Claude hiccupped) -> Google, per string
+    let googleUsed = false;
     for (const t of texts) {
       if (map[t] != null) continue;
+      googleUsed = true;
       try { map[t] = (await gtx(t, source, target)) || t; } catch (_e) { map[t] = t; }
     }
 
@@ -117,7 +133,9 @@ serve(async (req) => {
       .map((t) => ({ target, source_text: t, translated: map[t] }));
     if (toStore.length) { try { await admin.from("translations").upsert(toStore, { onConflict: "target,source_text" }); } catch (_e) {} }
 
-    return json({ translations: q.map((x) => (typeof x === "string" && map[x] != null ? map[x] : x)) });
+    // engine: "claude" = all fresh strings came from Claude; "mixed" = some fell back to Google (e.g. low credit); misses = strings translated this call
+    const engine = !ANTHROPIC_KEY ? "google" : (googleUsed ? "mixed" : "claude");
+    return json({ translations: q.map((x) => (typeof x === "string" && map[x] != null ? map[x] : x)), engine, misses: miss.length });
   } catch (e) {
     return json({ error: String(e) }, 400);
   }

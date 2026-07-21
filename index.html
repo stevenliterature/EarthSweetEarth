@@ -1145,14 +1145,14 @@ function renderChrome(){
   const pencil='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3z"></path><path d="M13.5 6.5l3 3"></path></svg>';
   const glb='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"></path></svg>';
   const themeBtn='<button class="iconbtn" title="Toggle dark mode" aria-label="Toggle dark mode" onclick="toggleTheme()">'+(theme==='dark'?suni:moon)+'</button>';
-  const langBtn='<button class="langnavbtn" data-notranslate title="Choose language" aria-label="Choose language" onclick="langComingSoon()"><svg class="globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"></path></svg><span id="navLangText" dir="'+(LANGS[navLangI].rtl?'rtl':'ltr')+'">'+esc(LANGS[navLangI].name)+'</span></button>';
+  const langBtn='<button class="langnavbtn" data-notranslate title="Choose language" aria-label="Choose language" onclick="openLangPicker()"><svg class="globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"></path></svg><span id="navLangText" dir="'+(LANGS[navLangI].rtl?'rtl':'ltr')+'">'+esc(LANGS[navLangI].name)+'</span></button>';
   let acct;
   // top-right always reflects the REAL account (you stay logged in while previewing other roles)
   if(account){
     const av=account.avatar?'<span class="avatar"><img src="'+escA(account.avatar)+'" style="width:100%;height:100%;object-fit:cover"></span>':'<span class="avatar">'+esc((account.username||'?').charAt(0).toUpperCase())+'</span>';
     const navMenu='<div class="nav-menu" id="navMenu">'+
       '<button onclick="closeNavMenu();openProfile()">'+pencil+'<span>Edit profile</span></button>'+
-      '<button onclick="langComingSoon()">'+glb+'<span>Languages</span></button>'+
+      '<button onclick="closeNavMenu();openLangPicker()">'+glb+'<span>Languages</span></button>'+
       '<button onclick="closeNavMenu();toggleTheme()">'+(theme==='dark'?suni:moon)+'<span>'+(theme==='dark'?'Light mode':'Dark mode')+'</span></button>'+
       '</div>';
     acct=themeBtn+langBtn+'<div class="acct-profile"><button class="userbtn" onclick="onProfileBtn()">'+av+'<span class="uname">'+esc(account.username)+'</span></button>'+navMenu+'</div>';
@@ -1161,7 +1161,7 @@ function renderChrome(){
     // screens they condense into this "more" (three-dot) dropdown so the nav tabs get room.
     const kebab='<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.9"></circle><circle cx="12" cy="12" r="1.9"></circle><circle cx="12" cy="19" r="1.9"></circle></svg>';
     const outMenu='<div class="nav-menu" id="navMenu">'+
-      '<button onclick="langComingSoon()">'+glb+'<span>Languages</span></button>'+
+      '<button onclick="closeNavMenu();openLangPicker()">'+glb+'<span>Languages</span></button>'+
       '<button onclick="closeNavMenu();toggleTheme()">'+(theme==='dark'?suni:moon)+'<span>'+(theme==='dark'?'Light mode':'Dark mode')+'</span></button>'+
       '</div>';
     acct=themeBtn+langBtn+
@@ -3093,10 +3093,11 @@ async function liSelect(code){
   logLangView(code);
   const stage=document.getElementById('liStage'); if(stage) stage.innerHTML='';   // button + list disappear
   // start translating immediately in the background; we only WAIT on the three splash words
-  let words3=Promise.resolve();
+  let words3=Promise.resolve(), preloadP=Promise.resolve();
   if(code!=='en'){
     words3=translateBatch(['Welcome','To','Earth Sweet Earth'], code);
-    preloadTranslations(code).then(function(){ applyTranslations(); });
+    preloadP=preloadTranslations(code);
+    preloadP.then(function(){ applyTranslations(); });
     words3.then(function(){ applyTranslations(); });
   }
   await liWait(2000);                 // deliberate ~2s pause after selecting (lets the three words translate)
@@ -3116,6 +3117,7 @@ async function liSelect(code){
   if(intro){ intro.style.transition='opacity 1.1s ease'; intro.style.opacity='0'; }               // EVERYTHING fades together at one rate
   await liWait(1150);
   liFinishIntro();
+  if(code!=='en'){ try{ await preloadP; }catch(e){} applyTranslations(); }   // final full pass once the cache is loaded and the page is revealed
 }
 function liFinishIntro(){
   liActive=false; if(liRAF) cancelAnimationFrame(liRAF);
