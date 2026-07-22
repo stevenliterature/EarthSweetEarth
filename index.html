@@ -233,8 +233,10 @@
   [data-theme="dark"] .hero-content .wordmark{color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.5);}
   .wordmark .sw{color:var(--blue);font-style:italic;font-weight:600;}
   [data-theme="dark"] .hero-content .wordmark .sw{color:var(--sun);}
-  .tagline{font-family:"Eagle Lake",Georgia,serif;font-size:clamp(1.55rem,3.5vw,2.4rem);line-height:1.55;color:var(--ink);max-width:640px;margin:0 auto 34px;}
-  [data-theme="dark"] .hero-content .tagline{color:#dfe7ee;}
+  .tagline{font-family:"Eagle Lake",Georgia,serif;font-size:clamp(1.55rem,3.5vw,2.4rem);line-height:1.55;color:#20302a;max-width:640px;margin:0 auto 34px;}
+  .hero-content .tagline .tag-in{position:relative;display:inline-block;z-index:0;padding:1px 8px;}
+  .hero-content .tagcloud{position:absolute;left:50%;top:50%;width:126%;height:174%;transform:translate(-50%,-52%);z-index:-1;pointer-events:none;overflow:visible;}
+  [data-theme="dark"] .hero-content .tagline{color:#20302a;}   /* dark text on the white cloud, both themes */
   .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
   .cta-eq{min-width:210px;text-align:center;}   /* the two hero buttons match in size */
   .shooting{position:absolute;height:2px;width:120px;background:linear-gradient(90deg,rgba(255,255,255,0),#fff);border-radius:2px;z-index:1;pointer-events:none;}
@@ -1299,7 +1301,7 @@ function homeView(){
     snowLayer()+
     '<div class="hero-content">'+
       '<h1 class="wordmark" data-notranslate><span class="cw">'+wordCloud(0)+'Earth</span> <span class="cw sw">'+wordCloud(1)+'Sweet</span> <span class="cw">'+wordCloud(2)+'Earth</span></h1>'+
-      '<p class="tagline">'+esc(content.tagline||'If not us, who?\nIf not now, when?').replace(/\n/g,'<br>')+'</p>'+
+      '<p class="tagline"><span class="tag-in">'+tagCloud()+esc(content.tagline||'If not us, who?\nIf not now, when?').replace(/\n/g,'<br>')+'</span></p>'+
       (canEdit('edit_content')?'<div style="margin-bottom:14px"><button class="btn btn-ghost btn-xs" onclick="editText(\'tagline\')">✎ Edit subtitle</button></div>':'')+
       '<div class="cta-row"><button class="btn btn-primary cta-eq" onclick="go(\'membership\')">Become a member</button><button class="btn btn-blue cta-eq" onclick="go(\'chapters\')">Start a Chapter</button></div>'+
       
@@ -1334,6 +1336,8 @@ const WORDCLOUDS=[
 ];
 // a white cloud that sits BEHIND a word (free SVG — never boxed/clipped); opaque so overlaps read as one cloud
 function wordCloud(i){ return '<svg class="cwsvg" viewBox="0 0 150 80" preserveAspectRatio="none" aria-hidden="true"><g fill="#ffffff">'+WORDCLOUDS[i]+'</g></svg>'; }
+// one soft white cloud behind the two-line tagline (like the wordmark clouds, but smaller + it never moves) — makes it dark text on white, readable over any hero colour, in every language
+function tagCloud(){ return '<svg class="tagcloud" viewBox="0 0 200 90" preserveAspectRatio="none" aria-hidden="true"><g fill="#ffffff"><ellipse cx="42" cy="56" rx="32" ry="23"/><ellipse cx="84" cy="60" rx="38" ry="25"/><ellipse cx="128" cy="60" rx="38" ry="25"/><ellipse cx="166" cy="55" rx="28" ry="21"/><ellipse cx="62" cy="34" rx="27" ry="25"/><ellipse cx="102" cy="27" rx="31" ry="27"/><ellipse cx="142" cy="33" rx="28" ry="25"/><ellipse cx="100" cy="60" rx="74" ry="24"/></g></svg>'; }
 function cloudSVG(w,top,left,variant){
   const shapes=[
     '<ellipse cx="34" cy="47" rx="24" ry="15"/><ellipse cx="58" cy="38" rx="24" ry="22"/><ellipse cx="84" cy="34" rx="28" ry="25"/><ellipse cx="110" cy="40" rx="22" ry="17"/><ellipse cx="128" cy="48" rx="15" ry="11"/><ellipse cx="46" cy="34" rx="16" ry="15"/><ellipse cx="98" cy="30" rx="16" ry="14"/>',
@@ -1813,7 +1817,7 @@ function membershipView(){
 
 function chaptersView(){                                  // top-bar landing page
   return '<div class="wrap view">'+
-    '<h1 class="page-title" id="chapTitle" style="margin-bottom:22px">Flip the page. Take the pen. Start <em>your</em> chapter today.<span class="info" tabindex="0">i<span class="tip">A chapter is a regional branch of ESE \u2014 a school club led by a student president. Youth apply to start one at their own school.</span></span></h1>'+
+    '<h1 class="page-title" id="chapTitle" style="margin-bottom:22px">Flip the page. Take the pen. Start <em>your</em> chapter today.<span class="info" tabindex="0" aria-label="What is a chapter?"><span data-notranslate>?</span><span class="tip">A chapter is a regional branch of ESE \u2014 a school club led by a student president. Youth apply to start one at their own school.</span></span></h1>'+
     '<div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:0 0 24px">'+
       '<button class="btn btn-primary" onclick="applyForChapter()">Start your own chapter</button>'+
       '<button class="btn btn-blue" onclick="go(\'chapterslist\')">View our chapters</button>'+
@@ -2718,6 +2722,21 @@ function fitChapterTitle(){
   if(el.scrollWidth>avail) el.style.whiteSpace='normal';       // still too wide at min size -> let it wrap so it stays readable (not tiny)
   tips.forEach(function(t){t.style.display='';});
 }
+// Keep the hero tagline to exactly two lines in every language: shrink the font until both phrases fit on their own line
+// (longer translations, e.g. Chinese, end up a little smaller). Runs after the hero renders, on resize, and after a language switch.
+function fitTagline(){
+  const inner=document.querySelector('.hero-content .tagline .tag-in'); if(!inner)return;
+  const cloud=inner.querySelector('.tagcloud'); if(cloud)cloud.style.display='none';   // the cloud overflows the text box — hide it so it can't inflate the measured height
+  inner.style.fontSize='';                                      // reset to the CSS size (a viewport-width clamp) as the ceiling
+  let size=parseFloat(getComputedStyle(inner).fontSize)||24;
+  const MIN=Math.max(13,size*0.5);
+  const lineCount=function(){ const lh=parseFloat(getComputedStyle(inner).lineHeight)||size*1.55; return Math.round(inner.scrollHeight/lh); };
+  let guard=0;
+  while(lineCount()>2 && size>MIN && guard++<240){ size-=0.5; inner.style.fontSize=size+'px'; }
+  if(cloud)cloud.style.display='';
+}
+let _tagFitBound=false;
+function bindTagFit(){ if(_tagFitBound)return; _tagFitBound=true; let t; window.addEventListener('resize',function(){ clearTimeout(t); t=setTimeout(fitTagline,120); }); }
 /* ==========================================================================
    LANGUAGES: intro splash + on-the-fly, cached, whole-site translation
    ========================================================================== */
@@ -2960,11 +2979,12 @@ async function applyTranslations(){
   roots.forEach(function(r){ if(!r)return; Array.prototype.forEach.call(r.querySelectorAll('[placeholder],[title]'),function(el){
     ['placeholder','title'].forEach(function(a){ const val=el.getAttribute(a); if(val&&val.trim()&&!/^[\s\d]*$/.test(val)&&!el.closest('[data-notranslate]')){ if(cache[val]!=null)el.setAttribute(a,cache[val]); else{ attrPending.push({el:el,a:a,k:val}); if(need.indexOf(val)<0)need.push(val);} } }); }); });
   translateWordmark();
-  if(!need.length) return;
+  if(!need.length){ try{fitTagline();}catch(e){} return; }   // all cached: re-fit the (now translated) tagline to 2 lines
   await translateBatch(need, lang);
   if(myRun!==_txRun) return;
   pending.forEach(function(p){ if(cache[p.k]!=null && p.n.parentNode && p.n.nodeValue.trim()===p.k) txReplace(p.n,cache[p.k]); });
   attrPending.forEach(function(p){ if(cache[p.k]!=null && p.el.getAttribute(p.a)===p.k) p.el.setAttribute(p.a,cache[p.k]); });
+  try{fitTagline();}catch(e){}
 }
 /* the wordmark translates as a phrase (not word-by-word) and keeps its clouds */
 async function translateWordmark(){
@@ -3324,9 +3344,10 @@ function initHero(){
   buildConstellations();
   buildZzz();
   measureHero();
+  fitTagline(); bindTagFit();
   curP=computeP();
   updateScene(curP, performance.now());
-  requestAnimationFrame(()=>{ if(document.getElementById('hero')){ measureHero(); curP=computeP(); buildConstellations(); } });   // re-measure + rebuild after layout settles
+  requestAnimationFrame(()=>{ if(document.getElementById('hero')){ measureHero(); fitTagline(); curP=computeP(); buildConstellations(); } });   // re-measure + rebuild after layout settles
   if(reduceMotion) return;
   startHeroLoop();
   // time-driven extras
