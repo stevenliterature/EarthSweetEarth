@@ -257,7 +257,8 @@
   .tagline{font-family:"Eagle Lake",Georgia,serif;font-size:clamp(1.55rem,3.5vw,2.4rem);line-height:1.55;color:#20302a;max-width:640px;margin:0 auto 34px;}
   .hero-content .tagline .tag-in{position:relative;display:inline-block;z-index:0;padding:1px 8px;}
   .hero-content .tagcloud{position:absolute;left:50%;top:50%;width:126%;height:174%;transform:translate(-50%,-52%);z-index:-1;pointer-events:none;overflow:visible;}
-  [data-theme="dark"] .hero-content .tagline{color:#20302a;}   /* dark text on the white cloud, both themes */
+  [data-theme="dark"] .hero-content .tagcloud{display:none;}                                        /* at night: drop the cloud... */
+  [data-theme="dark"] .hero-content .tagline{color:#e7eef3;text-shadow:0 1px 12px rgba(0,0,0,.55);}  /* ...and use light text over the night sky (like the title does) */
   .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
   .cta-eq{min-width:210px;text-align:center;}   /* the two hero buttons match in size */
   .shooting{position:absolute;height:2px;width:120px;background:linear-gradient(90deg,rgba(255,255,255,0),#fff);border-radius:2px;z-index:1;pointer-events:none;}
