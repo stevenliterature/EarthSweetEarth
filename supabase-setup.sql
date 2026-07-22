@@ -259,6 +259,12 @@ create policy "admins update chapter apps" on public.chapter_applications for up
 drop policy if exists "admins update youth apps" on public.youth_applications;
 create policy "admins update youth apps" on public.youth_applications for update using (public.is_admin());
 
+-- Admins can delete applications they're done with (viewing no longer removes them; deletion is explicit)
+drop policy if exists "admins delete chapter apps" on public.chapter_applications;
+create policy "admins delete chapter apps" on public.chapter_applications for delete using (public.is_admin());
+drop policy if exists "admins delete youth apps" on public.youth_applications;
+create policy "admins delete youth apps" on public.youth_applications for delete using (public.is_admin());
+
 -- Simple traffic: log a row per page view; only admins can read them.
 create table if not exists public.page_views (
   id         bigint generated always as identity primary key,
@@ -489,23 +495,38 @@ drop policy if exists "admins read lang views"  on public.lang_views;
 create policy "anyone logs a lang view" on public.lang_views for insert with check (true);
 create policy "admins read lang views"  on public.lang_views for select using (public.is_admin());
 
+-- Per-language view counts: all_time = every view ever (durable), week = views since the start of this ISO week
+-- (Monday). The weekly figure auto-resets each week purely via the date window -- no rows are deleted, so the
+-- weekly reset can NEVER touch all_time. Only a manual clear (below) removes views, which is intended: a cleared
+-- language was just beta-testing noise.
 create or replace function public.ese_lang_stats()
 returns json language sql security definer set search_path = public stable as $$
-  select coalesce(json_object_agg(lang, json_build_object('total', total, 'week', week)), '{}'::json)
+  select coalesce(json_object_agg(lang, json_build_object('all_time', all_time, 'week', week)), '{}'::json)
   from (
-    select lang, count(*) as total,
-           count(*) filter (where created_at >= current_date - 6) as week
+    select lang, count(*) as all_time,
+           count(*) filter (where created_at >= date_trunc('week', now())) as week
     from public.lang_views group by lang
   ) t;
 $$;
 grant execute on function public.ese_lang_stats() to authenticated;
 
--- Owner-only: wipe the by-language view counts (powers the "Clear language views" button in Owner Analytics)
+-- Owner-only: wipe ALL by-language view counts (the "Clear language views" button in Owner Analytics).
+-- "where true" is deliberate -- a bare unqualified DELETE can trip safe-delete guards.
 create or replace function public.ese_clear_lang_views()
 returns void language plpgsql security definer set search_path = public as $$
 begin
   if not public.is_admin() then raise exception 'not authorized'; end if;
-  delete from public.lang_views;
+  delete from public.lang_views where true;
 end;
 $$;
 grant execute on function public.ese_clear_lang_views() to authenticated;
+
+-- Owner-only: wipe ONE language's view counts (the per-language clear button)
+create or replace function public.ese_clear_lang_view(p_lang text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'not authorized'; end if;
+  delete from public.lang_views where lang = p_lang;
+end;
+$$;
+grant execute on function public.ese_clear_lang_view(text) to authenticated;

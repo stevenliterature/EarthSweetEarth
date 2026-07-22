@@ -577,6 +577,9 @@
   .notif{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
   .notif .ndot{flex:none;}
   .notif-main{flex:1;min-width:0;cursor:pointer;}
+  .notif .btn{flex:none;}
+  .app-del{color:var(--muted);border-color:var(--line);}
+  .app-del:hover{color:#fff;background:#c0392b;border-color:#c0392b;}
   .notif-title{font-weight:600;color:var(--ink);}
   .notif-when{font-size:.8rem;color:var(--muted);margin-top:2px;}
   .ad-list{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow-y:auto;margin:4px 0;}
@@ -694,7 +697,10 @@
   .ctrans:hover{text-decoration:underline;}
   /* analytics language bars */
   .lang-bars{display:flex;flex-direction:column;gap:10px;}
-  .lang-bar-h{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;margin-bottom:4px;}
+  .lang-bar-h{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;margin-bottom:4px;align-items:center;}
+  .lang-bar-meta{display:inline-flex;align-items:center;gap:8px;flex:none;}
+  .lang-clear{background:none;border:none;cursor:pointer;color:var(--muted);font-size:1.1rem;line-height:1;padding:0 4px;border-radius:6px;flex:none;}
+  .lang-clear:hover{color:#e0403a;background:rgba(224,64,58,.12);}
   .lang-bar-t{height:9px;background:var(--line);border-radius:100px;overflow:hidden;}
   .lang-bar-f{height:100%;background:linear-gradient(90deg,var(--green),var(--green-dk));border-radius:100px;}
   /* RTL niceties */
@@ -2592,10 +2598,10 @@ function statCard(label,val,sub){ return '<div class="stat-card"><div class="sta
 function clearLangViews(){
   if(!isOwner())return;
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button>'+
-    '<h3>Clear language views?</h3>'+
-    '<p>This resets the by-language view counts to zero. Your other analytics (page views, applications, sign-ups) aren’t affected.</p>'+
+    '<h3>Clear all language views?</h3>'+
+    '<p>This removes every by-language view count — all-time and this week, for all languages. Your other analytics (page views, applications, sign-ups) aren’t affected.</p>'+
     '<div style="display:flex;gap:10px;margin-top:16px">'+
-      '<button class="btn btn-primary" style="flex:1" onclick="doClearLangViews()">Clear</button>'+
+      '<button class="btn btn-primary" style="flex:1" onclick="doClearLangViews()">Clear all</button>'+
       '<button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Cancel</button>'+
     '</div>');
 }
@@ -2611,6 +2617,29 @@ async function doClearLangViews(){
     render();
   }catch(e){ toast('Could not clear language views.'); }
 }
+// clear ONE language's views (the small × on each language row)
+function clearOneLangView(code){
+  if(!isOwner())return;
+  const nm=(LANGS.find(function(x){return x.code===code;})||{}).name||code;
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button>'+
+    '<h3>Clear '+esc(nm)+' views?</h3>'+
+    '<p>This removes the view counts for '+esc(nm)+' only (all-time and this week). Other languages aren’t affected.</p>'+
+    '<div style="display:flex;gap:10px;margin-top:16px">'+
+      '<button class="btn btn-primary" style="flex:1" onclick="doClearOneLangView(\''+code+'\')">Clear</button>'+
+      '<button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Cancel</button>'+
+    '</div>');
+}
+async function doClearOneLangView(code){
+  closeModal();
+  if(!BACKEND){ if(analyticsData&&analyticsData.langs) delete analyticsData.langs[code]; toast('Cleared (preview).'); render(); return; }
+  try{
+    const {error}=await sb.rpc('ese_clear_lang_view',{p_lang:code});
+    if(error){ toast('Could not clear: '+error.message); return; }
+    if(analyticsData&&analyticsData.langs) delete analyticsData.langs[code];
+    toast('Cleared that language’s views.');
+    loadAnalytics(); render();
+  }catch(e){ toast('Could not clear that language.'); }
+}
 function analyticsView(){
   const d=analyticsData;
   let h='<div class="wrap view"><h1 class="page-title">Owner Analytics</h1><p class="page-intro">A private overview of Earth Sweet Earth \u2014 only the owner can see this.</p>';
@@ -2622,17 +2651,32 @@ function analyticsView(){
     statCard('Chapters listed',chaptersRows.length)+statCard('Newsletter posts',newsletters.length)+
     statCard('Events',(content.events||[]).length)+statCard('Gallery photos',(content.gallery||[]).length)+
   '</div>';
+  const appRow=function(p,isReviewed){   // one application row; clicking the body views it (no longer marks it reviewed)
+    const a=p.a, nm=(a.data&&a.data.name)||'Someone', when=fmtDateTime(new Date(a.created_at).getTime());
+    return '<div class="notif">'+(isReviewed?'':'<span class="ndot"></span>')+
+      '<div class="notif-main" onclick="viewApplication(\''+p.k+'\',\''+a.id+'\')"><div class="notif-title">'+(p.k==='chapter'?'Chapter':'Leadership')+' application \u2014 '+esc(nm)+'</div><div class="notif-when">'+esc(when)+'</div></div>'+
+      (isReviewed
+        ? '<button class="btn btn-ghost btn-xs" onclick="markUnreviewed(\''+p.k+'\',\''+a.id+'\')">Move back</button>'
+        : '<button class="btn btn-ghost btn-xs" onclick="markReviewed(\''+p.k+'\',\''+a.id+'\')">Mark reviewed</button>')+
+      '<button class="btn btn-ghost btn-xs app-del" onclick="deleteApplication(\''+p.k+'\',\''+a.id+'\')">Delete</button>'+
+    '</div>';
+  };
+  const byNewest=function(x,y){return (x.a.created_at<y.a.created_at)?1:-1;};
   const pending=[].concat(
     d.chApps.filter(function(a){return !a.reviewed;}).map(function(a){return {k:'chapter',a:a};}),
     d.ylApps.filter(function(a){return !a.reviewed;}).map(function(a){return {k:'youth',a:a};})
-  ).sort(function(x,y){return (x.a.created_at<y.a.created_at)?1:-1;});
+  ).sort(byNewest);
   h+='<h2 class="acts-sub">Needs review'+(pending.length?' <span class="ndot"></span>':'')+'</h2>';
   if(pending.length){
-    h+='<div class="notif-list">'+pending.map(function(p){
-      const a=p.a, nm=(a.data&&a.data.name)||'Someone', when=fmtDateTime(new Date(a.created_at).getTime());
-      return '<div class="notif"><span class="ndot"></span><div class="notif-main" onclick="viewApplication(\''+p.k+'\',\''+a.id+'\')"><div class="notif-title">New '+(p.k==='chapter'?'chapter':'leadership')+' application \u2014 '+esc(nm)+'</div><div class="notif-when">'+esc(when)+'</div></div><button class="btn btn-ghost btn-xs" onclick="markReviewed(\''+p.k+'\',\''+a.id+'\')">Mark reviewed</button></div>';
-    }).join('')+'</div>';
+    h+='<div class="notif-list">'+pending.map(function(p){return appRow(p,false);}).join('')+'</div>';
   } else { h+='<p class="muted">You\u2019re all caught up \u2014 no applications waiting.</p>'; }
+  const reviewed=[].concat(
+    d.chApps.filter(function(a){return a.reviewed;}).map(function(a){return {k:'chapter',a:a};}),
+    d.ylApps.filter(function(a){return a.reviewed;}).map(function(a){return {k:'youth',a:a};})
+  ).sort(byNewest);
+  if(reviewed.length){   // reviewed applications stay here so you can revisit them; delete only when you're done
+    h+='<details class="cont" style="margin-top:10px"><summary>Reviewed applications ('+reviewed.length+')</summary><div class="body"><div class="notif-list">'+reviewed.map(function(p){return appRow(p,true);}).join('')+'</div></div></details>';
+  }
   h+='<h2 class="acts-sub">Event sign-ups</h2>';
   const byEv={}; (d.parts||[]).forEach(function(p){ (byEv[p.event_id]=byEv[p.event_id]||[]).push(p); });
   const evIds=Object.keys(byEv);
@@ -2643,13 +2687,14 @@ function analyticsView(){
       return '<details class="cont"><summary>'+esc(ev?ev.name:'Event '+eid)+' \u2014 '+byEv[eid].length+' signed up</summary><div class="body"><div class="ad-list">'+rows+'</div></div></details>';
     }).join('')+'</div>';
   } else { h+='<p class="muted">Nobody has signed up for an event yet.</p>'; }
-  const lv=d.langs||{}; const lcodes=Object.keys(lv).sort(function(a,b){return (lv[b].total||0)-(lv[a].total||0);});
+  const lv=d.langs||{}; const laEach=function(o){ return (o&&(o.all_time!=null?o.all_time:o.total))||0; };   // tolerate the old 'total' key too
+  const lcodes=Object.keys(lv).sort(function(a,b){return laEach(lv[b])-laEach(lv[a]);});
   h+='<h2 class="acts-sub">Views by language</h2>';
   if(lcodes.length){
-    const lmax=Math.max.apply(null,[1].concat(lcodes.map(function(c){return lv[c].total||0;})));
-    h+='<div class="lang-bars">'+lcodes.map(function(c){ const nm=(LANGS.find(function(x){return x.code===c;})||{}).name||c; const n=lv[c].total||0; const wk=lv[c].week||0;
-      return '<div class="lang-bar"><div class="lang-bar-h"><span>'+esc(nm)+'</span><span class="muted">'+n+' total \u00b7 '+wk+' this week</span></div><div class="lang-bar-t"><div class="lang-bar-f" style="width:'+Math.max(3,Math.round(n/lmax*100))+'%"></div></div></div>'; }).join('')+'</div>';
-    h+='<button class="btn btn-ghost btn-xs" style="margin-top:12px" onclick="clearLangViews()">Clear language views</button>';
+    const lmax=Math.max.apply(null,[1].concat(lcodes.map(function(c){return laEach(lv[c]);})));
+    h+='<div class="lang-bars">'+lcodes.map(function(c){ const nm=(LANGS.find(function(x){return x.code===c;})||{}).name||c; const n=laEach(lv[c]); const wk=(lv[c]&&lv[c].week)||0;
+      return '<div class="lang-bar"><div class="lang-bar-h"><span>'+esc(nm)+'</span><span class="lang-bar-meta"><span class="muted">'+n+' all-time \u00b7 '+wk+' this week</span><button class="lang-clear" title="Clear '+esc(nm)+' views" aria-label="Clear '+esc(nm)+' views" onclick="clearOneLangView(\''+c+'\')">\u00d7</button></span></div><div class="lang-bar-t"><div class="lang-bar-f" style="width:'+Math.max(3,Math.round(n/lmax*100))+'%"></div></div></div>'; }).join('')+'</div>';
+    h+='<button class="btn btn-ghost btn-xs" style="margin-top:12px" onclick="clearLangViews()">Clear all language views</button>';
   } else { h+='<p class="muted">No language views recorded yet.</p>'; }
   h+='<h2 class="acts-sub">Traffic</h2>';
   const t=d.traffic||{total:0,week:0,last7:[]};
@@ -2660,12 +2705,18 @@ function analyticsView(){
   }
   return h+'</div>';
 }
+function recountApps(){ const d=analyticsData; if(!d)return; d.chTotal=d.chApps.length; d.ylTotal=d.ylApps.length; d.chPending=d.chApps.filter(function(x){return !x.reviewed;}).length; d.ylPending=d.ylApps.filter(function(x){return !x.reviewed;}).length; notifCount=d.chPending+d.ylPending; }
 function markReviewed(k,id){
   const d=analyticsData; if(!d)return;
   const arr=k==='chapter'?d.chApps:d.ylApps, a=arr.find(function(x){return String(x.id)===String(id);}); if(a)a.reviewed=true;
-  d.chPending=d.chApps.filter(function(x){return !x.reviewed;}).length; d.ylPending=d.ylApps.filter(function(x){return !x.reviewed;}).length; notifCount=d.chPending+d.ylPending;
-  render();
+  recountApps(); render();
   if(BACKEND){ const table=k==='chapter'?'chapter_applications':'youth_applications'; try{ sb.from(table).update({reviewed:true}).eq('id',id).then(function(){},function(){}); }catch(e){} }
+}
+function markUnreviewed(k,id){   // move a reviewed application back into "Needs review"
+  const d=analyticsData; if(!d)return;
+  const arr=k==='chapter'?d.chApps:d.ylApps, a=arr.find(function(x){return String(x.id)===String(id);}); if(a)a.reviewed=false;
+  recountApps(); render();
+  if(BACKEND){ const table=k==='chapter'?'chapter_applications':'youth_applications'; try{ sb.from(table).update({reviewed:false}).eq('id',id).then(function(){},function(){}); }catch(e){} }
 }
 function viewApplication(k,id){
   const d=analyticsData; if(!d)return;
@@ -2673,8 +2724,38 @@ function viewApplication(k,id){
   const ad=a.data||{}; let rows='';
   const label={name:'Name',discord:'Discord',email:'Email',grade:'Grade',country:'Country',subdivision:'State / province',school:'School',members:'Five members',memberDiscords:'Their Discords',why:'Why',roles:'Roles',accomplished:'Accomplishments',improve:'Improvement ideas',nomination:'Peer nomination',under13:'Under 13'};
   Object.keys(ad).forEach(function(key){ if(/signature|submittedAt/i.test(key))return; let val=ad[key]; if(Array.isArray(val))val=val.join(', '); if(typeof val==='boolean')val=val?'Yes':'No'; if(val===''||val==null)return; rows+='<div class="ad-row"><span class="ad-k">'+esc(label[key]||key)+'</span><span class="ad-v">'+esc(String(val))+'</span></div>'; });
-  openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3>'+(k==='chapter'?'Chapter':'Leadership')+' application</h3><div class="ad-list">'+rows+'</div><button class="btn btn-primary btn-sm" style="width:100%;margin-top:14px" onclick="closeModal()">Close</button>');
-  markReviewed(k,id);
+  // viewing NO LONGER marks it reviewed \u2014 you choose. Buttons: toggle reviewed, delete, or close.
+  const reviewBtn = a.reviewed
+    ? '<button class="btn btn-ghost btn-sm" style="flex:1" onclick="markUnreviewed(\''+k+'\',\''+id+'\');closeModal()">Move back to review</button>'
+    : '<button class="btn btn-ghost btn-sm" style="flex:1" onclick="markReviewed(\''+k+'\',\''+id+'\');closeModal()">Mark reviewed</button>';
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3>'+(k==='chapter'?'Chapter':'Leadership')+' application'+(a.reviewed?' <span class="muted" style="font-size:.7em;font-weight:400">\u00b7 reviewed</span>':'')+'</h3><div class="ad-list">'+rows+'</div>'+
+    '<div style="display:flex;gap:10px;margin-top:14px">'+reviewBtn+
+      '<button class="btn btn-danger btn-sm" style="flex:1" onclick="deleteApplication(\''+k+'\',\''+id+'\')">Delete</button>'+
+    '</div>');
+}
+function deleteApplication(k,id){
+  if(!isOwner())return;
+  const d=analyticsData; const arr=d?(k==='chapter'?d.chApps:d.ylApps):[]; const a=arr.find(function(x){return String(x.id)===String(id);});
+  const nm=(a&&a.data&&a.data.name)||'this application';
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button>'+
+    '<h3>Delete this application?</h3>'+
+    '<p>This permanently removes '+esc(nm)+'\u2019s '+(k==='chapter'?'chapter':'leadership')+' application. This can\u2019t be undone.</p>'+
+    '<div style="display:flex;gap:10px;margin-top:16px">'+
+      '<button class="btn btn-danger" style="flex:1" onclick="doDeleteApplication(\''+k+'\',\''+id+'\')">Delete</button>'+
+      '<button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Cancel</button>'+
+    '</div>');
+}
+async function doDeleteApplication(k,id){
+  closeModal();
+  const d=analyticsData; if(!d)return;
+  if(k==='chapter') d.chApps=d.chApps.filter(function(x){return String(x.id)!==String(id);});
+  else d.ylApps=d.ylApps.filter(function(x){return String(x.id)!==String(id);});
+  recountApps(); render();   // optimistic
+  if(!BACKEND){ toast('Application deleted (preview).'); return; }
+  const table=k==='chapter'?'chapter_applications':'youth_applications';
+  try{ const {error}=await sb.from(table).delete().eq('id',id);
+    if(error){ toast('Could not delete: '+error.message); loadAnalytics(); } else { toast('Application deleted.'); }
+  }catch(e){ toast('Could not delete the application.'); loadAnalytics(); }
 }
 
 function adminView(){
