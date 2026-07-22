@@ -127,6 +127,8 @@
   .hamburger.active span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg);}
   .sidebar{display:none;position:fixed;left:0;right:0;top:52px;bottom:0;background:var(--bg);z-index:45;transform:translateX(-100%);transition:transform .26s ease;overflow-y:auto;-webkit-overflow-scrolling:touch;}
   .sidebar.open{transform:translateX(0);box-shadow:6px 0 40px rgba(20,48,42,.18);}
+  [dir="rtl"] .sidebar{transform:translateX(100%);}                                    /* RTL: the drawer lives on the right, where the menu button mirrors to */
+  [dir="rtl"] .sidebar.open{transform:translateX(0);box-shadow:-6px 0 40px rgba(20,48,42,.18);}
   .sidebar-list{display:flex;flex-direction:column;padding:12px 14px 48px;gap:3px;}
   .side-item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;border-radius:13px;padding:16px 18px;font-family:"Fraunces",Georgia,serif;font-size:1.18rem;font-weight:600;color:var(--ink);cursor:pointer;transition:background .15s;}
   .side-item:hover,.side-item:focus-visible{background:var(--card);}
@@ -401,6 +403,7 @@
   @keyframes pop{from{transform:scale(.95);opacity:0;}to{transform:none;opacity:1;}}
   .modal-card h3{font-size:1.4rem;margin-bottom:10px;}
   .modal-card .x{float:right;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted);line-height:1;}
+  [dir="rtl"] .modal-card .x{float:left;}   /* close button mirrors to the top-left in right-to-left languages */
   .modal-card label{display:block;font-size:.84rem;font-weight:600;color:var(--green);margin:12px 0 5px;}
   .modal-card input,.modal-card textarea,.modal-card select{width:100%;font-family:inherit;font-size:1rem;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);}
   .modal-note{background:rgba(32,131,196,.1);border:1px solid rgba(32,131,196,.3);color:var(--blue-dk);border-radius:10px;padding:11px 13px;font-size:.83rem;margin:12px 0;}
@@ -3071,9 +3074,16 @@ function logLangView(code){ if(!BACKEND||!viewerTracked()) return; try{ sb.from(
    ========================================================================== */
 let liLetters=[], liRAF=null, liLast=0, liSpawn=0, liActive=false, liCycleTimer=null, liCycleI=0;
 let navLangTimer=null, navLangI=0;
-function startNavLangCycle(){                       // the top-right button keeps cycling through language names
+function stopNavLangCycle(){                         // pin the button to the chosen language and stop cycling
+  if(navLangTimer){ clearInterval(navLangTimer); navLangTimer=null; }
+  const i=LANGS.findIndex(function(l){return l.code===lang;}); if(i>=0) navLangI=i;
+  const t=document.getElementById('navLangText'); if(t){ t.textContent=LANGS[navLangI].name; t.setAttribute('dir',LANGS[navLangI].rtl?'rtl':'ltr'); t.style.opacity='1'; }
+}
+function startNavLangCycle(){                        // the top-right button teases translation by cycling language names...
+  if(langChosen){ stopNavLangCycle(); return; }      // ...but once a language is actually chosen it just shows THAT language, statically
   if(navLangTimer) return;
   navLangTimer=setInterval(function(){
+    if(langChosen){ stopNavLangCycle(); return; }     // self-terminate if a language got chosen while it was mid-cycle
     const t=document.getElementById('navLangText'); if(!t) return;
     t.style.opacity='0';
     setTimeout(function(){ navLangI=(navLangI+1)%LANGS.length; const t2=document.getElementById('navLangText'); if(t2){ t2.textContent=LANGS[navLangI].name; t2.setAttribute('dir',LANGS[navLangI].rtl?'rtl':'ltr'); t2.style.opacity='1'; } },300);
@@ -3166,6 +3176,8 @@ function liWait(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
 async function liSelect(code){
   if(liCycleTimer) clearInterval(liCycleTimer);
   lang=code; langChosen=true;
+  try{ localStorage.setItem('ese_lang', code); }catch(e){}   // remember the choice so a reload / return visit keeps this language (instead of resetting to English)
+  stopNavLangCycle();                                        // the button now shows the chosen language and stops cycling
   document.documentElement.setAttribute('dir', isRtl(code)?'rtl':'ltr');
   document.documentElement.setAttribute('lang', code);
   logLangView(code);
@@ -3795,10 +3807,16 @@ function editText(kind){
 /* ==========================================================================
    10) START
    ========================================================================== */
+function restoreLang(){   // bring back the language the visitor chose last time (mobile browsers reload tabs a lot, which used to reset everyone to English)
+  try{ const saved=localStorage.getItem('ese_lang'); if(saved && LANGS.some(function(l){return l.code===saved;})){ lang=saved; langChosen=true; document.documentElement.setAttribute('dir', isRtl(saved)?'rtl':'ltr'); document.documentElement.setAttribute('lang', saved); } }catch(e){}
+}
 async function init(){
   document.body.setAttribute('data-theme',theme);
+  restoreLang();
+  const preP = (BACKEND && langChosen && lang!=='en') ? preloadTranslations(lang).catch(function(){}) : Promise.resolve();   // load the cached translations in parallel with the backend, so the first paint is already in the saved language (no English-then-flip)
   if(BACKEND){ try{ await loadSession(); await loadSiteContent(); }catch(e){} loadNotifCount(); loadEventData(); ensureChapters(); checkDiscord(); sb.auth.onAuthStateChange(()=>{loadSession().then(function(){render();loadNotifCount();eventDataLoaded=false;ensureEventData();chaptersLoaded=false;ensureChapters();}).catch(()=>{});}); }
   if(!location.hash) location.hash='#/home';
+  try{ await preP; }catch(e){}
   render();
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ const el=document.getElementById('langIntro'); if(el && !el.classList.contains('li-hidden') && !el.classList.contains('revealing')) liHidePicker(); closeNavMenu(); closeSidebar(); } });
