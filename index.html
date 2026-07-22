@@ -763,8 +763,9 @@ const CAPS = [
   {id:'edit_content',    label:'Edit site content (team, contact links, footer)'},
   {id:'chapter_manage',  label:'Manage their own chapter (Chapter Hub tab)'},
   {id:'admin_settings',  label:'Open Owner Settings & manage roles'},
+  {id:'views_tracked',   label:'Count this role’s views in analytics'},
 ];
-const allCaps=(v)=>Object.fromEntries(CAPS.map(c=>[c.id,v]));
+const allCaps=(v)=>Object.fromEntries(CAPS.map(c=>[c.id, c.id==='views_tracked'?true:v]));   // views count by default; the owner can switch a role off (e.g. a beta-tester role) so their visits don't inflate analytics
 let roles = {
   owner:     {name:'Owner',     locked:true, caps:allCaps(true)},
   admin:     {name:'Admin',     caps:allCaps(true)},
@@ -2589,6 +2590,28 @@ async function loadNotifCount(){
   renderChrome();
 }
 function statCard(label,val,sub){ return '<div class="stat-card"><div class="stat-val">'+val+'</div><div class="stat-lab">'+esc(label)+'</div>'+(sub?'<div class="stat-sub">'+esc(sub)+'</div>':'')+'</div>'; }
+function clearLangViews(){
+  if(!isOwner())return;
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button>'+
+    '<h3>Clear language views?</h3>'+
+    '<p>This resets the by-language view counts to zero. Your other analytics (page views, applications, sign-ups) aren’t affected.</p>'+
+    '<div style="display:flex;gap:10px;margin-top:16px">'+
+      '<button class="btn btn-primary" style="flex:1" onclick="doClearLangViews()">Clear</button>'+
+      '<button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Cancel</button>'+
+    '</div>');
+}
+async function doClearLangViews(){
+  closeModal();
+  if(!BACKEND){ if(analyticsData) analyticsData.langs={}; toast('Language views cleared (preview).'); render(); return; }
+  try{
+    const {error}=await sb.rpc('ese_clear_lang_views');
+    if(error){ toast('Could not clear: '+error.message); return; }
+    if(analyticsData) analyticsData.langs={};
+    toast('Language views cleared.');
+    loadAnalytics();       // re-pull the fresh (now-empty) counts
+    render();
+  }catch(e){ toast('Could not clear language views.'); }
+}
 function analyticsView(){
   const d=analyticsData;
   let h='<div class="wrap view"><h1 class="page-title">Owner Analytics</h1><p class="page-intro">A private overview of Earth Sweet Earth \u2014 only the owner can see this.</p>';
@@ -2627,6 +2650,7 @@ function analyticsView(){
     const lmax=Math.max.apply(null,[1].concat(lcodes.map(function(c){return lv[c].total||0;})));
     h+='<div class="lang-bars">'+lcodes.map(function(c){ const nm=(LANGS.find(function(x){return x.code===c;})||{}).name||c; const n=lv[c].total||0; const wk=lv[c].week||0;
       return '<div class="lang-bar"><div class="lang-bar-h"><span>'+esc(nm)+'</span><span class="muted">'+n+' total \u00b7 '+wk+' this week</span></div><div class="lang-bar-t"><div class="lang-bar-f" style="width:'+Math.max(3,Math.round(n/lmax*100))+'%"></div></div></div>'; }).join('')+'</div>';
+    h+='<button class="btn btn-ghost btn-xs" style="margin-top:12px" onclick="clearLangViews()">Clear language views</button>';
   } else { h+='<p class="muted">No language views recorded yet.</p>'; }
   h+='<h2 class="acts-sub">Traffic</h2>';
   const t=d.traffic||{total:0,week:0,last7:[]};
@@ -3038,7 +3062,9 @@ async function translateComment(btn){
 }
 
 /* ---- analytics: one row per view-in-a-language ---- */
-function logLangView(code){ if(!BACKEND) return; try{ sb.from('lang_views').insert({lang:code}).then(function(){},function(){}); }catch(e){} }
+// whether the CURRENT visitor's role has its views counted (owner can turn this off for a role, e.g. beta testers). Uses the real account, not a previewed role.
+function viewerTracked(){ try{ const rid=account?(account.roleId||'member'):'public'; const role=roles[rid]||roles.public; return !role||!role.caps||role.caps.views_tracked!==false; }catch(e){ return true; } }
+function logLangView(code){ if(!BACKEND||!viewerTracked()) return; try{ sb.from('lang_views').insert({lang:code}).then(function(){},function(){}); }catch(e){} }
 
 /* ==========================================================================
    THE INTRO SPLASH
@@ -3181,7 +3207,7 @@ function liFinishIntro(){
 }
 
 let _lastLoggedView=0;
-function logPageView(r){ if(!BACKEND)return; try{ const key='ese_pv_'+r; if(sessionStorage.getItem(key))return;   // count each page once per visit (a refresh no longer adds a view)
+function logPageView(r){ if(!BACKEND||!viewerTracked())return; try{ const key='ese_pv_'+r; if(sessionStorage.getItem(key))return;   // count each page once per visit (a refresh no longer adds a view)
   sessionStorage.setItem(key,'1'); sb.from('page_views').insert({path:r}).then(function(){},function(){}); }catch(e){} }
 function render(){
   recomputeSession();
@@ -3746,6 +3772,7 @@ async function loadSiteContent(){
         roles.owner.locked=true; roles.owner.caps=allCaps(true);   // owner always keeps every permission
         if(!roles.chapter_leader) roles.chapter_leader={name:'Chapter Leader',caps:Object.assign(allCaps(false),{chapter_manage:true,view_chapters:true,view_gallery:true,view_calendar:true})};
         if(!roles.public) roles.public=DEFAULT_PUBLIC();           // logged-out visitors always have a Public row
+        Object.keys(roles).forEach(function(k){ const c=roles[k].caps=roles[k].caps||{}; CAPS.forEach(function(cap){ if(c[cap.id]===undefined) c[cap.id]=(cap.id==='views_tracked'); }); });   // backfill caps missing from an older save (the new "views_tracked" defaults ON)
       }
     }
   }catch(e){ /* table may not exist yet — falls back to defaults */ }

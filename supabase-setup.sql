@@ -499,3 +499,13 @@ returns json language sql security definer set search_path = public stable as $$
   ) t;
 $$;
 grant execute on function public.ese_lang_stats() to authenticated;
+
+-- Owner-only: wipe the by-language view counts (powers the "Clear language views" button in Owner Analytics)
+create or replace function public.ese_clear_lang_views()
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'not authorized'; end if;
+  delete from public.lang_views;
+end;
+$$;
+grant execute on function public.ese_clear_lang_views() to authenticated;
