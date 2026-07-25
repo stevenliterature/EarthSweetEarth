@@ -1466,7 +1466,7 @@ function nlUpdates(){ return newsletters.filter(function(n){return n.kind!=='iss
 let nlOpen={};
 // intro text: paragraph 1 lives on the Newsletter page, paragraph 2 on the Announcements page (both translate like the rest of the page)
 const NL_INTRO='<p>Members and chapter leaders: You can submit your events, achievements, special happenings, thoughts, or recent environmental news to hello@earthsweetearth.org or on our Discord to be posted in our newsletter!</p>';
-const ANN_INTRO='<p>Announcements are for members to view ESE\u2019s achievements, milestones, and other special happenings. We also announce reminders for whole-organization meetings and activities, so check here as well as our Google Calendar, on the Calendar page. Also, everything is always posted on Discord, including meeting passwords!</p>';
+const ANN_INTRO='<p>Announcements are for members to view ESE\u2019s achievements, milestones, and other special happenings. We also announce reminders for whole-organization meetings and activities, so check here as well as on the Calendar page.</p>';
 let annOpen={};
 function nlComposer(){   // Newsletter page: post a newsletter issue (becomes the featured one)
   return '<div class="card composer" style="margin:24px 0 0;background:rgba(0,118,0,.04)"><h3 style="font-size:1.15rem;margin-bottom:12px">+ New newsletter <span class="pill">you can post</span></h3>'+
