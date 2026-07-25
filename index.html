@@ -556,6 +556,8 @@
   /* calendar */
   .gcal-wrap{width:100%;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--card);}
   .gcal{width:100%;height:600px;display:block;}
+  /* Google Calendar is an outside iframe we can't restyle, so in dark mode we soft-invert it: white bg -> soft dark, and hue-rotate keeps event colours right. invert(.9) (not 1) avoids harsh pure black. */
+  [data-theme="dark"] .gcal{filter:invert(.9) hue-rotate(180deg);}
   @media (max-width:640px){.gcal{height:460px;}}
   .cev-list{display:flex;flex-direction:column;gap:10px;}
   .cev{display:flex;align-items:stretch;justify-content:space-between;gap:8px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--green);border-radius:12px;overflow:hidden;}
@@ -635,6 +637,11 @@
   .nl-a-m{display:flex;flex-direction:column;gap:2px;min-width:0;}
   .nl-a-t{font-family:"Fraunces",serif;font-weight:600;color:var(--ink);}
   .nl-a-b{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .nl-btns{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0 20px;}
+  .nl-btns .btn{flex:1 1 auto;min-width:210px;text-align:center;justify-content:center;}
+  .nl-intro{margin:0 0 26px;}
+  .nl-intro p{margin:0 0 12px;line-height:1.65;color:var(--ink);}
+  .nl-intro p:last-child{margin-bottom:0;}
   /* challenges / speakers / participate / event sign-ups */
   .ch-list{margin:0 0 6px;padding-left:22px;}
   .ch-list li{margin-bottom:9px;line-height:1.55;}
@@ -659,12 +666,12 @@
   .lang-intro{position:fixed;inset:0;z-index:9000;background:#0F7A24;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:background-color .85s ease;}
   .li-close{position:fixed;top:20px;right:26px;width:44px;height:44px;border:none;background:rgba(255,255,255,.16);color:#fff;font-size:1.7rem;line-height:1;border-radius:50%;cursor:pointer;z-index:5;transition:background .18s ease;}
   .li-close:hover{background:rgba(255,255,255,.3);}
-  .langnavbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;width:138px;box-sizing:border-box;padding:0 12px;border:1.5px solid rgba(0,0,0,.2);background:rgba(255,255,255,.5);border-radius:100px;cursor:pointer;font-family:inherit;color:#33261a;font-size:.9rem;font-weight:600;transition:background .18s ease,border-color .18s ease;}
-  .langnavbtn:hover{background:rgba(255,255,255,.85);border-color:rgba(0,0,0,.38);}
+  .langnavbtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:38px;width:138px;box-sizing:border-box;padding:0 12px;border:1.5px solid var(--blue);background:rgba(255,255,255,.5);border-radius:100px;cursor:pointer;font-family:inherit;color:#33261a;font-size:.9rem;font-weight:600;transition:background .18s ease,border-color .18s ease;}
+  .langnavbtn:hover{background:rgba(255,255,255,.85);border-color:var(--blue-dk);}
   .langnavbtn .globe{width:16px;height:16px;flex-shrink:0;opacity:.7;}
   .langnavbtn #navLangText{transition:opacity .3s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  [data-theme="dark"] .langnavbtn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#eadfce;}
-  [data-theme="dark"] .langnavbtn:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.45);}
+  [data-theme="dark"] .langnavbtn{background:rgba(255,255,255,.1);border-color:var(--blue);color:#eadfce;}
+  [data-theme="dark"] .langnavbtn:hover{background:rgba(255,255,255,.2);border-color:var(--blue-dk);}
   .lang-intro.revealing{background-color:rgba(15,122,36,0);}
   .li-bg{position:absolute;inset:0;overflow:hidden;transition:opacity .85s ease;}
   .lang-intro.revealing .li-bg{opacity:0;}
@@ -824,9 +831,9 @@ const canEdit=(cap)=> editUI && can(cap);   // edit buttons also require the own
 /* ==========================================================================
    3) ROUTER (no scroll-jump on in-page updates — only on real page changes)
    ========================================================================== */
-const ROUTES=['home','newsletter','activities','membership','chapters','chapterhub','chapterslist','chapterapply','youthapply','gallery','contact','calendar','admin','challenges','construction','privacy','terms','analytics','speakers','fundraising','about'];
-const TAB={home:'Home',about:'About',newsletter:'Newsletter',activities:'Activities',membership:'Membership',youthapply:'Apply for a leadership position',chapters:'Chapters',chapterslist:'Our Chapters',chapterapply:'Apply for a chapter',gallery:'Gallery',contact:'Contact',calendar:'Calendar',admin:'Owner Settings',challenges:'Challenges',construction:'Under Construction',privacy:'Privacy Policy',terms:'Terms & Conditions',analytics:'Owner Analytics',speakers:'Speakers',fundraising:'Fundraising',chapterhub:'Chapter Hub'};
-const NAV_HIDDEN=['chapterslist','chapterapply','youthapply','challenges','construction','privacy','terms','speakers','fundraising'];   // reachable by link/URL, but not shown as a top-bar tab
+const ROUTES=['home','newsletter','newsletterlist','updates','activities','membership','chapters','chapterhub','chapterslist','chapterapply','youthapply','gallery','contact','calendar','admin','challenges','construction','privacy','terms','analytics','speakers','fundraising','about'];
+const TAB={home:'Home',about:'About',newsletter:'Newsletter',newsletterlist:'Newsletters',updates:'Updates & announcements',activities:'Activities',membership:'Membership',youthapply:'Apply for a leadership position',chapters:'Chapters',chapterslist:'Our Chapters',chapterapply:'Apply for a chapter',gallery:'Gallery',contact:'Contact',calendar:'Calendar',admin:'Owner Settings',challenges:'Challenges',construction:'Under Construction',privacy:'Privacy Policy',terms:'Terms & Conditions',analytics:'Owner Analytics',speakers:'Speakers',fundraising:'Fundraising',chapterhub:'Chapter Hub'};
+const NAV_HIDDEN=['newsletterlist','updates','chapterslist','chapterapply','youthapply','challenges','construction','privacy','terms','speakers','fundraising'];   // reachable by link/URL, but not shown as a top-bar tab
 const route=()=> (location.hash.replace('#/','')||'home');
 const go=(r)=>{ location.hash='#/'+r; };
 let lastRoute=null;
@@ -1447,42 +1454,68 @@ function moonLitPath(f){
 function nlIssues(){ return newsletters.filter(function(n){return n.kind==='issue';}).sort(function(a,b){return b.publishedAt-a.publishedAt;}); }
 function nlUpdates(){ return newsletters.filter(function(n){return n.kind!=='issue';}).sort(function(a,b){return b.publishedAt-a.publishedAt;}); }
 let nlOpen={};
+// intro text under the two buttons (explains newsletters vs updates); translates like the rest of the page
+const NL_INTRO='<p>Our newsletter includes both recent ESE highlights and, occasionally, major environmental news. Members and chapters can submit their thoughts or anything they found special on our Discord, and we may feature it on our newsletter! Chapters can also make submissions of their events or milestones. Additional pictures can be found in Gallery. Members also have the chance to become posters, or people who manage the Gallery and help write each newsletter! Join our Discord if you think this role would fit you well!</p>'+
+  '<p>Updates &amp; Announcements are for members to view ESE\u2019s achievements, milestones, and other special happenings. We also announce reminders for whole-organization meetings and activities, so check here as well as our Google Calendar, on the Calendar page. Also, everything is always posted on Discord, including meeting passwords!</p>';
+function nlComposer(){   // editors post from the main Newsletter page; the post lands on the right sub-page by its kind
+  return '<div class="card composer" style="margin:24px 0 0;background:rgba(0,118,0,.04)"><h3 style="font-size:1.15rem;margin-bottom:12px">+ New post <span class="pill">you can post</span></h3>'+
+    '<label style="display:block;font-size:.84rem;font-weight:600;color:var(--green);margin-bottom:5px">Type</label>'+
+    '<select id="np-kind" class="ed-select" style="margin-bottom:12px"><option value="issue">Newsletter (becomes the featured issue)</option><option value="update">Update &amp; announcement</option></select>'+
+    '<input id="np-title" type="text" placeholder="Title"><textarea id="np-body" rows="4" placeholder="Write it here."></textarea>'+
+    '<div class="tools"><span style="flex:1"></span><button class="btn btn-primary btn-sm" onclick="publishPost()">Publish</button></div></div>';
+}
+function featuredIssueHtml(feat,ed){
+  return '<div class="nl-feat">'+
+    '<span class="pill">Latest issue</span>'+
+    '<h3 class="nl-feat-t">'+esc(feat.title)+'</h3>'+
+    '<p class="nl-time" style="margin:0 0 14px">'+esc(fmtDateTime(feat.publishedAt))+'</p>'+
+    '<div class="nl-feat-b">'+esc(feat.body||'')+'</div>'+
+    socialBar(feat.id)+
+    '<div class="gfoot" style="margin-top:8px">'+nlCommentBtn(feat.id)+
+      (ed?'<span class="gadmin"><button class="btn btn-ghost btn-xs" onclick="editNewsletter(\''+feat.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" onclick="editIssuePdf(\''+feat.id+'\')">PDF link</button><button class="btn btn-ghost btn-xs" onclick="deleteNewsletter(\''+feat.id+'\')">Delete</button></span>':'')+
+    '</div></div>';
+}
+// MAIN newsletter page: two buttons -> the two archive pages, the intro, then the featured newsletter + the latest update
 function newsletterView(){
   const ed=canEdit('newsletter_post');
   let h='<div class="wrap view"><h1 class="page-title">News &amp; updates</h1>';
-  if(ed){
-    h+='<div class="card composer" style="margin:20px 0;background:rgba(0,118,0,.04)"><h3 style="font-size:1.15rem;margin-bottom:12px">+ New post <span class="pill">you can post</span></h3>'+
-      '<label style="display:block;font-size:.84rem;font-weight:600;color:var(--green);margin-bottom:5px">Type</label>'+
-      '<select id="np-kind" class="ed-select" style="margin-bottom:12px"><option value="issue">Newsletter (becomes the featured issue)</option><option value="update">Small update</option></select>'+
-      '<input id="np-title" type="text" placeholder="Title"><textarea id="np-body" rows="4" placeholder="Write it here."></textarea>'+
-      '<div class="tools"><span style="flex:1"></span><button class="btn btn-primary btn-sm" onclick="publishPost()">Publish</button></div></div>';
-  }
-  const issues=nlIssues(), feat=issues[0];
-  const past=issues.slice(1).sort(function(a,b){return b.publishedAt-a.publishedAt;});   // newest first, oldest at the bottom
-  h+='<h2 class="acts-sub">Newsletter</h2>';
-  if(feat){
-    h+='<div class="nl-feat">'+
-      '<span class="pill">Latest issue</span>'+
-      '<h3 class="nl-feat-t">'+esc(feat.title)+'</h3>'+
-      '<p class="nl-time" style="margin:0 0 14px">'+esc(fmtDateTime(feat.publishedAt))+'</p>'+
-      '<div class="nl-feat-b">'+esc(feat.body||'')+'</div>'+
-      socialBar(feat.id)+
-      '<div class="gfoot" style="margin-top:8px">'+nlCommentBtn(feat.id)+
-        (ed?'<span class="gadmin"><button class="btn btn-ghost btn-xs" onclick="editNewsletter(\''+feat.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" onclick="deleteNewsletter(\''+feat.id+'\')">Delete</button></span>':'')+
-      '</div></div>';
-    if(past.length){
-      h+='<h3 class="nl-sub">Past issues</h3><div class="nl-arch">'+past.map(function(n){
-        return '<div class="nl-a"><div class="nl-a-m"><span class="nl-time">'+esc(fmtDateTime(n.publishedAt))+'</span><span class="nl-a-t">'+esc(n.title)+'</span></div>'+
-          '<div class="nl-a-b"><button class="btn btn-ghost btn-sm" onclick="openIssuePdf(\''+n.id+'\')">📄 Open PDF \u2197</button>'+
-          (ed?'<button class="btn btn-ghost btn-xs" onclick="editIssuePdf(\''+n.id+'\')">PDF link</button><button class="btn btn-ghost btn-xs" onclick="deleteNewsletter(\''+n.id+'\')">Delete</button>':'')+
-          '</div></div>';
-      }).join('')+'</div>';
-    }
-  } else { h+='<p class="muted">No newsletter yet \u2014 check back soon!</p>'; }
+  h+='<div class="nl-btns"><button class="btn btn-primary" onclick="go(\'newsletterlist\')">📰 All newsletters</button><button class="btn btn-blue" onclick="go(\'updates\')">📢 Updates &amp; announcements</button></div>';
+  h+='<div class="nl-intro">'+NL_INTRO+'</div>';
+  const feat=nlIssues()[0];
+  h+='<h2 class="acts-sub">Featured newsletter</h2>';
+  h+=feat?featuredIssueHtml(feat,ed):'<p class="muted">No newsletter yet \u2014 check back soon!</p>';
+  const latest=nlUpdates()[0];
+  h+='<h2 class="acts-sub">Latest update &amp; announcement</h2>';
+  h+=latest?('<div class="nl-list">'+newsletterCard(latest)+'</div>'):'<p class="muted">No updates yet \u2014 check back soon!</p>';
+  if(ed) h+=nlComposer();
+  return h+'</div>';
+}
+// ARCHIVE 1: exclusively newsletters, each as a link to a PDF
+function newsletterListView(){
+  const ed=canEdit('newsletter_post');
+  const issues=nlIssues();
+  let h='<div class="wrap view"><button class="btn btn-ghost btn-sm" style="margin-bottom:14px" onclick="go(\'newsletter\')">\u2190 Back to News &amp; updates</button>'+
+    '<h1 class="page-title">Newsletters</h1><p class="page-intro">Every Earth Sweet Earth newsletter, newest first \u2014 each one opens as a PDF.</p>';
+  if(issues.length){
+    h+='<div class="nl-arch">'+issues.map(function(n){
+      return '<div class="nl-a"><div class="nl-a-m"><span class="nl-time">'+esc(fmtDateTime(n.publishedAt))+'</span><span class="nl-a-t">'+esc(n.title)+'</span></div>'+
+        '<div class="nl-a-b"><button class="btn btn-ghost btn-sm" onclick="openIssuePdf(\''+n.id+'\')">📄 Open PDF \u2197</button>'+
+        (ed?'<button class="btn btn-ghost btn-xs" onclick="editIssuePdf(\''+n.id+'\')">PDF link</button><button class="btn btn-ghost btn-xs" onclick="editNewsletter(\''+n.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" onclick="deleteNewsletter(\''+n.id+'\')">Delete</button>':'')+
+        '</div></div>';
+    }).join('')+'</div>';
+  } else { h+='<p class="muted">No newsletters yet \u2014 check back soon!</p>'; }
+  if(ed) h+='<p class="muted" style="margin-top:16px">Post a new newsletter from the <a href="#" onclick="go(\'newsletter\');return false;">News &amp; updates</a> page.</p>';
+  return h+'</div>';
+}
+// ARCHIVE 2: exclusively updates & announcements
+function updatesView(){
+  const ed=canEdit('newsletter_post');
   const ups=nlUpdates();
-  h+='<h2 class="acts-sub">Small updates</h2>';
+  let h='<div class="wrap view"><button class="btn btn-ghost btn-sm" style="margin-bottom:14px" onclick="go(\'newsletter\')">\u2190 Back to News &amp; updates</button>'+
+    '<h1 class="page-title">Updates &amp; announcements</h1><p class="page-intro">ESE achievements, milestones, meeting reminders and other announcements \u2014 newest first.</p>';
   h+=ups.length?('<div class="nl-list">'+ups.map(newsletterCard).join('')+'</div>')
                :'<p class="muted">No updates yet \u2014 check back soon!</p>';
+  if(ed) h+='<p class="muted" style="margin-top:16px">Post a new update from the <a href="#" onclick="go(\'newsletter\');return false;">News &amp; updates</a> page.</p>';
   return h+'</div>';
 }
 function nlCommentBtn(id){ const n=ensureSocial(id).comments.length; return '<button class="gcomment" onclick="openNewsletterComments(\''+id+'\')">💬 '+(n?n+(n===1?' comment':' comments'):'Comment')+'</button>'; }
@@ -3306,7 +3339,7 @@ function render(){
     const msg=r==='calendar'?'The calendar opens up once you\'re signed in and it\'s switched on.':r==='admin'?'Owner Settings is only for the site owner.':'This section isn\'t open to everyone yet.';
     app.innerHTML=deniedView(msg);
   } else {
-    const views={home:homeView,about:aboutView,newsletter:newsletterView,activities:activitiesView,membership:membershipView,youthapply:youthApplyView,chapters:chaptersView,chapterslist:chaptersListView,chapterapply:chapterApplyView,gallery:galleryView,contact:contactView,calendar:calendarView,admin:adminView,challenges:challengesView,construction:underConstructionView,privacy:privacyView,terms:termsView,analytics:analyticsView,speakers:speakersView,fundraising:fundraisingView,chapterhub:chapterHubView};
+    const views={home:homeView,about:aboutView,newsletter:newsletterView,newsletterlist:newsletterListView,updates:updatesView,activities:activitiesView,membership:membershipView,youthapply:youthApplyView,chapters:chaptersView,chapterslist:chaptersListView,chapterapply:chapterApplyView,gallery:galleryView,contact:contactView,calendar:calendarView,admin:adminView,challenges:challengesView,construction:underConstructionView,privacy:privacyView,terms:termsView,analytics:analyticsView,speakers:speakersView,fundraising:fundraisingView,chapterhub:chapterHubView};
     app.innerHTML=views[r]();
     app.firstChild && app.firstChild.classList && app.firstChild.classList.add('fade');
   }
