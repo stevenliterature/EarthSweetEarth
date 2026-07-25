@@ -1456,7 +1456,7 @@ function nlUpdates(){ return newsletters.filter(function(n){return n.kind!=='iss
 let nlOpen={};
 // intro text under the two buttons (explains newsletters vs updates); translates like the rest of the page
 const NL_INTRO='<p>Members and chapter leaders: You can submit your events, achievements, special happenings, thoughts, or recent environmental news to hello@earthsweetearth.org or on our Discord to be posted in our newsletter!</p>'+
-  '<p>Updates &amp; Announcements are for members to view ESE\u2019s achievements, milestones, and other special happenings. We also announce reminders for whole-organization meetings and activities, so check here as well as our Google Calendar, on the Calendar page. Also, everything is always posted on Discord, including meeting passwords!</p>';
+  '<p>Announcements are for members to view ESE\u2019s achievements, milestones, and other special happenings. We also announce reminders for whole-organization meetings and activities, so check here as well as our Google Calendar, on the Calendar page. Also, everything is always posted on Discord, including meeting passwords!</p>';
 function nlComposer(){   // editors post from the main Newsletter page; the post lands on the right sub-page by its kind
   return '<div class="card composer" style="margin:24px 0 0;background:rgba(0,118,0,.04)"><h3 style="font-size:1.15rem;margin-bottom:12px">+ New post <span class="pill">you can post</span></h3>'+
     '<label style="display:block;font-size:.84rem;font-weight:600;color:var(--green);margin-bottom:5px">Type</label>'+
@@ -1479,7 +1479,7 @@ function featuredIssueHtml(feat,ed){
 function newsletterView(){
   const ed=canEdit('newsletter_post');
   let h='<div class="wrap view"><h1 class="page-title">News &amp; updates</h1>';
-  h+='<div class="nl-btns"><button class="btn btn-primary" onclick="go(\'newsletterlist\')">📰 All newsletters</button><button class="btn btn-blue" onclick="go(\'updates\')">📢 Updates &amp; announcements</button></div>';
+  h+='<div class="nl-btns"><button class="btn btn-primary" onclick="go(\'newsletterlist\')">All newsletters</button><button class="btn btn-blue" onclick="go(\'updates\')">📢 Updates &amp; announcements</button></div>';
   h+='<div class="nl-intro">'+NL_INTRO+'</div>';
   const feat=nlIssues()[0];
   h+='<h2 class="acts-sub">Featured newsletter</h2>';
@@ -1495,7 +1495,7 @@ function newsletterListView(){
   const ed=canEdit('newsletter_post');
   const issues=nlIssues();
   let h='<div class="wrap view"><button class="btn btn-ghost btn-sm" style="margin-bottom:14px" onclick="go(\'newsletter\')">\u2190 Back to News &amp; updates</button>'+
-    '<h1 class="page-title">Newsletters</h1><p class="page-intro">Every Earth Sweet Earth newsletter, newest first \u2014 each one opens as a PDF.</p>';
+    '<h1 class="page-title">Newsletters</h1><p class="page-intro">Sorted by newest first!</p>';
   if(issues.length){
     h+='<div class="nl-arch">'+issues.map(function(n){
       return '<div class="nl-a"><div class="nl-a-m"><span class="nl-time">'+esc(fmtDateTime(n.publishedAt))+'</span><span class="nl-a-t">'+esc(n.title)+'</span></div>'+
