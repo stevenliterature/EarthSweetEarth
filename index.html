@@ -1537,9 +1537,8 @@ function newsletterListView(){
 function annMonthKey(ts){ var d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1); }
 function annMonthLabel(ts){ var d=new Date(ts); return d.toLocaleDateString(undefined,{month:'long',year:'numeric'}); }
 function openAnnLink(id){ var n=newsletters.find(function(x){return sameId(x.id,id);}); if(n&&n.link) window.open(safeUrl(n.link),'_blank','noopener'); }
-function announcementFull(n,ed){   // one announcement shown fully: date, title, details, optional link
+function announcementFull(n,ed){   // one announcement shown fully: title, details, optional link (no timestamp — the date goes in the title)
   return '<div class="ann-item">'+
-    '<div class="nl-time">'+esc(fmtDateTime(n.publishedAt))+'</div>'+
     '<div class="ann-title">'+esc(n.title)+'</div>'+
     (n.body?'<div class="ann-body">'+esc(n.body)+'</div>':'')+
     (n.link?'<div style="margin-top:8px"><button class="btn btn-ghost btn-sm" onclick="openAnnLink(\''+n.id+'\')">🔗 Open link \u2197</button></div>':'')+
