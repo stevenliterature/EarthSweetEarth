@@ -2631,7 +2631,7 @@ function calendarView(){
   const canE=canEdit('calendar_edit');
   ensureChapters();
   const led=myLedChapter();
-  let h='<div class="wrap view"><h1 class="page-title">Calendar</h1><p class="page-intro">Everything happening at Earth Sweet Earth, in one place.</p>';
+  let h='<div class="wrap view"><h1 class="page-title">Calendar</h1><p class="page-intro">Meeting link (One will be posted when there is a meeting!)</p>';
   if(led) h+='<p><button class="btn btn-blue btn-sm" onclick="go(\'chapterhub\')">\u2699 Manage my chapter \u2192</button></p>';
   if(content.meetingLink){ h+='<a class="mtg-rect" href="'+escA(safeUrl(content.meetingLink))+'" target="_blank" rel="noopener">Join the next meeting \u2197</a>'+(canE?'<div class="rowbtns" style="margin-top:-8px;margin-bottom:18px"><button class="btn btn-ghost btn-xs" onclick="editMeetingLink()">Edit link</button></div>':''); }
   else if(canE){ h+='<button class="addbtn" onclick="editMeetingLink()" style="padding:18px;margin-bottom:18px">+ Add the next meeting link</button>'; }
