@@ -536,7 +536,10 @@
   .cmeta{font-size:.88rem;}
   .ctime{color:var(--muted);font-size:.78rem;margin-left:7px;}
   .ctext{font-size:.94rem;margin:2px 0 7px;line-height:1.45;overflow-wrap:break-word;}
-  .crx{display:flex;align-items:center;gap:6px;}
+  .crx{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .cmod{background:none;border:none;color:var(--muted);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;padding:2px 4px;border-radius:6px;}
+  .cmod:hover{color:var(--blue);background:rgba(32,131,196,.1);}
+  .cmod-del:hover{color:#c0392b;background:rgba(192,57,43,.1);}
   .cmp{display:flex;gap:8px;align-items:flex-end;}
   .cmp textarea{flex:1;font-family:inherit;font-size:.95rem;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);resize:vertical;}
   /* newsletter list */
@@ -785,6 +788,7 @@ const CAPS = [
   {id:'edit_content',    label:'Edit site content (team, contact links, footer)'},
   {id:'chapter_manage',  label:'Manage their own chapter (Chapter Hub tab)'},
   {id:'admin_settings',  label:'Open Owner Settings & manage roles'},
+  {id:'comment_moderate',label:'Edit & delete anyone’s comments'},
   {id:'views_tracked',   label:'Count this role’s views in analytics'},
 ];
 const allCaps=(v)=>Object.fromEntries(CAPS.map(c=>[c.id, c.id==='views_tracked'?true:v]));   // views count by default; the owner can switch a role off (e.g. a beta-tester role) so their visits don't inflate analytics
@@ -2377,6 +2381,31 @@ let gSocial={}, gViewIdx={};
 function galleryItems(){ return content.gallery||[]; }
 function gPhotos(g){ return (g.photos&&g.photos.length)?g.photos:(g.photo?[g.photo]:[]); }   // tolerate older single-photo posts
 function ensureSocial(id){ if(!gSocial[id]) gSocial[id]={reactions:{},mine:null,comments:[]}; return gSocial[id]; }
+// load all saved reactions + comments from Supabase into gSocial (so they persist + are shared, not just in-memory)
+async function loadSocial(){
+  if(!BACKEND) return;
+  try{
+    const res=await Promise.all([
+      sb.from('post_comments').select('id,post_id,user_id,username,avatar,body,created_at,edited_at').order('created_at',{ascending:true}),
+      sb.from('post_reactions').select('target_id,user_id,emoji')
+    ]);
+    const cmts=(res[0]&&res[0].data)||[], rx=(res[1]&&res[1].data)||[];
+    gSocial={};                       // rebuild from the source of truth
+    const cIndex={};
+    cmts.forEach(function(c){ const s=ensureSocial(c.post_id); const obj={id:c.id,userId:c.user_id,user:c.username||'Member',avatar:c.avatar||null,body:c.body,ts:new Date(c.created_at).getTime(),edited:!!c.edited_at,reactions:{},mine:null}; s.comments.push(obj); cIndex[c.id]=obj; });
+    rx.forEach(function(r){ const store=cIndex[r.target_id]||ensureSocial(r.target_id); store.reactions[r.emoji]=(store.reactions[r.emoji]||0)+1; if(account&&String(r.user_id)===String(account.id)) store.mine=r.emoji; });
+  }catch(e){}
+}
+// save/remove the current user's reaction on a target (a post id OR a comment id)
+function persistReaction(targetId,emoji){
+  if(!BACKEND||!account) return;
+  try{
+    if(emoji==null){ sb.from('post_reactions').delete().eq('target_id',targetId).eq('user_id',account.id).then(function(){},function(){}); }
+    else { sb.from('post_reactions').upsert({target_id:targetId,user_id:account.id,emoji:emoji},{onConflict:'target_id,user_id'}).then(function(){},function(){}); }
+  }catch(e){}
+}
+// may the current viewer edit/delete THIS comment? its author, or a role with the comment_moderate permission
+function canModerateComment(c){ return isLoggedIn() && ((c && c.userId && account && String(c.userId)===String(account.id)) || can('comment_moderate')); }
 function totalReactions(r){ let t=0; for(const k in r) t+=r[k]; return t; }
 function applyReaction(store,emoji){
   if(!store.reactions)store.reactions={};
@@ -2395,7 +2424,7 @@ function socialBar(id){
     (total?'<span class="rx-total">'+total+'</span>':'')+'</div>';
 }
 let _openSocial=null;   // which post's modal is open, so a reaction re-renders the right thing
-function socialReact(id,emoji){ if(!isLoggedIn()){ popup('Join in','Log in or sign up to react!'); return; } applyReaction(ensureSocial(id),emoji); refreshSocial(id); }
+function socialReact(id,emoji){ if(!isLoggedIn()){ popup('Join in','Log in or sign up to react!'); return; } const s=ensureSocial(id); applyReaction(s,emoji); persistReaction(id,s.mine); refreshSocial(id); }
 function refreshSocial(id){
   if(_openSocial && sameId(_openSocial.id,id)){
     if(_openSocial.kind==='gallery') renderPostModal(id); else renderNewsletterModal(id);
@@ -2501,22 +2530,57 @@ function renderPostModal(id){
 function commentRow(photoId,c){
   const live=(account && c.userId && String(c.userId)===String(account.id))?account.avatar:c.avatar;   // your picture updates everywhere
   const av=live?'<img src="'+escA(live)+'">':'<span class="cinit">'+esc((c.user||'?').charAt(0).toUpperCase())+'</span>';
+  const mod=canModerateComment(c);
   return '<div class="crow"><div class="cav">'+av+'</div><div class="cbody">'+
-    '<div class="cmeta"><strong>'+esc(c.user||'Member')+'</strong><span class="ctime">'+timeAgo(c.ts)+'</span></div>'+
+    '<div class="cmeta"><strong>'+esc(c.user||'Member')+'</strong><span class="ctime">'+timeAgo(c.ts)+(c.edited?' · edited':'')+'</span></div>'+
     '<div class="ctext" data-notranslate>'+esc(c.body)+'</div>'+
     (lang!=='en'?'<button class="ctrans" onclick="translateComment(this)">Translate</button>':'')+
     '<div class="crx">'+reactionChips({reactions:c.reactions||{},mine:c.mine},'commentReact(\''+photoId+'\',\''+c.id+'\',')+
-      '<button class="rx-add sm" title="Add reaction" onclick="openEmojiPicker(this,\'comment\',\''+photoId+'\',\''+c.id+'\')">🙂+</button></div>'+
+      '<button class="rx-add sm" title="Add reaction" onclick="openEmojiPicker(this,\'comment\',\''+photoId+'\',\''+c.id+'\')">🙂+</button>'+
+      (mod?'<button class="cmod" onclick="editComment(\''+photoId+'\',\''+c.id+'\')">Edit</button><button class="cmod cmod-del" onclick="deleteComment(\''+photoId+'\',\''+c.id+'\')">Delete</button>':'')+
+    '</div>'+
   '</div></div>';
 }
-function postComment(id){
+async function postComment(id){
   const el=document.getElementById('gc-input'), body=el?el.value.trim():''; if(!body)return;
-  ensureSocial(id).comments.push({id:'c'+Date.now(), userId:(account&&account.id)||null, user:(account&&account.username)||'You', avatar:(account&&account.avatar)||null, body:body, ts:Date.now(), reactions:{}, mine:null});
+  if(!isLoggedIn()){ popup('Join in','Log in to comment!'); return; }
+  const cid='c_'+uid();
+  const obj={id:cid, userId:account.id, user:account.username||'You', avatar:account.avatar||null, body:body, ts:Date.now(), edited:false, reactions:{}, mine:null};
+  ensureSocial(id).comments.push(obj);
+  if(el) el.value='';
   refreshSocial(id);
+  if(BACKEND){ try{ const {error}=await sb.from('post_comments').insert({id:cid, post_id:id, user_id:account.id, username:obj.user, avatar:obj.avatar, body:body}); if(error) toast('Comment didn’t save — try again'); }catch(e){ toast('Comment didn’t save — try again'); } }
 }
 function commentReact(pid,commentId,emoji){
   if(!isLoggedIn()){ popup('Join in','Log in to react!'); return; }
-  const c=ensureSocial(pid).comments.find(function(x){return x.id===commentId;}); if(!c)return; applyReaction(c,emoji); refreshSocial(pid);
+  const c=ensureSocial(pid).comments.find(function(x){return x.id===commentId;}); if(!c)return; applyReaction(c,emoji); persistReaction(commentId,c.mine); refreshSocial(pid);
+}
+// reopen whichever post/comments modal was open (comment edit/delete happen inside it)
+function reopenSocial(){ const o=_openSocial; closeModal(); if(o){ _openSocial=o; if(o.kind==='gallery')renderPostModal(o.id); else renderNewsletterModal(o.id); } else { render(); } }
+function editComment(pid,cid){
+  const c=ensureSocial(pid).comments.find(function(x){return x.id===cid;}); if(!c || !canModerateComment(c))return;
+  openModal('<button class="x" onclick="reopenSocial()" aria-label="Close">×</button><h3>Edit comment</h3>'+
+    '<textarea id="cedit-input" rows="3" style="width:100%;font-family:inherit;font-size:1rem;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)">'+esc(c.body)+'</textarea>'+
+    '<div style="display:flex;gap:10px;margin-top:14px"><button class="btn btn-primary" style="flex:1" onclick="saveEditComment(\''+pid+'\',\''+cid+'\')">Save</button><button class="btn btn-ghost" style="flex:1" onclick="reopenSocial()">Cancel</button></div>');
+  setTimeout(function(){ const t=document.getElementById('cedit-input'); if(t){ t.focus(); t.setSelectionRange(t.value.length,t.value.length); } },30);
+}
+function saveEditComment(pid,cid){
+  const c=ensureSocial(pid).comments.find(function(x){return x.id===cid;}); if(!c)return;
+  const t=document.getElementById('cedit-input'), nb=t?t.value.trim():'';
+  if(!nb){ toast('Comment can’t be empty'); return; }
+  c.body=nb; c.edited=true; reopenSocial();
+  if(BACKEND){ try{ sb.from('post_comments').update({body:nb, edited_at:new Date().toISOString()}).eq('id',cid).then(function(r){ if(r&&r.error)toast('Edit didn’t save'); },function(){}); }catch(e){} }
+}
+function deleteComment(pid,cid){
+  const c=ensureSocial(pid).comments.find(function(x){return x.id===cid;}); if(!c || !canModerateComment(c))return;
+  openModal('<button class="x" onclick="reopenSocial()" aria-label="Close">×</button><h3>Delete this comment?</h3><p>This permanently removes the comment. This can’t be undone.</p>'+
+    '<div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-danger" style="flex:1" onclick="doDeleteComment(\''+pid+'\',\''+cid+'\')">Delete</button><button class="btn btn-ghost" style="flex:1" onclick="reopenSocial()">Cancel</button></div>');
+}
+function doDeleteComment(pid,cid){
+  const s=ensureSocial(pid); const i=s.comments.findIndex(function(x){return x.id===cid;});
+  if(i>=0) s.comments.splice(i,1);
+  reopenSocial();
+  if(BACKEND){ try{ sb.from('post_comments').delete().eq('id',cid).then(function(){},function(){}); sb.from('post_reactions').delete().eq('target_id',cid).then(function(){},function(){}); }catch(e){} }
 }
 function timeAgo(ts){ const d=Math.floor((Date.now()-ts)/1000); if(d<60)return 'just now'; if(d<3600)return Math.floor(d/60)+'m ago'; if(d<86400)return Math.floor(d/3600)+'h ago'; return Math.floor(d/86400)+'d ago'; }
 
@@ -3965,7 +4029,8 @@ async function init(){
   document.body.setAttribute('data-theme',theme);
   restoreLang();
   const preP = (BACKEND && langChosen && lang!=='en') ? preloadTranslations(lang).catch(function(){}) : Promise.resolve();   // load the cached translations in parallel with the backend, so the first paint is already in the saved language (no English-then-flip)
-  if(BACKEND){ try{ await loadSession(); await loadSiteContent(); }catch(e){} loadNotifCount(); loadEventData(); ensureChapters(); checkDiscord(); sb.auth.onAuthStateChange(()=>{loadSession().then(function(){render();loadNotifCount();eventDataLoaded=false;ensureEventData();chaptersLoaded=false;ensureChapters();}).catch(()=>{});}); }
+  if(BACKEND){ try{ await loadSession(); await loadSiteContent(); }catch(e){} loadNotifCount(); loadEventData(); ensureChapters(); checkDiscord(); loadSocial().then(function(){ render(); });   // reactions + comments (persist + shared)
+    sb.auth.onAuthStateChange(()=>{loadSession().then(function(){loadSocial().then(function(){render();});loadNotifCount();eventDataLoaded=false;ensureEventData();chaptersLoaded=false;ensureChapters();}).catch(()=>{});}); }
   if(!location.hash) location.hash='#/home';
   try{ await preP; }catch(e){}
   render();

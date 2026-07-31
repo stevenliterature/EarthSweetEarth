@@ -530,3 +530,65 @@ begin
 end;
 $$;
 grant execute on function public.ese_clear_lang_view(text) to authenticated;
+
+-- ==========================================================================
+--  Post reactions + comments (shared by announcements, newsletters, gallery)
+--  These used to be in-memory only, so nothing saved. Now they persist + sync.
+-- ==========================================================================
+-- One reaction per user per target (a post OR a comment). Anyone reads; you manage only your own.
+create table if not exists public.post_reactions (
+  target_id  text not null,
+  user_id    uuid not null references auth.users(id) on delete cascade,
+  emoji      text not null,
+  created_at timestamptz not null default now(),
+  primary key (target_id, user_id)
+);
+alter table public.post_reactions enable row level security;
+drop policy if exists "anyone reads reactions" on public.post_reactions;
+drop policy if exists "manage own reaction"    on public.post_reactions;
+create policy "anyone reads reactions" on public.post_reactions for select using (true);
+create policy "manage own reaction"    on public.post_reactions for all
+  using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create table if not exists public.post_comments (
+  id         text primary key,
+  post_id    text not null,
+  user_id    uuid references auth.users(id) on delete set null,
+  username   text,
+  avatar     text,
+  body       text not null,
+  created_at timestamptz not null default now(),
+  edited_at  timestamptz
+);
+alter table public.post_comments enable row level security;
+
+-- Can the current user moderate (edit/delete) ANYONE's comment? owner/admin, or a role whose
+-- caps include comment_moderate (roles live in the site_content JSON, keyed by profiles.role).
+create or replace function public.ese_can_moderate_comments()
+returns boolean language sql security definer stable set search_path = public as $$
+  select public.is_admin() or coalesce((
+    select (sc.data->'roles'->p.role->'caps'->>'comment_moderate')::boolean
+    from public.profiles p cross join public.site_content sc
+    where p.id = auth.uid() and sc.id = 1
+  ), false);
+$$;
+grant execute on function public.ese_can_moderate_comments() to authenticated;
+
+drop policy if exists "anyone reads comments"  on public.post_comments;
+drop policy if exists "post own comment"        on public.post_comments;
+drop policy if exists "edit own or moderate"    on public.post_comments;
+drop policy if exists "delete own or moderate"  on public.post_comments;
+create policy "anyone reads comments"  on public.post_comments for select using (true);
+create policy "post own comment"        on public.post_comments for insert with check (auth.uid() = user_id);
+create policy "edit own or moderate"    on public.post_comments for update using (auth.uid() = user_id or public.ese_can_moderate_comments());
+create policy "delete own or moderate"  on public.post_comments for delete using (auth.uid() = user_id or public.ese_can_moderate_comments());
+
+-- realtime so reactions/comments show up live for everyone (idempotent)
+do $$ begin
+  if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='post_reactions') then
+    alter publication supabase_realtime add table public.post_reactions;
+  end if;
+  if not exists (select 1 from pg_publication_tables where pubname='supabase_realtime' and schemaname='public' and tablename='post_comments') then
+    alter publication supabase_realtime add table public.post_comments;
+  end if;
+end $$;
