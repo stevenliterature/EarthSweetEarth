@@ -1181,7 +1181,15 @@ function discordSettingsHtml(){
 /* ==========================================================================
    6) PREVIEW SWITCHER, DARK MODE, NAV
    ========================================================================== */
-const PREVIEWS=[{id:'public',label:'Public'},{id:'member',label:'Member'},{id:'chapter_leader',label:'Chapter Leader'},{id:'moderator',label:'Moderator'},{id:'admin',label:'Admin'},{id:'owner',label:'Owner'}];
+// preview roles are built LIVE from the roles map, so custom roles you create (e.g. "Poster") become preview options too
+const PREVIEW_ORDER=['public','member','chapter_leader','moderator','admin','owner'];
+function previews(){
+  const out=[{id:'public',label:'Public'}];                                   // "Public" = view as a logged-out visitor
+  Object.keys(roles).filter(function(id){return id!=='public';})
+    .sort(function(a,b){ const ia=PREVIEW_ORDER.indexOf(a), ib=PREVIEW_ORDER.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib); })   // built-ins in order, custom roles after
+    .forEach(function(id){ out.push({id:id,label:(roles[id]&&roles[id].name)||id}); });
+  return out;
+}
 function setPreview(id){ previewAs=id; recomputeSession(); if(!canView(route()))go('home'); render(); }
 const curPreview=()=> previewAs || (account?account.roleId:'public');
 // the preview bar is a private owner tool: only the real Owner sees it (or anyone in local preview mode before keys)
@@ -1192,7 +1200,7 @@ function renderChrome(){
   const proto=document.getElementById('protoBar');
   if(showPreviewBar()){
     proto.style.display='';
-    document.getElementById('previewBar').innerHTML=PREVIEWS.map(p=>'<button class="'+(curPreview()===p.id?'active':'')+'" onclick="setPreview(\''+p.id+'\')">'+p.label+'</button>').join('');
+    document.getElementById('previewBar').innerHTML=previews().map(p=>'<button class="'+(curPreview()===p.id?'active':'')+'" onclick="setPreview(\''+p.id+'\')">'+esc(p.label)+'</button>').join('');
     document.getElementById('backendTag').textContent = BACKEND ? 'Accounts: live' : '';
   } else {
     proto.style.display='none';
@@ -2982,7 +2990,7 @@ function adminView(){
 }
 function toggleCap(id,cap,val){ if(roles[id].locked)return; roles[id].caps[cap]=val; saveSiteContent(true); render(); }
 function toggleEditUI(on){ editUI=!!on; render(); }
-function openCreateRole(){ openEditor('Create a new role',[{key:'name',label:'Role name',type:'text',placeholder:'e.g. Event Lead'}],null,v=>{ roles['role_'+uid()]={name:v.name,caps:allCaps(false)}; saveSiteContent(true); toast('Created role: '+v.name); }); }
+function openCreateRole(){ openEditor('Create a new role',[{key:'name',label:'Role name',type:'text',placeholder:'e.g. Event Lead'}],null,v=>{ roles['role_'+uid()]={name:v.name,caps:allCaps(false)}; saveSiteContent(true); toast('Created role: '+v.name); render(); }); }
 
 /* ---- member management (search / role save / delete) ---- */
 let memberResults=null, memberQuery='';
