@@ -148,13 +148,49 @@ create table if not exists public.site_content (
 
 alter table public.site_content enable row level security;
 
+-- Site content is one shared JSON row. Editing roles (Poster, Moderator, etc.) manage parts of it
+-- (gallery, newsletters, activities, events, general content), so writes are allowed for owner/admin
+-- OR any role whose caps include a content-editing permission -- not just is_admin(). Without this,
+-- a non-admin editor's save fails with "new row violates row-level security policy for site_content".
+create or replace function public.ese_can_edit_content()
+returns boolean language sql security definer stable set search_path = public as $$
+  select public.is_admin() or exists (
+    select 1 from public.profiles p, public.site_content sc
+    where p.id = auth.uid() and sc.id = 1 and (
+      coalesce((sc.data->'roles'->p.role->'caps'->>'gallery_upload')::boolean,false) or
+      coalesce((sc.data->'roles'->p.role->'caps'->>'newsletter_post')::boolean,false) or
+      coalesce((sc.data->'roles'->p.role->'caps'->>'programs_update')::boolean,false) or
+      coalesce((sc.data->'roles'->p.role->'caps'->>'calendar_edit')::boolean,false) or
+      coalesce((sc.data->'roles'->p.role->'caps'->>'edit_content')::boolean,false)
+    )
+  );
+$$;
+grant execute on function public.ese_can_edit_content() to authenticated;
+
 drop policy if exists "anyone reads site content"  on public.site_content;
 drop policy if exists "admins insert site content" on public.site_content;
 drop policy if exists "admins update site content" on public.site_content;
+drop policy if exists "editors insert site content" on public.site_content;
+drop policy if exists "editors update site content" on public.site_content;
 
-create policy "anyone reads site content"  on public.site_content for select using (true);
-create policy "admins insert site content" on public.site_content for insert with check (public.is_admin());
-create policy "admins update site content" on public.site_content for update using (public.is_admin());
+create policy "anyone reads site content"   on public.site_content for select using (true);
+create policy "editors insert site content" on public.site_content for insert with check (public.ese_can_edit_content());
+create policy "editors update site content" on public.site_content for update using (public.ese_can_edit_content());
+
+-- Guard: non-admin content editors may change anything EXCEPT the roles/permissions blob (so a Poster
+-- can't grant themselves admin). Their attempted roles changes are silently replaced with the existing roles.
+create or replace function public.guard_site_content_roles()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_admin() then
+    new.data = jsonb_set(new.data, '{roles}', coalesce(old.data->'roles','{}'::jsonb));
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists guard_site_content_roles on public.site_content;
+create trigger guard_site_content_roles before update on public.site_content
+  for each row execute function public.guard_site_content_roles();
 
 -- seed the single row so the site has something to read on first load
 insert into public.site_content (id, data) values (1, '{}'::jsonb)
