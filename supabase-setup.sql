@@ -466,6 +466,27 @@ returns json language sql security definer set search_path = public stable as $$
 $$;
 grant execute on function public.ese_stats() to anon, authenticated;
 
+-- Owner-only: the actual list of distinct countries (members + chapters), sorted A-Z, for the
+-- clickable "Countries" stat in Owner Analytics. Matches the ese_stats country count.
+create or replace function public.ese_country_list()
+returns text[] language plpgsql security definer stable set search_path = public as $$
+declare result text[];
+begin
+  if not public.is_admin() then return '{}'; end if;
+  select coalesce(array_agg(c order by c),'{}') into result from (
+    select distinct btrim(c) c from (
+      select country as c from public.profiles
+      union all
+      select elem->>'country' from public.site_content sc,
+             lateral jsonb_array_elements(coalesce(sc.data->'chapters','[]'::jsonb)) elem
+       where sc.id = 1
+    ) src where nullif(btrim(coalesce(c,'')),'') is not null
+  ) d;
+  return result;
+end;
+$$;
+grant execute on function public.ese_country_list() to authenticated;
+
 -- Carry the optional sign-up chapter through to the new profile.
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer set search_path = public as $$
