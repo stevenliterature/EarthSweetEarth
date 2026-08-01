@@ -502,6 +502,12 @@
   .g-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
   .g-ph span{font-size:2.8rem;opacity:.65;}
   .gcap{font-size:.95rem;color:var(--ink);margin:11px 2px 7px;line-height:1.4;}
+  .gcat{position:absolute;top:10px;left:10px;background:rgba(0,88,0,.86);color:#fff;font-size:.74rem;font-weight:600;padding:3px 9px;border-radius:100px;backdrop-filter:blur(2px);pointer-events:none;}
+  .gfilter{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px;}
+  .gfilter-b{background:transparent;border:1.5px solid var(--line);color:var(--ink);font-family:inherit;font-size:.86rem;font-weight:600;padding:6px 14px;border-radius:100px;cursor:pointer;transition:background .15s,border-color .15s,color .15s;}
+  .gfilter-b:hover{border-color:var(--green);}
+  .gfilter-b.on{background:var(--green);border-color:var(--green);color:#fff;}
+  [data-theme="dark"] .gfilter-b.on{color:#07130c;}
   .rx{display:flex;align-items:center;gap:7px;margin:0 2px;min-height:30px;}
   .rx-shown{display:inline-flex;align-items:center;}
   .rx-chip{display:inline-flex;align-items:center;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:100px;padding:2px 7px;margin-left:-9px;cursor:pointer;transition:margin .18s,border-color .15s,background .15s;}
@@ -2122,8 +2128,41 @@ function initPuzzleCaptcha(id){
   host.querySelector('.pcap-refresh').addEventListener('click',function(){ st.solved=false; slider.disabled=false; slider.value=0; host.classList.remove('solved'); pcapNew(st); });
 }
 function puzzleSolved(id){ return !!(PCAP[id]&&PCAP[id].solved); }
+/* ---- form drafts: keep an in-progress application (all fields + drawn signatures) so leaving the page and coming back doesn't lose it. Stored per-device in localStorage; cleared on submit. ---- */
+const DRAFT_TTL=30*24*3600*1000;   // forget an untouched draft after 30 days
+function _draftKey(formId){ return 'ese_draft_'+formId; }
+function saveFormDraft(formId){
+  const f=document.getElementById(formId); if(!f)return;
+  const d={ts:Date.now(),fields:{},sigs:{}};
+  Array.prototype.forEach.call(f.querySelectorAll('input,textarea,select'),function(el){
+    if(!el.id || el.type==='file' || el.classList.contains('pcap-slider')) return;   // skip file inputs + the human-check slider (re-verify each time)
+    if(el.type==='checkbox'||el.type==='radio') d.fields[el.id]={c:el.checked}; else d.fields[el.id]={v:el.value};
+  });
+  Array.prototype.forEach.call(f.querySelectorAll('canvas.sigpad'),function(cv){ if(cv.id && cv._drawn){ try{ d.sigs[cv.id]=cv.toDataURL('image/png'); }catch(e){} } });
+  try{ localStorage.setItem(_draftKey(formId),JSON.stringify(d)); }catch(e){}
+}
+function restoreFormDraft(formId){
+  let d; try{ d=JSON.parse(localStorage.getItem(_draftKey(formId))||'null'); }catch(e){}
+  if(!d || (d.ts && Date.now()-d.ts>DRAFT_TTL)){ if(d) clearFormDraft(formId); return false; }
+  const f=document.getElementById(formId); if(!f)return false;
+  Object.keys(d.fields||{}).forEach(function(id){ const el=document.getElementById(id); if(!el)return; const s=d.fields[id]; if('c' in s)el.checked=!!s.c; else if('v' in s)el.value=s.v; });
+  Object.keys(d.sigs||{}).forEach(function(id){ const cv=document.getElementById(id); if(cv&&cv._ctx){ const img=new Image(); img.onload=function(){ try{ cv._ctx.save(); cv._ctx.setTransform(1,0,0,1,0,0); cv._ctx.drawImage(img,0,0,cv.width,cv.height); cv._ctx.restore(); cv._drawn=true; }catch(e){} }; img.src=d.sigs[id]; } });
+  return true;
+}
+function clearFormDraft(formId){ try{ localStorage.removeItem(_draftKey(formId)); }catch(e){} }
+let _draftForms={}, _draftGlobalBound=false, _draftT={};
+function _draftSave(formId){ clearTimeout(_draftT[formId]); _draftT[formId]=setTimeout(function(){ saveFormDraft(formId); },350); }
+function attachFormDraft(formId){
+  const f=document.getElementById(formId); if(!f)return; _draftForms[formId]=1;
+  if(!f._draftBound){ f._draftBound=true; f.addEventListener('input',function(){_draftSave(formId);}); f.addEventListener('change',function(){_draftSave(formId);}); }
+  if(!_draftGlobalBound){ _draftGlobalBound=true;                                   // signatures end on a pointer-up anywhere; save after each stroke
+    const g=function(){ Object.keys(_draftForms).forEach(function(fid){ if(document.getElementById(fid)) _draftSave(fid); }); };
+    document.addEventListener('mouseup',g); document.addEventListener('touchend',g); }
+}
 function initChapterApply(){
-  caDrawConsent(); caSetupSig('ca-sig-parent'); caSetupSig('ca-sig-self'); caWordCount(); caCountryChange(); initPuzzleCaptcha('ca-cap');
+  caDrawConsent(); caSetupSig('ca-sig-parent'); caSetupSig('ca-sig-self'); initPuzzleCaptcha('ca-cap');
+  restoreFormDraft('caForm'); attachFormDraft('caForm');
+  caCountryChange(); caWordCount();   // reflect any restored country / answer
 }
 async function submitChapterApplication(e){
   if(e&&e.preventDefault)e.preventDefault();
@@ -2152,7 +2191,7 @@ async function submitChapterApplication(e){
   const btn=document.querySelector('#caForm button[type="submit"]'); if(btn){ btn.disabled=true; btn.textContent='Submitting\u2026'; }
   let ok=true, emsg='';
   if(BACKEND){ try{ const {error}=await sb.from('chapter_applications').insert({data:app}); if(error){ ok=false; emsg=error.message; } else { try{ sb.functions.invoke('notify-application',{body:{type:'chapter',data:app}}); }catch(e){} } }catch(ex){ ok=false; emsg='network error'; } }
-  if(ok){ openModal('<h3>Application received! \ud83c\udf31</h3><p>Thanks, '+esc(app.name)+'! The ESE team will review it and reach out on Discord. You can close this window.</p><button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="closeModal();go(\'chapters\')">Done</button>'); }
+  if(ok){ clearFormDraft('caForm'); openModal('<h3>Application received! \ud83c\udf31</h3><p>Thanks, '+esc(app.name)+'! The ESE team will review it and reach out on Discord. You can close this window.</p><button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="closeModal();go(\'chapters\')">Done</button>'); }
   else { if(btn){ btn.disabled=false; btn.textContent='Submit application'; } fail('Sorry \u2014 we couldn\u2019t submit that ('+emsg+'). Please try again in a moment.'); }
   return false;
 }
@@ -2206,7 +2245,7 @@ function ylLoadRecaptcha(){
   if(!document.getElementById('ca-recaptcha-js')){ const s=document.createElement('script'); s.id='ca-recaptcha-js'; s.src='https://www.google.com/recaptcha/api.js'; s.async=true; s.defer=true; document.head.appendChild(s); }
   let tries=0; const iv=setInterval(function(){ if((window.grecaptcha&&grecaptcha.render)||++tries>40){ clearInterval(iv); doRender(); } },250);
 }
-function initYouthApply(){ ylCount('yl-acc','yl-acc-c',500); ylCount('yl-improve','yl-improve-c',500); ylCount('yl-nominate','yl-nominate-c',150); ylCountryChange(); initPuzzleCaptcha('yl-cap'); }
+function initYouthApply(){ initPuzzleCaptcha('yl-cap'); restoreFormDraft('ylForm'); attachFormDraft('ylForm'); ylCount('yl-acc','yl-acc-c',500); ylCount('yl-improve','yl-improve-c',500); ylCount('yl-nominate','yl-nominate-c',150); ylCountryChange(); }
 function editRepThreshold(){ openEditor('Minimum Discord reputation',[{key:'n',label:'Minimum reputation points required',type:'text',placeholder:'e.g. 50'}],{n:content.repThreshold!=null?String(content.repThreshold):'50'},function(v){ const n=parseInt(v.n,10); content.repThreshold=isNaN(n)?0:n; toast('Saved'); saveSiteContent(true); }); }
 async function submitYouthApplication(e){
   if(e&&e.preventDefault)e.preventDefault();
@@ -2234,7 +2273,7 @@ async function submitYouthApplication(e){
   const btn=document.querySelector('#ylForm button[type="submit"]'); if(btn){ btn.disabled=true; btn.textContent='Submitting\u2026'; }
   let ok=true, emsg='';
   if(BACKEND){ try{ const {error}=await sb.from('youth_applications').insert({data:app}); if(error){ ok=false; emsg=error.message; } else { try{ sb.functions.invoke('notify-application',{body:{type:'leadership',data:app}}); }catch(e){} } }catch(ex){ ok=false; emsg='network error'; } }
-  if(ok){ openModal('<h3>Application received! 🌱</h3><p>Thanks, '+esc(app.name)+'! The ESE team will review it and reach out on Discord. You can close this window.</p><button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="closeModal();go(\'about\')">Done</button>'); }
+  if(ok){ clearFormDraft('ylForm'); openModal('<h3>Application received! 🌱</h3><p>Thanks, '+esc(app.name)+'! The ESE team will review it and reach out on Discord. You can close this window.</p><button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="closeModal();go(\'about\')">Done</button>'); }
   else { if(btn){ btn.disabled=false; btn.textContent='Submit application'; } fail('Sorry \u2014 we couldn\u2019t submit that ('+emsg+'). Please try again in a moment.'); }
   return false;
 }
@@ -2464,7 +2503,7 @@ function galleryTile(g,admin){
   const nav=(n>1 && !g.inDrive)?'<button class="gnav gprev" title="Previous" onclick="gStep(\''+g.id+'\',-1,event)">\u2039</button><button class="gnav gnext" title="More photos" onclick="gStep(\''+g.id+'\',1,event)">\u203A</button><span class="gcount" id="gcount-'+g.id+'">'+(i+1)+'/'+n+'</span>':'';
   const s=ensureSocial(g.id), nC=s.comments.length;
   return '<figure class="gtile">'+
-    '<div class="gphoto" onclick="openGalleryPost(\''+g.id+'\')">'+media+nav+'</div>'+
+    '<div class="gphoto" onclick="openGalleryPost(\''+g.id+'\')">'+media+nav+(g.category?'<span class="gcat">'+esc(galCatLabel(g.category))+'</span>':'')+'</div>'+
     (g.caption?'<figcaption class="gcap">'+esc(g.caption)+'</figcaption>':'')+
     socialBar(g.id)+
     '<div class="gfoot">'+
@@ -2480,20 +2519,30 @@ function gStep(id,dir,ev){
   const im=document.getElementById('gimg-'+id); if(im)im.src=ps[nx];
   const c=document.getElementById('gcount-'+id); if(c)c.textContent=(nx+1)+'/'+ps.length;
 }
+// gallery categories: posts of the org doing things vs. things we observe (empty = miscellaneous)
+const GAL_CATS=[{id:'do',label:'What we do'},{id:'observe',label:'What we observe'}];
+let gFilter='all';
+function galCatLabel(id){ const c=GAL_CATS.find(function(x){return x.id===id;}); return c?c.label:''; }         // '' for no-category
+function galFilterLabel(id){ if(id==='misc')return 'Miscellaneous'; return galCatLabel(id)||'All'; }
+function setGalleryFilter(f){ gFilter=f; render(); }
 function galleryView(){
-  const ed=canEditKind('gallery'), items=galleryItems();
+  const ed=canEditKind('gallery'), all=galleryItems();
+  const items=(gFilter==='all')?all:all.filter(function(g){ return gFilter==='misc'?!g.category:(g.category===gFilter); });
   const feat=items.filter(function(g){return g.featured;}), gen=items.filter(function(g){return !g.featured;});
   let h='<div class="wrap view"><h1 class="page-title">An Impact You Can <em>See</em></h1>'+
     '<p class="page-intro">Snapshots from clean-ups, plantings, and events \u2014 react, comment, and cheer each other on.</p>';
-  if(ed) h+='<div style="margin:6px 0 22px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="newGalleryPost()">+ New post</button><button class="btn btn-ghost btn-sm" onclick="editDriveUrl()">\u2699 Photo drive</button></div>';
+  if(ed) h+='<div style="margin:6px 0 16px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="newGalleryPost()">+ New post</button><button class="btn btn-ghost btn-sm" onclick="editDriveUrl()">\u2699 Photo drive</button></div>';
+  // filter by category
+  const filters=[{id:'all',label:'All'}].concat(GAL_CATS).concat([{id:'misc',label:'Miscellaneous'}]);
+  h+='<div class="gfilter">'+filters.map(function(f){ return '<button class="gfilter-b'+(gFilter===f.id?' on':'')+'" onclick="setGalleryFilter(\''+f.id+'\')">'+esc(f.label)+'</button>'; }).join('')+'</div>';
   if(feat.length){
     h+='<h2 class="acts-sub" style="margin-top:6px">Featured</h2>'+
        '<div class="gfeat-row">'+feat.map(function(g){return galleryTile(g,ed);}).join('')+'</div>';
   }
-  h+='<h2 class="acts-sub">See our full gallery</h2>';
+  h+='<h2 class="acts-sub">'+(gFilter==='all'?'See our full gallery':esc(galFilterLabel(gFilter)))+'</h2>';
   h+=gen.length?('<div class="ggrid">'+gen.map(function(g){return galleryTile(g,ed);}).join('')+'</div>')
-               :'<p class="muted">Nothing here yet \u2014 check back soon!</p>';
-  h+='<div class="g-submit'+(items.length?'':' g-submit-far')+'">'+
+               :'<p class="muted">'+(gFilter==='all'?'Nothing here yet \u2014 check back soon!':'Nothing in this category yet.')+'</p>';
+  h+='<div class="g-submit'+(all.length?'':' g-submit-far')+'">'+
        '<p>Submit your own highlights on Discord for a chance to have your photos posted!</p>'+
        ucHover('<button class="btn btn-blue" onclick="comingSoon()">Submit on Discord</button>')+
      '</div>';
@@ -2587,11 +2636,11 @@ function timeAgo(ts){ const d=Math.floor((Date.now()-ts)/1000); if(d<60)return '
 /* ---- gallery post editor: up to 15 photos, pick a cover, or hand off to the drive ---- */
 const GMAX=15;
 let _gEd=null;
-function newGalleryPost(){ _gEd={id:null,caption:'',photos:[],thumb:0,driveLink:content.driveUrl||'',inDrive:false}; renderGalleryEditor(); }
+function newGalleryPost(){ _gEd={id:null,caption:'',photos:[],thumb:0,driveLink:content.driveUrl||'',inDrive:false,category:''}; renderGalleryEditor(); }
 function editGalleryPost(id){ const g=(content.gallery||[]).find(function(x){return sameId(x.id,id);}); if(!g)return;
-  _gEd={id:g.id,caption:g.caption||'',photos:gPhotos(g).slice(),thumb:g.thumb||0,driveLink:g.driveLink||content.driveUrl||'',inDrive:!!g.inDrive}; renderGalleryEditor(); }
-function syncGEd(){ const c=document.getElementById('ged-cap'), d=document.getElementById('ged-drive'), k=document.getElementById('ged-indrive');
-  if(c)_gEd.caption=c.value; if(d)_gEd.driveLink=d.value; if(k)_gEd.inDrive=k.checked; }
+  _gEd={id:g.id,caption:g.caption||'',photos:gPhotos(g).slice(),thumb:g.thumb||0,driveLink:g.driveLink||content.driveUrl||'',inDrive:!!g.inDrive,category:g.category||''}; renderGalleryEditor(); }
+function syncGEd(){ const c=document.getElementById('ged-cap'), d=document.getElementById('ged-drive'), k=document.getElementById('ged-indrive'), cat=document.getElementById('ged-cat');
+  if(c)_gEd.caption=c.value; if(d)_gEd.driveLink=d.value; if(k)_gEd.inDrive=k.checked; if(cat)_gEd.category=cat.value; }
 function renderGalleryEditor(){
   const e=_gEd;
   const thumbs=e.photos.map(function(p,i){ return '<div class="ged-t'+(i===e.thumb?' on':'')+'"><img src="'+escA(p)+'">'+
@@ -2599,6 +2648,10 @@ function renderGalleryEditor(){
     '<button type="button" title="Remove" onclick="removeGPhoto('+i+')">\u00d7</button></div></div>'; }).join('');
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3>'+(e.id?'Edit post':'New gallery post')+'</h3><div class="ed">'+
     '<label>Caption / description</label><textarea id="ged-cap" rows="3" placeholder="What\u2019s happening in these photos?">'+esc(e.caption)+'</textarea>'+
+    '<label>Category</label><select id="ged-cat" class="ed-select">'+
+      '<option value=""'+(e.category?'':' selected')+'>Miscellaneous (no category)</option>'+
+      GAL_CATS.map(function(c){ return '<option value="'+c.id+'"'+(e.category===c.id?' selected':'')+'>'+c.label+'</option>'; }).join('')+
+    '</select>'+
     '<label>Photos <span class="muted" style="font-weight:400">('+e.photos.length+'/'+GMAX+' \u2014 the \u2605 one is the cover)</span></label>'+
     (e.photos.length<GMAX?'<input id="ged-file" type="file" accept="image/*" multiple>':'<p class="muted" style="font-size:.85rem;margin:0">You\u2019ve reached the '+GMAX+'-photo limit.</p>')+
     (thumbs?'<div class="ged-grid">'+thumbs+'</div>':'')+
@@ -2639,8 +2692,8 @@ function saveGalleryPost(){
   content.gallery=content.gallery||[];
   const photos=e.inDrive?[]:e.photos, thumb=e.inDrive?0:e.thumb;
   if(e.id){ const g=content.gallery.find(function(x){return sameId(x.id,e.id);});
-    if(g){ g.caption=e.caption; g.photos=photos; g.thumb=thumb; g.driveLink=e.driveLink; g.inDrive=e.inDrive; delete g.photo; } }
-  else { content.gallery.unshift({id:uid(), caption:e.caption, photos:photos, thumb:thumb, driveLink:e.driveLink, inDrive:e.inDrive, featured:false, ts:Date.now()}); }
+    if(g){ g.caption=e.caption; g.photos=photos; g.thumb=thumb; g.driveLink=e.driveLink; g.inDrive=e.inDrive; g.category=e.category||''; delete g.photo; } }
+  else { content.gallery.unshift({id:uid(), caption:e.caption, photos:photos, thumb:thumb, driveLink:e.driveLink, inDrive:e.inDrive, category:e.category||'', featured:false, ts:Date.now()}); }
   gViewIdx={}; closeModal(); toast('Saved'); saveSiteContent(true); render();
 }
 
