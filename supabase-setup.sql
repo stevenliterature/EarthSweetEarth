@@ -614,9 +614,11 @@ create table if not exists public.post_comments (
   username   text,
   avatar     text,
   body       text not null,
+  parent_id  text,        -- a reply points at the comment it answers (null = top-level)
   created_at timestamptz not null default now(),
   edited_at  timestamptz
 );
+alter table public.post_comments add column if not exists parent_id text;   -- for tables created before replies existed
 alter table public.post_comments enable row level security;
 
 -- Can the current user moderate (edit/delete) ANYONE's comment? owner/admin, or a role whose

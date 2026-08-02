@@ -550,6 +550,10 @@
   .cmod-del:hover{color:#c0392b;background:rgba(192,57,43,.1);}
   .cmp{display:flex;gap:8px;align-items:flex-end;}
   .cmp textarea{flex:1;font-family:inherit;font-size:.95rem;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);resize:vertical;}
+  .creplies{margin:2px 0 2px 20px;padding-left:12px;border-left:2px solid var(--line);}
+  .creply-box{margin:2px 0 8px 48px;}
+  .cmp-reply{margin-top:2px;}
+  .cmp-reply textarea{font-size:.9rem;}
   /* newsletter list */
   .nl-list{display:flex;flex-direction:column;gap:12px;}
   .nl-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .15s;}
@@ -878,7 +882,7 @@ function fmtDate(d){ if(!d) return ''; const p=d.split('-'); return p.length===3
 
 const modal=document.getElementById('modal');
 function openModal(html){modal.innerHTML='<div class="modal-card">'+html+'</div>';modal.classList.add('open');if(lang!=='en'&&langChosen)applyTranslations();}
-function closeModal(){modal.classList.remove('open');modal.innerHTML='';if(typeof _openSocial!=='undefined')_openSocial=null;}
+function closeModal(){modal.classList.remove('open');modal.innerHTML='';if(typeof _openSocial!=='undefined')_openSocial=null;if(typeof _replyTo!=='undefined')_replyTo=null;}
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
 function popup(t,m){openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>'+t+'</h3><p>'+m+'</p><button class="btn btn-primary" onclick="closeModal()">Got it</button>');}
@@ -1611,14 +1615,14 @@ function renderNewsletterModal(id){
   const n=newsletters.find(function(x){return sameId(x.id,id);}); if(!n)return;
   _openSocial={kind:'news',id:id};
   const s=ensureSocial(id);
-  const thread=s.comments.length?s.comments.map(function(c){return commentRow(id,c);}).join(''):'<p class="muted" style="text-align:center;margin:14px 0">No comments yet \u2014 be the first!</p>';
+  const thread=commentThread(id, s.comments);
   const compose=isLoggedIn()
     ?'<div class="cmp"><textarea id="gc-input" rows="2" placeholder="Add a comment\u2026"></textarea><button class="btn btn-primary btn-sm" onclick="postComment(\''+id+'\')">Post</button></div>'
     :'<p class="muted" style="text-align:center;margin:0"><a href="#" onclick="closeModal();openLogin();return false;">Log in</a> to join the conversation.</p>';
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3 style="margin-bottom:2px">Comments</h3><p class="muted" style="margin-bottom:14px">'+esc(n.title)+'</p>'+
     socialBar(id)+'<div class="cthread" style="margin-top:12px">'+thread+'</div>'+compose);
 }
-function openNewsletterComments(id){ renderNewsletterModal(id); }
+function openNewsletterComments(id){ _replyTo=null; renderNewsletterModal(id); }
 function editNewsletter(id){ const n=newsletters.find(function(x){return sameId(x.id,id);}); if(!n)return;
   const fields=[{key:'title',label:'Title',type:'text'},{key:'body',label:'Body',type:'textarea'}];
   if(n.kind!=='issue') fields.push({key:'link',label:'Link (optional)',type:'url'});   // announcements can carry a link
@@ -2448,13 +2452,13 @@ async function loadSocial(){
   if(!BACKEND) return;
   try{
     const res=await Promise.all([
-      sb.from('post_comments').select('id,post_id,user_id,username,avatar,body,created_at,edited_at').order('created_at',{ascending:true}),
+      sb.from('post_comments').select('id,post_id,user_id,username,avatar,body,parent_id,created_at,edited_at').order('created_at',{ascending:true}),
       sb.from('post_reactions').select('target_id,user_id,emoji')
     ]);
     const cmts=(res[0]&&res[0].data)||[], rx=(res[1]&&res[1].data)||[];
     gSocial={};                       // rebuild from the source of truth
     const cIndex={};
-    cmts.forEach(function(c){ const s=ensureSocial(c.post_id); const obj={id:c.id,userId:c.user_id,user:c.username||'Member',avatar:c.avatar||null,body:c.body,ts:new Date(c.created_at).getTime(),edited:!!c.edited_at,reactions:{},mine:null}; s.comments.push(obj); cIndex[c.id]=obj; });
+    cmts.forEach(function(c){ const s=ensureSocial(c.post_id); const obj={id:c.id,userId:c.user_id,user:c.username||'Member',avatar:c.avatar||null,body:c.body,ts:new Date(c.created_at).getTime(),edited:!!c.edited_at,parentId:c.parent_id||null,reactions:{},mine:null}; s.comments.push(obj); cIndex[c.id]=obj; });
     rx.forEach(function(r){ const store=cIndex[r.target_id]||ensureSocial(r.target_id); store.reactions[r.emoji]=(store.reactions[r.emoji]||0)+1; if(account&&String(r.user_id)===String(account.id)) store.mine=r.emoji; });
   }catch(e){}
 }
@@ -2575,7 +2579,7 @@ function toggleFeatureGallery(id){ const g=(content.gallery||[]).find(function(x
 function editDriveUrl(){ openEditor('Photo drive',[{key:'url',label:'Shared photo drive (e.g. a Google Drive folder)',type:'url',placeholder:'https://drive.google.com/\u2026'}],{url:content.driveUrl||''},function(v){ content.driveUrl=(v.url||'').trim(); toast('Saved'); saveSiteContent(true); }); }
 
 /* ---- the post itself (photos + text + reactions + comments) ---- */
-function openGalleryPost(id){ renderPostModal(id); }
+function openGalleryPost(id){ _replyTo=null; renderPostModal(id); }
 function renderPostModal(id){
   const g=galleryItems().find(function(x){return sameId(x.id,id);}); if(!g)return;
   _openSocial={kind:'gallery',id:id};
@@ -2589,7 +2593,7 @@ function renderPostModal(id){
     media='<div class="gp-media"><img id="gpm-img-'+id+'" src="'+escA(ps[i])+'" alt="">'+
       (n>1?'<button class="gnav gprev" onclick="gStep(\''+id+'\',-1,event)">\u2039</button><button class="gnav gnext" onclick="gStep(\''+id+'\',1,event)">\u203A</button><span class="gcount" id="gpm-count-'+id+'">'+(i+1)+'/'+n+'</span>':'')+'</div>';
   }
-  const thread=s.comments.length?s.comments.map(function(c){return commentRow(id,c);}).join(''):'<p class="muted" style="text-align:center;margin:14px 0">No comments yet \u2014 be the first!</p>';
+  const thread=commentThread(id, s.comments);
   const compose=isLoggedIn()
     ?'<div class="cmp"><textarea id="gc-input" rows="2" placeholder="Add a comment\u2026"></textarea><button class="btn btn-primary btn-sm" onclick="postComment(\''+id+'\')">Post</button></div>'
     :'<p class="muted" style="text-align:center;margin:0"><a href="#" onclick="closeModal();openLogin();return false;">Log in</a> to join the conversation.</p>';
@@ -2609,6 +2613,7 @@ function commentRow(photoId,c){
     (lang!=='en'?'<button class="ctrans" onclick="translateComment(this)">Translate</button>':'')+
     '<div class="crx">'+reactionChips({reactions:c.reactions||{},mine:c.mine},'commentReact(\''+photoId+'\',\''+c.id+'\',')+
       '<button class="rx-add sm" title="Add reaction" onclick="openEmojiPicker(this,\'comment\',\''+photoId+'\',\''+c.id+'\')">🙂+</button>'+
+      '<button class="cmod" onclick="startReply(\''+photoId+'\',\''+c.id+'\')">Reply</button>'+
       (mod?'<button class="cmod" onclick="editComment(\''+photoId+'\',\''+c.id+'\')">Edit</button><button class="cmod cmod-del" onclick="deleteComment(\''+photoId+'\',\''+c.id+'\')">Delete</button>':'')+
     '</div>'+
   '</div></div>';
@@ -2617,11 +2622,40 @@ async function postComment(id){
   const el=document.getElementById('gc-input'), body=el?el.value.trim():''; if(!body)return;
   if(!isLoggedIn()){ popup('Join in','Log in to comment!'); return; }
   const cid='c_'+uid();
-  const obj={id:cid, userId:account.id, user:account.username||'You', avatar:account.avatar||null, body:body, ts:Date.now(), edited:false, reactions:{}, mine:null};
+  const obj={id:cid, userId:account.id, user:account.username||'You', avatar:account.avatar||null, body:body, ts:Date.now(), edited:false, parentId:null, reactions:{}, mine:null};
   ensureSocial(id).comments.push(obj);
   if(el) el.value='';
   refreshSocial(id);
   if(BACKEND){ try{ const {error}=await sb.from('post_comments').insert({id:cid, post_id:id, user_id:account.id, username:obj.user, avatar:obj.avatar, body:body}); if(error) toast('Comment didn’t save — try again'); }catch(e){ toast('Comment didn’t save — try again'); } }
+}
+// ---- replies: a reply is a comment with a parentId (a top-level comment). Same actions as any comment. ----
+let _replyTo=null;
+function commentThread(postId, comments){
+  if(!comments.length) return '<p class="muted" style="text-align:center;margin:14px 0">No comments yet — be the first!</p>';
+  const byParent={}; comments.forEach(function(c){ const k=c.parentId||''; (byParent[k]=byParent[k]||[]).push(c); });
+  const one=function(c,isReply){ return commentRow(postId,c,isReply)+(_replyTo===c.id?'<div class="creply-box">'+replyComposer(postId)+'</div>':''); };
+  return (byParent['']||[]).map(function(c){
+    let h=one(c,false);
+    const reps=byParent[c.id]||[];
+    if(reps.length){ h+='<div class="creplies">'+reps.map(function(r){return one(r,true);}).join('')+'</div>'; }
+    return h;
+  }).join('');
+}
+function replyComposer(postId){
+  if(!isLoggedIn()) return '<p class="muted" style="margin:6px 0 0"><a href="#" onclick="closeModal();openLogin();return false;">Log in</a> to reply.</p>';
+  return '<div class="cmp cmp-reply"><textarea id="reply-input" rows="1" placeholder="Write a reply…"></textarea><button class="btn btn-primary btn-sm" onclick="postReply(\''+postId+'\')">Reply</button><button class="btn btn-ghost btn-sm" onclick="cancelReply()">Cancel</button></div>';
+}
+function startReply(postId,commentId){ if(!isLoggedIn()){ popup('Join in','Log in or sign up to reply!'); return; } _replyTo=commentId; refreshSocial(postId); setTimeout(function(){ const t=document.getElementById('reply-input'); if(t)t.focus(); },40); }
+function cancelReply(){ const pid=_openSocial&&_openSocial.id; _replyTo=null; if(pid)refreshSocial(pid); else render(); }
+async function postReply(postId){
+  const t=document.getElementById('reply-input'), body=t?t.value.trim():''; if(!body)return;
+  if(!isLoggedIn()){ popup('Join in','Log in to reply!'); return; }
+  const s=ensureSocial(postId), target=s.comments.find(function(x){return x.id===_replyTo;});
+  const parentId=(target&&target.parentId)?target.parentId:_replyTo;   // keep it 2 levels: a reply always hangs off the top-level comment
+  const cid='c_'+uid();
+  const obj={id:cid, userId:account.id, user:account.username||'You', avatar:account.avatar||null, body:body, ts:Date.now(), edited:false, parentId:parentId, reactions:{}, mine:null};
+  s.comments.push(obj); _replyTo=null; refreshSocial(postId);
+  if(BACKEND){ try{ const {error}=await sb.from('post_comments').insert({id:cid, post_id:postId, user_id:account.id, username:obj.user, avatar:obj.avatar, body:body, parent_id:parentId}); if(error) toast('Reply didn’t save — try again'); }catch(e){ toast('Reply didn’t save — try again'); } }
 }
 function commentReact(pid,commentId,emoji){
   if(!isLoggedIn()){ popup('Join in','Log in to react!'); return; }
