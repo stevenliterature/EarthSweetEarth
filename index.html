@@ -554,6 +554,7 @@
   .creply-box{margin:2px 0 8px 48px;}
   .cmp-reply{margin-top:2px;}
   .cmp-reply textarea{font-size:.9rem;}
+  .cconfirm-preview{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-top:12px;white-space:pre-wrap;overflow-wrap:break-word;max-height:30vh;overflow-y:auto;color:var(--ink);}
   /* newsletter list */
   .nl-list{display:flex;flex-direction:column;gap:12px;}
   .nl-card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .15s;}
@@ -885,7 +886,7 @@ function fmtDate(d){ if(!d) return ''; const p=d.split('-'); return p.length===3
 
 const modal=document.getElementById('modal');
 function openModal(html){modal.innerHTML='<div class="modal-card">'+html+'</div>';modal.classList.add('open');if(lang!=='en'&&langChosen)applyTranslations();}
-function closeModal(){modal.classList.remove('open');modal.innerHTML='';if(typeof _openSocial!=='undefined')_openSocial=null;if(typeof _replyTo!=='undefined')_replyTo=null;}
+function closeModal(){modal.classList.remove('open');modal.innerHTML='';if(typeof _openSocial!=='undefined')_openSocial=null;if(typeof _replyTo!=='undefined')_replyTo=null;if(typeof _pendingComment!=='undefined')_pendingComment=null;}
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
 function popup(t,m){openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>'+t+'</h3><p>'+m+'</p><button class="btn btn-primary" onclick="closeModal()">Got it</button>');}
@@ -1969,7 +1970,7 @@ function chaptersView(){                                  // top-bar landing pag
     '<h2 class="chaphead">How do you start a chapter?</h2>'+
     '<ul class="chapreqs">'+
       '<li>You must be a registered member of ESE.'+(isLoggedIn()?'':' <span class="muted">(Not a member yet? It only takes 30 seconds! <a href="#" onclick="openSignup();return false;">Sign up now!</a>)</span>')+'</li>'+
-      '<li>You must have at least 4 other youth, not including you, to start with. (Total of 5 people)</li>'+
+      '<li>You must have at least 3 other youth, not including you, to start with. (Total of 4 people)</li>'+
       '<li>You must be able to clearly communicate with confidence, including publicly if necessary.</li>'+
     '</ul>'+
     '<h2 class="chaphead">I\u2019ve started a chapter. Now what?</h2>'+
@@ -2026,7 +2027,7 @@ const caWords=(s)=> (String(s).trim().match(/\S+/g)||[]).length;
 
 function chapterApplyView(){
   const optList=(a)=>a.map(x=>'<option>'+esc(x)+'</option>').join('');
-  const five=(pfx,ph)=>{ let s='<div class="ca-five">'; for(let i=1;i<=5;i++) s+='<input class="in" id="'+pfx+i+'" type="text" maxlength="60" autocomplete="off" placeholder="'+ph+' '+i+'">'; return s+'</div>'; };
+  const memberInputs=()=>{ let s='<div class="ca-five">'; for(let i=1;i<=4;i++) s+='<input class="in" id="ca-p'+i+'" type="text" maxlength="60" autocomplete="off" placeholder="'+(i===1?'You':'Your friends')+'">'; return s+'</div>'; };   // 4 starting members: you + 3 friends
   const sig=(id)=>'<div class="sig-wrap"><canvas class="sigpad" id="'+id+'"></canvas><button type="button" class="btn btn-ghost btn-xs" onclick="caClearSig(\''+id+'\')">Clear</button></div>';
   const fld=(label,inner,hint)=>'<div class="ca-fld"><label class="ca-label">'+label+'</label>'+inner+(hint?'<p class="ca-hint">'+hint+'</p>':'')+'</div>';
   return '<div class="wrap view apply">'+
@@ -2038,7 +2039,7 @@ function chapterApplyView(){
       fld('Country or territory','<select class="in" id="ca-country" onchange="caCountryChange()"><option value="">Choose\u2026</option>'+optList(CA_COUNTRIES)+'</select><div id="ca-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="ca-sublabel" style="font-weight:500">State / province</label><select class="in" id="ca-sub"></select></div>')+
       fld('Full school name','<input class="in" id="ca-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. North Forest Middle School">')+
       fld('Grade','<select class="in" id="ca-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
-      fld('Write the name of each person. <span class="muted">(Write your own name in the first blank.)</span>', five('ca-p','Person'))+
+      fld('Your starting team — you and 3 friends. <span class="muted">(Write your own name in the first blank.)</span>', memberInputs())+
       // fld('Their 5 Discord usernames', five('ca-d','Username'))+
       fld('Type this statement out, word for word','<canvas class="consent-img" id="ca-consent-img"></canvas><textarea class="in" id="ca-consent" rows="4" autocomplete="off" placeholder="Type the statement above here\u2026"></textarea>')+
       fld('Why do you want to start a chapter? <span class="muted">(500 words max)</span>','<textarea class="in" id="ca-why" rows="6" oninput="caWordCount()" placeholder="Briefly tell us why \u2014 and anything else we should know."></textarea>','<span id="ca-why-count">0 / 500 words</span>')+
@@ -2060,19 +2061,26 @@ function caCountryChange(){
 }
 function caWordCount(){ const el=document.getElementById('ca-why'), c=document.getElementById('ca-why-count'); if(!el||!c)return; const n=caWords(el.value); c.textContent=n+' / 500 words'; c.parentElement.className='ca-hint'+(n>500?' bad':''); }
 function caClearSig(id){ const cv=document.getElementById(id); if(cv&&cv._ctx){ cv._ctx.clearRect(0,0,cv.width,cv.height); cv._drawn=false; } }
+function caConsentTranslation(){ return (lang!=='en' && langChosen) ? t(CA_CONSENT) : null; }   // the statement in the viewer's language (or null in English / if uncached)
 function caDrawConsent(){
   const cv=document.getElementById('ca-consent-img'); if(!cv)return;
-  const W=Math.max(260, cv.parentElement.clientWidth-2), dpr=window.devicePixelRatio||1, ctx=cv.getContext('2d');
-  const pad=16, fs=16, lh=25, font=fs+'px Georgia, "Times New Roman", serif';
-  ctx.font=font; const words=CA_CONSENT.split(' '), lines=[]; let line='';
-  words.forEach(w=>{ const t=line?line+' '+w:w; if(ctx.measureText(t).width>W-pad*2 && line){ lines.push(line); line=w; } else line=t; });
-  if(line)lines.push(line);
-  const H=lines.length*lh+pad*2;
-  cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px';
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.fillStyle=(document.body.getAttribute('data-theme')==='dark')?'#20241d':'#fbfaf5'; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle=(document.body.getAttribute('data-theme')==='dark')?'#e7eef3':'#1a2e22'; ctx.font=font; ctx.textBaseline='top';
-  lines.forEach((l,i)=>ctx.fillText(l,pad,pad+i*lh));
+  const dark=document.body.getAttribute('data-theme')==='dark';
+  const showTr=(lang!=='en' && langChosen);
+  let translated=showTr?t(CA_CONSENT):null;
+  const haveTr=showTr && translated && translated!==CA_CONSENT;
+  if(showTr && !haveTr){ try{ translateBatch([CA_CONSENT], lang).then(function(){ caDrawConsent(); }); }catch(e){} }   // not cached yet -> fetch, then redraw
+  const W=Math.max(260, cv.parentElement.clientWidth-2), dpr=window.devicePixelRatio||1, ctx=cv.getContext('2d'), pad=16;
+  const mainText=haveTr?translated:CA_CONSENT;
+  const mfont='16px Georgia, "Times New Roman", serif', mlh=25;
+  const subText=haveTr?CA_CONSENT:null;                       // when a translation is shown, put the English underneath in gray
+  const sfont='12.5px Georgia, "Times New Roman", serif', slh=19;
+  const wrap=(text,fontStr)=>{ ctx.font=fontStr; const words=text.split(' '), out=[]; let line=''; words.forEach(function(w){ const tt=line?line+' '+w:w; if(ctx.measureText(tt).width>W-pad*2 && line){ out.push(line); line=w; } else line=tt; }); if(line)out.push(line); return out; };
+  const mLines=wrap(mainText,mfont), sLines=subText?wrap(subText,sfont):[];
+  const gap=sLines.length?10:0, H=pad*2+mLines.length*mlh+gap+sLines.length*slh;
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle=dark?'#20241d':'#fbfaf5'; ctx.fillRect(0,0,W,H); ctx.textBaseline='top';
+  ctx.fillStyle=dark?'#e7eef3':'#1a2e22'; ctx.font=mfont; mLines.forEach((l,i)=>ctx.fillText(l,pad,pad+i*mlh));
+  if(sLines.length){ ctx.fillStyle=dark?'#8a97a0':'#9a998c'; ctx.font=sfont; const y0=pad+mLines.length*mlh+gap; sLines.forEach((l,i)=>ctx.fillText(l,pad,y0+i*slh)); }
 }
 function caSetupSig(id){
   const cv=document.getElementById(id); if(!cv)return;
@@ -2205,10 +2213,11 @@ async function submitChapterApplication(e){
   const subShown=document.getElementById('ca-subwrap').style.display!=='none';
   if(subShown && !val('ca-sub')) return fail('Please choose your state / province.','ca-sub');
   if(!val('ca-school')) return fail('Please enter your full school name and district.','ca-school');
-  const members=[]; for(let i=1;i<=5;i++){ const v=val('ca-p'+i); if(!v) return fail('Please list all five other starting members (person '+i+').','ca-p'+i); members.push(v); }
+  const members=[]; for(let i=1;i<=4;i++){ const v=val('ca-p'+i); if(!v) return fail('Please fill in all four names — you and three friends.','ca-p'+i); members.push(v); }
   const memberDiscords=[];   // members' Discord usernames are no longer collected or required
   const norm=(s)=>s.toLowerCase().replace(/\s+/g,' ').replace(/[\u2018\u2019]/g,"'").trim();
-  if(norm(val('ca-consent'))!==norm(CA_CONSENT)) return fail('You have a mistake in the statement. Please type it out fully and correctly.','ca-consent');
+  const consentTyped=norm(val('ca-consent')), consentTr=caConsentTranslation();   // accept either the English OR the translated statement
+  if(consentTyped!==norm(CA_CONSENT) && !(consentTr && consentTr!==CA_CONSENT && consentTyped===norm(consentTr))) return fail('You have a mistake in the statement. Please type it out fully and correctly.','ca-consent');
   const why=val('ca-why'); if(!why) return fail('Please tell us why you want to start a chapter.','ca-why');
   if(caWords(why)>500) return fail('Please keep your answer to 500 words or fewer.','ca-why');
   if(!document.getElementById('ca-privacy').checked) return fail('Please check the privacy confirmation box.','ca-privacy');
@@ -2621,15 +2630,33 @@ function commentRow(photoId,c){
     '</div>'+
   '</div></div>';
 }
-async function postComment(id){
+// posting a comment/reply first asks "Are you sure?" with a keep-it-kind reminder (Post it / Edit it)
+let _pendingComment=null;
+function postComment(id){
   const el=document.getElementById('gc-input'), body=el?el.value.trim():''; if(!body)return;
   if(!isLoggedIn()){ popup('Join in','Log in to comment!'); return; }
+  _pendingComment={postId:id, body:body, kind:'comment'}; showCommentConfirm();
+}
+async function doPostComment(id, body){
   const cid='c_'+uid();
   const obj={id:cid, userId:account.id, user:account.username||'You', avatar:account.avatar||null, body:body, ts:Date.now(), edited:false, parentId:null, reactions:{}, mine:null};
   ensureSocial(id).comments.push(obj);
-  if(el) el.value='';
   refreshSocial(id);
   if(BACKEND){ try{ const {error}=await sb.from('post_comments').insert({id:cid, post_id:id, user_id:account.id, username:obj.user, avatar:obj.avatar, body:body}); if(error) toast('Comment didn’t save — try again'); }catch(e){ toast('Comment didn’t save — try again'); } }
+}
+function showCommentConfirm(){
+  const pc=_pendingComment; if(!pc)return;
+  openModal('<button class="x" onclick="editPendingComment()" aria-label="Close">×</button>'+
+    '<h3>Are you sure?</h3>'+
+    '<p>Please double-check your '+(pc.kind==='reply'?'reply':'comment')+' is kind and respectful — curse words, discrimination, and anything offensive aren’t allowed.</p>'+
+    '<div class="cconfirm-preview">'+esc(pc.body)+'</div>'+
+    '<div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-primary" style="flex:1" onclick="submitPendingComment()">Post it</button><button class="btn btn-ghost" style="flex:1" onclick="editPendingComment()">Edit it</button></div>');
+}
+function submitPendingComment(){ const pc=_pendingComment; _pendingComment=null; if(!pc)return; if(pc.kind==='reply') doPostReply(pc.postId, pc.body, pc.replyTo); else doPostComment(pc.postId, pc.body); }
+function editPendingComment(){ const pc=_pendingComment; _pendingComment=null; if(!pc){ closeModal(); return; }   // back to editing, with the text kept
+  if(pc.kind==='reply') _replyTo=pc.replyTo||null;
+  refreshSocial(pc.postId);
+  setTimeout(function(){ const t=document.getElementById(pc.kind==='reply'?'reply-input':'gc-input'); if(t){ t.value=pc.body; t.focus(); try{ t.setSelectionRange(t.value.length,t.value.length); }catch(e){} } },50);
 }
 // ---- replies: a reply is a comment with a parentId (a top-level comment). Same actions as any comment. ----
 let _replyTo=null;
@@ -2650,11 +2677,14 @@ function replyComposer(postId){
 }
 function startReply(postId,commentId){ if(!isLoggedIn()){ popup('Join in','Log in or sign up to reply!'); return; } _replyTo=commentId; refreshSocial(postId); setTimeout(function(){ const t=document.getElementById('reply-input'); if(t)t.focus(); },40); }
 function cancelReply(){ const pid=_openSocial&&_openSocial.id; _replyTo=null; if(pid)refreshSocial(pid); else render(); }
-async function postReply(postId){
+function postReply(postId){
   const t=document.getElementById('reply-input'), body=t?t.value.trim():''; if(!body)return;
   if(!isLoggedIn()){ popup('Join in','Log in to reply!'); return; }
-  const s=ensureSocial(postId), target=s.comments.find(function(x){return x.id===_replyTo;});
-  const parentId=(target&&target.parentId)?target.parentId:_replyTo;   // keep it 2 levels: a reply always hangs off the top-level comment
+  _pendingComment={postId:postId, body:body, kind:'reply', replyTo:_replyTo}; showCommentConfirm();
+}
+async function doPostReply(postId, body, replyTo){
+  const s=ensureSocial(postId), target=s.comments.find(function(x){return x.id===replyTo;});
+  const parentId=(target&&target.parentId)?target.parentId:replyTo;   // keep it 2 levels: a reply always hangs off the top-level comment
   const cid='c_'+uid();
   const obj={id:cid, userId:account.id, user:account.username||'You', avatar:account.avatar||null, body:body, ts:Date.now(), edited:false, parentId:parentId, reactions:{}, mine:null};
   s.comments.push(obj); _replyTo=null; refreshSocial(postId);
@@ -3014,7 +3044,7 @@ function viewApplication(k,id){
   const d=analyticsData; if(!d)return;
   const arr=k==='chapter'?d.chApps:d.ylApps, a=arr.find(function(x){return String(x.id)===String(id);}); if(!a)return;
   const ad=a.data||{}; let rows='';
-  const label={name:'Name',discord:'Discord',email:'Email',grade:'Grade',country:'Country',subdivision:'State / province',school:'School',members:'Five members',memberDiscords:'Their Discords',why:'Why',roles:'Roles',accomplished:'Accomplishments',improve:'Improvement ideas',nomination:'Peer nomination',under13:'Under 13'};
+  const label={name:'Name',discord:'Discord',email:'Email',grade:'Grade',country:'Country',subdivision:'State / province',school:'School',members:'Starting members',memberDiscords:'Their Discords',why:'Why',roles:'Roles',accomplished:'Accomplishments',improve:'Improvement ideas',nomination:'Peer nomination',under13:'Under 13'};
   Object.keys(ad).forEach(function(key){ if(/signature|submittedAt/i.test(key))return; let val=ad[key]; if(Array.isArray(val))val=val.join(', '); if(typeof val==='boolean')val=val?'Yes':'No'; if(val===''||val==null)return; rows+='<div class="ad-row"><span class="ad-k">'+esc(label[key]||key)+'</span><span class="ad-v">'+esc(String(val))+'</span></div>'; });
   // viewing NO LONGER marks it reviewed \u2014 you choose. Buttons: toggle reviewed, delete, or close.
   const reviewBtn = a.reviewed
