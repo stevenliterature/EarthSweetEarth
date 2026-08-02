@@ -76,11 +76,18 @@ Deno.serve(async (req) => {
           const text =
             `Your Earth Sweet Earth password reset code is ${newCode}.\n\n` +
             `It expires in ${CODE_TTL_MIN} minutes. If you didn't ask to reset your password, ignore this email.`;
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${RESEND}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ from: FROM, to: em, subject: "Your Earth Sweet Earth password reset code", html, text }),
-          }).catch(() => {});
+          try {
+            const r = await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${RESEND}`, "Content-Type": "application/json" },
+              body: JSON.stringify({ from: FROM, to: em, subject: "Your Earth Sweet Earth password reset code", html, text }),
+            });
+            if (!r.ok) console.error("[password-reset] Resend rejected:", r.status, await r.text());
+          } catch (e) {
+            console.error("[password-reset] Resend threw:", String(e));
+          }
+        } else {
+          console.error("[password-reset] RESEND_API_KEY is not set");
         }
       }
       // Always the same answer, whether or not the account exists — don't leak who has an account.
