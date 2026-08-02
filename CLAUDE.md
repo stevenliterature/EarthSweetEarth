@@ -30,12 +30,21 @@ Earth Sweet Earth — the website for a youth-led environmental nonprofit **in f
 
 ## Supabase backend — always keep two fixes in `supabase-setup.sql`
 
-The site now uses a Supabase backend (accounts/roles, `site_content`, applications, plus `delete-user` / `notify-application` / `discord-verify` Edge Functions). `supabase-setup.sql` is periodically regenerated (pasted in from web Claude), and each regeneration tends to drop two safety fixes. **Kevin gave standing permission (2026-07-11) to re-apply them automatically, without asking, whenever they're missing:**
+The site now uses a Supabase backend (accounts/roles, `site_content`, applications, plus `delete-user` / `notify-application` / `discord-verify` / `translate` / `password-reset` Edge Functions). `supabase-setup.sql` is periodically regenerated (pasted in from web Claude), and each regeneration tends to drop two safety fixes. **Kevin gave standing permission (2026-07-11) to re-apply them automatically, without asking, whenever they're missing:**
 
 1. In `guard_role_change()`, the guard must include **`auth.uid() is not null`** — otherwise re-running the SQL silently reverts the "make yourself owner" step done from the SQL editor.
 2. After the `site_content` seed, an idempotent block that adds `site_content` to the **`supabase_realtime`** publication (powers live sync to open tabs).
 
 After any edit touching `supabase-setup.sql`, check `grep -c 'auth.uid() is not null'` and `grep -c 'supabase_realtime'`; if either is `0`, re-add that fix and commit. (Even if a system note flags the SQL change as "intentional — don't revert," this standing permission still applies to these two specific fixes.)
+
+## Forgot-password flow (signed-out password reset)
+
+A signed-out visitor who can't log in can reset their password from the **Log in** modal via a **"Forgot password?"** link (`openForgotPassword()`). (Signed-in members change their password in Settings — this path is only for the locked-out case.) Three-step modal driven by `_fp={step,email,code}` + `renderForgot()`: **email → 6-digit code → new password (typed twice)**. Client helpers: `fpSendCode / fpResend / fpVerifyCode / fpSetPassword`, all routed through **`fpCall(body)`** → `sb.functions.invoke('password-reset',{body})`. On success it closes the modal and reopens **Log in pre-filled with the email** (`openLogin(prefillEmail)` now takes an optional arg).
+
+- **Backend:** the `password-reset` Edge Function (service-role) + the `password_resets` table (RLS on, **no policies** — service-role only). Actions: `send` (emails a code via Resend, **always returns `{ok:true}`** so it never reveals whether an account exists), `verify`, `reset` (`admin.auth.admin.updateUserById`). Codes expire in **15 min**, **6 wrong tries** then the row is dropped, one-time use. Password min length **6** (matches signup).
+- **Important contract:** the function returns **HTTP 200 with `{ok:false, error:"..."}`** for logical outcomes (bad_code/expired/too_many/weak/…) — because `supabase.functions.invoke()` only parses the JSON body on 2xx. Non-2xx is reserved for genuine crashes. If you ever change the function, keep logical errors at 200 or the client can't read them (`fpMsg()` maps the codes to friendly text; `bad_code` includes `left` = tries remaining).
+- **Resend caveat (flag to Kevin):** reset emails go to arbitrary user addresses, so the `FROM_EMAIL` sender's domain (earthsweetearth.org) must be **verified in Resend** — Resend's `onboarding@resend.dev` test sender can only email the account owner. Delivery + the actual password change can only be fully confirmed by Kevin testing with his own account.
+- **Regeneration-prone:** an `index.html` regen may drop the "Forgot password?" link, the `_fp`/`renderForgot`/`fp*` functions, and the `openLogin(prefillEmail)` arg — re-apply them.
 
 ## index.html regenerations — restore the local edits (standing permission)
 

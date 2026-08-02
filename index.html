@@ -886,7 +886,7 @@ function fmtDate(d){ if(!d) return ''; const p=d.split('-'); return p.length===3
 
 const modal=document.getElementById('modal');
 function openModal(html){modal.innerHTML='<div class="modal-card">'+html+'</div>';modal.classList.add('open');if(lang!=='en'&&langChosen)applyTranslations();}
-function closeModal(){modal.classList.remove('open');modal.innerHTML='';if(typeof _openSocial!=='undefined')_openSocial=null;if(typeof _replyTo!=='undefined')_replyTo=null;if(typeof _pendingComment!=='undefined')_pendingComment=null;}
+function closeModal(){modal.classList.remove('open');modal.innerHTML='';if(typeof _openSocial!=='undefined')_openSocial=null;if(typeof _replyTo!=='undefined')_replyTo=null;if(typeof _pendingComment!=='undefined')_pendingComment=null;if(typeof _fp!=='undefined')_fp=null;}
 modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && modal.classList.contains('open')) closeModal(); });
 function popup(t,m){openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>'+t+'</h3><p>'+m+'</p><button class="btn btn-primary" onclick="closeModal()">Got it</button>');}
@@ -997,11 +997,13 @@ async function doSignup(){
     await loadSession();closeModal();render();toast('Welcome, '+user+'!');
   } else { account={roleId:'member',username:user,email,avatar:null,country:country};previewAs=null;recomputeSession();closeModal();render();toast('Signed up (preview) — welcome, '+user+'!'); }
 }
-function openLogin(){
+function openLogin(prefillEmail){
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Log in</h3>'+noteHtml()+
-    '<label>Email</label><input id="li-email" type="email" placeholder="you@example.com">'+
+    '<label>Email</label><input id="li-email" type="email" placeholder="you@example.com" value="'+escA(prefillEmail||'')+'">'+
     '<label>Password</label><input id="li-pass" type="password" placeholder="Your password">'+
-    '<p class="err" id="li-err"></p><button class="btn btn-primary" id="li-btn" style="width:100%;margin-top:6px" onclick="doLogin()">Log in</button>'+'<p class="muted" style="text-align:center;margin:14px 0 0;font-size:.9rem">New to ESE? <a href="#" onclick="closeModal();openSignup();return false;">Create an account</a></p>');
+    '<p class="err" id="li-err"></p><button class="btn btn-primary" id="li-btn" style="width:100%;margin-top:6px" onclick="doLogin()">Log in</button>'+
+    '<p class="muted" style="text-align:center;margin:12px 0 0;font-size:.9rem"><a href="#" onclick="openForgotPassword();return false;">Forgot password?</a></p>'+
+    '<p class="muted" style="text-align:center;margin:8px 0 0;font-size:.9rem">New to ESE? <a href="#" onclick="closeModal();openSignup();return false;">Create an account</a></p>');
 }
 async function doLogin(){
   const email=v('li-email'),pass=document.getElementById('li-pass').value,err=document.getElementById('li-err');
@@ -1016,6 +1018,97 @@ async function doLogin(){
       return;}
     await loadSession();closeModal();render();toast('Logged in');checkDiscord();
   } else { account={roleId:'member',username:email.split('@')[0],email,avatar:null};previewAs=null;recomputeSession();closeModal();render();toast('Logged in (preview)'); }
+}
+// ---- Forgot password (only when signed out) ----------------------------------
+// Flow: enter email -> we email a 6-digit code -> type the code -> set a new password.
+// The codes live in a service-role-only table on the server, so this page can never
+// read them; it can only ask the password-reset Edge Function to send/verify them.
+// (Signed-in members change their password in Settings instead — this is the locked-out path.)
+let _fp=null;
+function openForgotPassword(){
+  const pre=(document.getElementById('li-email')||{}).value||'';
+  _fp={step:'email',email:String(pre).trim(),code:''};
+  renderForgot();
+}
+function fpErr(m){const e=document.getElementById('fp-err');if(e)e.textContent=m||'';}
+function renderForgot(){
+  if(!_fp)return;
+  const back='<button class="x" onclick="closeModal()" aria-label="Close">×</button>';
+  if(_fp.step==='email'){
+    openModal(back+'<h3>Forgot password</h3>'+
+      '<p class="muted" style="margin:0 0 10px;font-size:.92rem">Enter the email you signed up with and we’ll send a 6-digit code to reset your password.</p>'+
+      '<label>Email</label><input id="fp-email" type="email" placeholder="you@example.com" value="'+escA(_fp.email)+'">'+
+      '<p class="err" id="fp-err"></p>'+
+      '<button class="btn btn-primary" id="fp-btn" style="width:100%;margin-top:6px" onclick="fpSendCode()">Send code</button>'+
+      '<p class="muted" style="text-align:center;margin:12px 0 0;font-size:.9rem"><a href="#" onclick="closeModal();openLogin();return false;">Back to log in</a></p>');
+    setTimeout(function(){const el=document.getElementById('fp-email');if(el)el.focus();},30);
+  } else if(_fp.step==='code'){
+    openModal(back+'<h3>Enter the code</h3>'+
+      '<p class="muted" style="margin:0 0 10px;font-size:.92rem">If an account exists for <b>'+esc(_fp.email)+'</b>, a 6-digit code is on its way. Enter it below — it expires in 15 minutes.</p>'+
+      '<label>6-digit code</label><input id="fp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456">'+
+      '<p class="err" id="fp-err"></p>'+
+      '<button class="btn btn-primary" id="fp-btn" style="width:100%;margin-top:6px" onclick="fpVerifyCode()">Verify code</button>'+
+      '<p class="muted" style="text-align:center;margin:12px 0 0;font-size:.9rem">Didn’t get it? <a href="#" id="fp-resend" onclick="fpResend();return false;">Resend code</a> · <a href="#" onclick="_fp.step=\'email\';renderForgot();return false;">Change email</a></p>');
+    setTimeout(function(){const el=document.getElementById('fp-code');if(el)el.focus();},30);
+  } else if(_fp.step==='newpass'){
+    openModal(back+'<h3>Create a new password</h3>'+
+      '<p class="muted" style="margin:0 0 10px;font-size:.92rem">Almost done — choose a new password for <b>'+esc(_fp.email)+'</b>.</p>'+
+      '<label>New password</label><input id="fp-p1" type="password" placeholder="At least 6 characters">'+
+      '<label>Re-enter new password</label><input id="fp-p2" type="password" placeholder="Type it again">'+
+      '<p class="err" id="fp-err"></p>'+
+      '<button class="btn btn-primary" id="fp-btn" style="width:100%;margin-top:6px" onclick="fpSetPassword()">Set new password</button>');
+    setTimeout(function(){const el=document.getElementById('fp-p1');if(el)el.focus();},30);
+  }
+}
+async function fpCall(body){
+  if(!BACKEND) return {data:{ok:true},error:null}; // preview mode (no server): just play along
+  try{ return await sb.functions.invoke('password-reset',{body:body}); }
+  catch(e){ return {data:null,error:e}; }
+}
+async function fpSendCode(){
+  const email=(v('fp-email')||'').toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){fpErr('Please enter a valid email.');return;}
+  const b=document.getElementById('fp-btn');b.disabled=true;b.textContent='Sending…';fpErr('');
+  _fp.email=email;
+  await fpCall({action:'send',email:email}); // always succeeds/looks the same, so we don't reveal who has an account
+  _fp.step='code';renderForgot();
+}
+async function fpResend(){
+  const a=document.getElementById('fp-resend');if(a)a.textContent='Sending…';
+  await fpCall({action:'send',email:_fp.email});
+  if(a)a.textContent='Resend code';
+  fpErr('');toast('If that account exists, a new code was sent.');
+}
+async function fpVerifyCode(){
+  const code=(v('fp-code')||'').replace(/\D/g,'');
+  if(code.length!==6){fpErr('Please enter the 6-digit code from your email.');return;}
+  const b=document.getElementById('fp-btn');b.disabled=true;b.textContent='Checking…';fpErr('');
+  const {data,error}=await fpCall({action:'verify',email:_fp.email,code:code});
+  if(!error && data && data.ok){ _fp.code=code;_fp.step='newpass';renderForgot();return; }
+  b.disabled=false;b.textContent='Verify code';
+  fpErr(fpMsg((data&&data.error)||'network',(data&&data.left)));
+}
+async function fpSetPassword(){
+  const p1=(document.getElementById('fp-p1')||{}).value||'', p2=(document.getElementById('fp-p2')||{}).value||'';
+  if(p1.length<6){fpErr('Password should be at least 6 characters.');return;}
+  if(p1!==p2){fpErr('Those passwords don’t match — please re-enter them.');return;}
+  const b=document.getElementById('fp-btn');b.disabled=true;b.textContent='Saving…';fpErr('');
+  const {data,error}=await fpCall({action:'reset',email:_fp.email,code:_fp.code,password:p1});
+  if(!error && data && data.ok){
+    const em=_fp.email;_fp=null;closeModal();toast('Password updated — you can log in now.');openLogin(em);return;
+  }
+  const code=(data&&data.error)||'network';
+  if(code==='expired'||code==='no_code'||code==='too_many'){ _fp.step='email';renderForgot();fpErr('That code expired — please request a new one.');return; }
+  b.disabled=false;b.textContent='Set new password';
+  fpErr(fpMsg(code));
+}
+function fpMsg(code,left){
+  if(code==='bad_code') return 'That code isn’t right'+(left!=null?' — '+left+' tr'+(left===1?'y':'ies')+' left.':'.');
+  if(code==='expired') return 'That code has expired. Please resend a new code.';
+  if(code==='too_many') return 'Too many wrong tries. Please resend a new code.';
+  if(code==='no_code') return 'That code has expired or was already used. Please resend a new code.';
+  if(code==='weak') return 'Password should be at least 6 characters.';
+  return 'Something went wrong. Please try again.';
 }
 async function logout(){ if(BACKEND){await sb.auth.signOut();} account=null;previewAs=null;recomputeSession();closeModal();go('home');render();toast('Logged out'); }
 async function loadSession(){

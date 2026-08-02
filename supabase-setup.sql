@@ -651,3 +651,20 @@ do $$ begin
     alter publication supabase_realtime add table public.post_comments;
   end if;
 end $$;
+
+-- ============================================================================
+-- Forgot-password codes (used by the `password-reset` Edge Function)
+-- ----------------------------------------------------------------------------
+-- When a signed-out visitor asks to reset their password, the Edge Function emails
+-- them a 6-digit code and stores it here. RLS is ON with NO policies, so ordinary
+-- clients (the website's anon/logged-in keys) can NEVER read or write these codes —
+-- only the Edge Function, which uses the service-role key, touches this table.
+create table if not exists public.password_resets (
+  email      text primary key,          -- always stored lower-cased
+  code       text not null,             -- the 6-digit code we emailed
+  expires_at timestamptz not null,      -- code is good for 15 minutes
+  attempts   int not null default 0,    -- wrong guesses; the function drops the row after 6
+  created_at timestamptz not null default now()
+);
+alter table public.password_resets enable row level security;
+-- (intentionally no policies — service-role only)
