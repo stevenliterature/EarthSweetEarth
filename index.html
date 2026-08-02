@@ -2560,7 +2560,7 @@ function galleryView(){
   const items=(gFilter==='all')?all:all.filter(function(g){ return gFilter==='misc'?!g.category:(g.category===gFilter); });
   const feat=items.filter(function(g){return g.featured;}), gen=items.filter(function(g){return !g.featured;});
   let h='<div class="wrap view"><h1 class="page-title">An Impact You Can <em>See</em></h1>'+
-    '<p class="page-intro">Snapshots from clean-ups, plantings, and events \u2014 react, comment, and cheer each other on.</p>';
+    '<p class="page-intro">They say a picture is worth a thousand words...</p>';
   if(ed) h+='<div style="margin:6px 0 16px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-primary btn-sm" onclick="newGalleryPost()">+ New post</button><button class="btn btn-ghost btn-sm" onclick="editDriveUrl()">\u2699 Photo drive</button></div>';
   // filter by category
   const filters=[{id:'all',label:'All'}].concat(GAL_CATS).concat([{id:'misc',label:'Miscellaneous'}]);
