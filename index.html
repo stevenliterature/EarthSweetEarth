@@ -974,7 +974,7 @@ function openSignup(){
     '<label>Email</label><input id="su-email" type="email" placeholder="you@example.com">'+
     '<label>Username</label><input id="su-user" type="text" placeholder="e.g. john123">'+
     '<label>Password</label><input id="su-pass" type="password" placeholder="Create a password">'+
-    '<label>Country <span style="font-weight:400;color:var(--muted)">(optional — you can add it later)</span></label><select id="su-country"><option value="">Select a country</option>'+CA_COUNTRIES.map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+'</select>'+
+    '<label>Country <span style="font-weight:400;color:var(--muted)">(optional — you can add it later)</span></label><select id="su-country"><option value="">Select a country</option>'+visibleCountries().map(function(c){return '<option>'+esc(c)+'</option>';}).join('')+'</select>'+
     '<label>Chapter <span style="font-weight:400;color:var(--muted)">(optional \u2014 start typing to search)</span></label><input id="su-chapter" list="chapterList" type="text" placeholder="e.g. North Forest">'+chapterDatalist()+
     '<p class="err" id="su-err"></p><button class="btn btn-primary" id="su-btn" style="width:100%;margin-top:6px" onclick="doSignup()">Create account</button>');
 }
@@ -1132,7 +1132,7 @@ function openProfile(){
     '</div>'+
     '<label>Username</label><input id="pf-user" type="text" value="'+escA(account?account.username:'')+'">'+
     '<label>Email</label><input type="email" value="'+escA(account?account.email:'')+'" disabled>'+
-    '<label>Country <span style="font-weight:400;color:var(--muted)">(optional)</span></label><select id="pf-country"><option value="">Select a country</option>'+CA_COUNTRIES.map(function(c){return '<option'+((account&&account.country===c)?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select>'+
+    '<label>Country <span style="font-weight:400;color:var(--muted)">(optional)</span></label><select id="pf-country"><option value="">Select a country</option>'+countryOptions(account&&account.country).map(function(c){return '<option'+((account&&account.country===c)?' selected':'')+'>'+esc(c)+'</option>';}).join('')+'</select>'+
     '<label>Chapter <span style="font-weight:400;color:var(--muted)">(optional \u2014 start typing to search)</span></label><input id="pf-chapter" list="chapterList" type="text" value="'+escA(chapterName(account&&account.chapter))+'" placeholder="Search chapters\u2026">'+chapterDatalist()+
     (BACKEND&&discordOn()?('<label>Discord</label><div class="dc-status">'+(account&&account.discord?'\u2705 Linked as <strong>'+esc(account.discord)+'</strong>':'<span class="muted">Not linked yet</span> <button class="btn btn-ghost btn-xs" onclick="closeModal();openDiscordVerify()">Link Discord</button>')+'</div>'):'')+
     '<label>New password</label><input id="pf-pass" type="password" placeholder="Leave blank to keep current">'+
@@ -2105,6 +2105,46 @@ const _normCountry=(s)=>String(s||'').toLowerCase().normalize('NFD').replace(/[�
 const _isoByNorm={}; Object.keys(COUNTRY_ISO).forEach(function(k){ _isoByNorm[_normCountry(k)]=COUNTRY_ISO[k]; });
 function countryISO(name){ if(!name)return ''; return COUNTRY_ISO[name]||_isoByNorm[_normCountry(name)]||''; }
 function flagEmoji(name){ const iso=countryISO(name); if(!iso) return '🌍'; return iso.replace(/./g,function(c){ return String.fromCodePoint(127397+c.charCodeAt(0)); }); }
+
+/* ---- Continent visibility — "starting local" -------------------------------
+   ESE is launching in North America first. Only the continents listed in
+   VISIBLE_CONTINENTS are shown to visitors:
+     • the public "Our chapters" page only lists those continents, and
+     • the country pickers (sign-up, profile, and both application forms) only
+       offer countries on those continents.
+   Nothing is deleted — the full country/continent lists live on below. To
+   RELEASE more later, just add them to VISIBLE_CONTINENTS (e.g. add 'Europe'),
+   or set  VISIBLE_CONTINENTS = ALL_CONTINENTS.slice()  to show everything again.
+   (The owner's "Add a chapter" admin form still lists every continent on
+   purpose, so you can pre-stage chapters that stay hidden until released.) */
+const ALL_CONTINENTS=['Africa','Antarctica','Asia','Europe','North America','Oceania','South America'];
+const VISIBLE_CONTINENTS=['North America'];                 // ← the one switch. Add continents here to release them.
+function continentVisible(c){ return VISIBLE_CONTINENTS.indexOf(c)>-1; }
+// Which continent each country sits on (used to filter the country pickers).
+const CONTINENT_COUNTRIES={
+  'North America':['Canada','Costa Rica','Cuba','Dominican Republic','El Salvador','Guatemala','Honduras','Jamaica','Mexico','Panama','Trinidad and Tobago','United States'],
+  'South America':['Argentina','Bolivia','Brazil','Chile','Colombia','Ecuador','Peru','Uruguay','Venezuela'],
+  'Europe':['Albania','Austria','Belgium','Bulgaria','Croatia','Czechia','Denmark','Estonia','Finland','France','Germany','Greece','Hungary','Iceland','Ireland','Italy','Latvia','Lithuania','Luxembourg','Netherlands','Norway','Poland','Portugal','Romania','Russia','Serbia','Slovakia','Slovenia','Spain','Sweden','Switzerland','Ukraine','United Kingdom'],
+  'Asia':['Afghanistan','Bangladesh','Cambodia','China','Georgia','Hong Kong','India','Indonesia','Iran','Iraq','Israel','Japan','Jordan','Kazakhstan','Kuwait','Lebanon','Malaysia','Nepal','Pakistan','Philippines','Qatar','Saudi Arabia','Singapore','South Korea','Sri Lanka','Taiwan','Thailand','Turkey','United Arab Emirates','Vietnam'],
+  'Africa':['Algeria','Cameroon','Egypt','Ethiopia','Ghana','Ivory Coast','Kenya','Morocco','Nigeria','South Africa','Tanzania','Tunisia','Uganda','Zambia','Zimbabwe'],
+  'Oceania':['Australia','New Zealand'],
+  'Antarctica':[]
+};
+const COUNTRY_CONTINENT={};
+Object.keys(CONTINENT_COUNTRIES).forEach(function(cont){ CONTINENT_COUNTRIES[cont].forEach(function(co){ COUNTRY_CONTINENT[co]=cont; }); });
+function continentOf(country){ return COUNTRY_CONTINENT[country]||''; }
+// The countries a visitor may pick right now = those on a visible continent.
+// "Other / not listed" always stays, as a fallback for anything not named.
+function visibleCountries(){
+  return CA_COUNTRIES.filter(function(c){ return c==='Other / not listed' ? true : continentVisible(continentOf(c)); });
+}
+// Like visibleCountries(), but keeps a value the user already saved even if it's
+// now on a hidden continent — so editing a profile never silently drops it.
+function countryOptions(current){
+  var list=visibleCountries();
+  if(current && list.indexOf(current)<0) list=[current].concat(list);
+  return list;
+}
 const CA_SUBDIV = {
   "United States":["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","District of Columbia","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"],
   "Canada":["Alberta","British Columbia","Manitoba","New Brunswick","Newfoundland and Labrador","Northwest Territories","Nova Scotia","Nunavut","Ontario","Prince Edward Island","Quebec","Saskatchewan","Yukon"],
@@ -2129,7 +2169,7 @@ function chapterApplyView(){
     '<form id="caForm" onsubmit="return submitChapterApplication(event)" novalidate>'+
       fld('Your name','<input class="in" id="ca-name" type="text" maxlength="40" autocomplete="off" placeholder="e.g. John Smith">')+
       fld('Your Discord username <span class="muted">(optional)</span>','<input class="in" id="ca-discord" type="text" maxlength="40" autocomplete="off" placeholder="e.g. john123">')+
-      fld('Country or territory','<select class="in" id="ca-country" onchange="caCountryChange()"><option value="">Choose\u2026</option>'+optList(CA_COUNTRIES)+'</select><div id="ca-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="ca-sublabel" style="font-weight:500">State / province</label><select class="in" id="ca-sub"></select></div>')+
+      fld('Country or territory','<select class="in" id="ca-country" onchange="caCountryChange()"><option value="">Choose\u2026</option>'+optList(visibleCountries())+'</select><div id="ca-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="ca-sublabel" style="font-weight:500">State / province</label><select class="in" id="ca-sub"></select></div>')+
       fld('Full school name','<input class="in" id="ca-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. North Forest Middle School">')+
       fld('Grade','<select class="in" id="ca-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
       fld('Your starting team — you and 3 friends. <span class="muted">(Write your own name in the first blank.)</span>', memberInputs())+
@@ -2354,7 +2394,7 @@ function youthApplyView(){
       fld('Your ESE username, of your current account','<input class="in" id="yl-discord" type="text" maxlength="40" autocomplete="off" placeholder="e.g. john123">')+
       fld('Your email <span class="muted">(or a parent/guardian\u2019s)</span>','<input class="in" id="yl-email" type="email" autocomplete="off" placeholder="you@example.com"><label class="ca-check" style="margin-top:8px"><input type="checkbox" id="yl-under13" onchange="ylUnder13()"> <span>I\u2019m under 13</span></label><div id="yl-under-note" class="yl-under-note" style="display:none">Please use a parent or guardian\u2019s email above, and make sure they\u2019re okay with you applying. Discord also requires users to be at least 13, so you\u2019d use their Discord account too.</div>')+
       fld('Incoming grade','<select class="in" id="yl-grade"><option value="">Choose\u2026</option>'+optList(CA_GRADES)+'</select>')+
-      fld('Country or territory','<select class="in" id="yl-country" onchange="ylCountryChange()"><option value="">Choose\u2026</option>'+optList(CA_COUNTRIES)+'</select><div id="yl-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="yl-sublabel" style="font-weight:500">State / province</label><select class="in" id="yl-sub"></select></div>')+
+      fld('Country or territory','<select class="in" id="yl-country" onchange="ylCountryChange()"><option value="">Choose\u2026</option>'+optList(visibleCountries())+'</select><div id="yl-subwrap" style="display:none;margin-top:10px"><label class="ca-label" id="yl-sublabel" style="font-weight:500">State / province</label><select class="in" id="yl-sub"></select></div>')+
       fld('Full school name','<input class="in" id="yl-school" type="text" maxlength="140" autocomplete="off" placeholder="e.g. North Forest Middle School \u2014 Syosset">')+
       fld('Which role(s) are you interested in? <span class="muted">(select all that apply \u2014 details appear when you pick one)</span>', rolesHtml)+
       fld('What have you accomplished in ESE so far? <span class="muted">(500 words max)</span>','<textarea class="in" id="yl-acc" rows="6" oninput="ylCount(\'yl-acc\',\'yl-acc-c\',500)" placeholder="Projects, chapters, events, contributions \u2014 anything you\u2019ve helped with."></textarea>','<span id="yl-acc-c">0 / 500 words</span>')+
@@ -2525,7 +2565,7 @@ async function deleteChapterEvent(id){
 }
 
 function chaptersListView(){                              // reached via "View our chapters" (not in the nav)
-  const conts=['Africa','Antarctica','Asia','Europe','North America','Oceania','South America'];
+  const conts=ALL_CONTINENTS.filter(continentVisible);   // "starting local": only VISIBLE_CONTINENTS show (see the config block up top)
   const manage=canEdit('chapters_add');
   const byCont={};
   ensureChapters();
