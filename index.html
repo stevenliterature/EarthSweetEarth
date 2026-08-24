@@ -1789,10 +1789,10 @@ function fmtDateTime(ts){ if(!ts)return ''; const d=new Date(ts); return d.toLoc
 function activitiesView(){
   const ed=canEdit('programs_update');
   const cats=[
-    {id:'speakers',name:'Speakers',color:'#2f6f8f',icon:'🎤',desc:'Guest speakers and panels \u2014 students, scientists, activists, and community voices sharing ideas and answering your questions.',target:'speakers'},
-    {id:'challenges',name:'Challenges',color:'#3f8a5a',icon:'🌍',desc:'Rotating goals for schools, clubs, chapters, and individuals to take on together \u2014 a fresh environmental challenge to rally around.',target:'challenges'},
-    {id:'contests',name:'Contests',color:'#b5813d',icon:'🏆',desc:'Compete for virtual and physical prizes. Schools, clubs, chapters, and individuals can enter, place, and win.',target:'construction'},
-    {id:'fundraising',name:'Fundraising',color:'#a1596b',icon:'💚',desc:'Drives and campaigns that turn small actions into real support for greener communities.',target:'fundraising'}
+    {id:'speakers',name:'Speakers',color:'#2f6f8f',icon:'🎤',desc:'Guest speakers with experience-backed perspectives on environmental degradation.',target:'speakers'},
+    {id:'challenges',name:'Challenges',color:'#3f8a5a',icon:'🎯',desc:'Rotating environmental goals for schools, chapters, and individuals.',target:'challenges'},
+    {id:'contests',name:'Contests',color:'#b5813d',icon:'🏆',desc:'Competitions with potential physical or virtual rewards for schools, chapters, and individuals.',target:'construction'},
+    {id:'fundraising',name:'Fundraising',color:'#a1596b',icon:'💚',desc:'Fundraising for chapter and general activities! Coming soon!',target:'fundraising'}
   ];
   const grid='<div class="cat-grid">'+cats.map(c=>activityCard({id:c.id,name:c.name,desc:c.desc,color:c.color,icon:c.icon,mode:'category',target:c.target})).join('')+'</div>';
   return '<div class="wrap view">'+
@@ -1841,7 +1841,7 @@ function speakersView(){
   let h='<div class="wrap view">'+
     '<p><button class="btn btn-ghost btn-sm" onclick="go(\'activities\')">\u2190 Back to Activities</button></p>'+
     '<h1 class="page-title">Speakers</h1>'+
-    '<p class="page-intro">Guests who have spoken to Earth Sweet Earth \u2014 students, scientists, activists, and community voices.</p>';
+    '<p class="page-intro">The people who have spoken at ESE. Check back soon!</p>';
   if(ed) h+='<div style="margin:6px 0 20px"><button class="btn btn-primary btn-sm" onclick="addItem(\'speaker\')">+ Add a speaker</button></div>';
   if(arr.length){
     h+='<div class="cat-grid">'+arr.map(function(sp){
@@ -1871,7 +1871,7 @@ function challengesView(){
   return '<div class="wrap view">'+
     '<p><button class="btn btn-ghost btn-sm" onclick="go(\'activities\')">\u2190 Back to Activities</button></p>'+
     '<h1 class="page-title">Challenges</h1>'+
-    '<p class="page-intro">Rotating goals for schools, clubs, chapters, and individuals to take on.</p>'+
+    '<p class="page-intro">The current and archived challenges, along with their winners. Check back soon!</p>'+
     '<h2 class="acts-sub">School challenges</h2>'+
     bulletList('schoolch',ed)+
     (ed?'<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" onclick="addItem(\'schoolch\')">+ Add a school challenge</button></div>':'')+
@@ -1891,7 +1891,7 @@ function fundraisingView(){
   return '<div class="wrap view">'+
     '<p><button class="btn btn-ghost btn-sm" onclick="go(\'activities\')">\u2190 Back to Activities</button></p>'+
     '<h1 class="page-title">Fundraising</h1>'+
-    '<p class="page-intro">Drives and campaigns that turn small actions into real support for greener communities.</p>'+
+    '<p class="page-intro">Want to support ESE? Check back soon to see how your contribution can help.</p>'+
     '<div style="margin:6px 0 26px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+donate+
       (ed?'<button class="btn btn-ghost btn-sm" onclick="editDonateUrl()">\u270E '+(url?'Change':'Set')+' donate link</button>':'')+'</div>'+
     '<p class="muted">The rest of this is still under construction!</p>'+
@@ -1903,7 +1903,7 @@ function editDonateUrl(){ openEditor('Donate link',[{key:'url',label:'Where shou
 function participateSection(){
   return '<div class="participate">'+
     '<h2 style="font-size:1.5rem;margin-bottom:6px">Participate</h2>'+
-    '<p class="muted" style="margin-bottom:14px">Ready to take one on? Jump into our next event.</p>'+
+    '<p class="muted" style="margin-bottom:14px">No events yet... Join our Discord to find out when the first one will be!</p>'+
     '<button class="btn btn-primary" onclick="goParticipate()">Participate</button>'+
   '</div>';
 }
@@ -2105,7 +2105,6 @@ const _normCountry=(s)=>String(s||'').toLowerCase().normalize('NFD').replace(/[�
 const _isoByNorm={}; Object.keys(COUNTRY_ISO).forEach(function(k){ _isoByNorm[_normCountry(k)]=COUNTRY_ISO[k]; });
 function countryISO(name){ if(!name)return ''; return COUNTRY_ISO[name]||_isoByNorm[_normCountry(name)]||''; }
 function flagEmoji(name){ const iso=countryISO(name); if(!iso) return '🌍'; return iso.replace(/./g,function(c){ return String.fromCodePoint(127397+c.charCodeAt(0)); }); }
-
 const CA_SUBDIV = {
   "United States":["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","District of Columbia","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"],
   "Canada":["Alberta","British Columbia","Manitoba","New Brunswick","Newfoundland and Labrador","Northwest Territories","Nova Scotia","Nunavut","Ontario","Prince Edward Island","Quebec","Saskatchewan","Yukon"],
@@ -2531,14 +2530,15 @@ function chaptersListView(){                              // reached via "View o
   const byCont={};
   ensureChapters();
   chaptersRows.forEach(ch=>{ const c=conts.indexOf(ch.continent)>-1?ch.continent:'Other'; (byCont[c]=byCont[c]||{}); const co=ch.country||'—'; (byCont[c][co]=byCont[c][co]||[]).push(ch); });
-  // Only show continents that actually have chapters — empty continent dropdowns are hidden.
-  const shown=conts.filter(c=>byCont[c]&&Object.keys(byCont[c]).length);
-  const body=shown.map(c=>{
-    const countries=Object.keys(byCont[c]).sort((a,b)=>a<b?-1:a>b?1:0);    // sort by Unicode code units
-    const inner=countries.map(co=>'<div class="chp-country"><div class="chp-cn">'+esc(co)+'</div><ul class="chp-list">'+
-      byCont[c][co].slice().sort((a,b)=>(a.name||'')<(b.name||'')?-1:1).map(ch=>'<li>'+esc(ch.name)+(manage?' <button class="btn btn-ghost btn-xs" style="padding:0 6px" title="Remove" onclick="deleteChapterRow(\''+ch.id+'\')">×</button>':'')+'</li>').join('')+'</ul></div>').join('');
+  const body=conts.map(c=>{
+    const countries=byCont[c]?Object.keys(byCont[c]).sort((a,b)=>a<b?-1:a>b?1:0):[];    // sort by Unicode code units
+    let inner;
+    if(countries.length){
+      inner=countries.map(co=>'<div class="chp-country"><div class="chp-cn">'+esc(co)+'</div><ul class="chp-list">'+
+        byCont[c][co].slice().sort((a,b)=>(a.name||'')<(b.name||'')?-1:1).map(ch=>'<li>'+esc(ch.name)+(manage?' <button class="btn btn-ghost btn-xs" style="padding:0 6px" title="Remove" onclick="deleteChapterRow(\''+ch.id+'\')">×</button>':'')+'</li>').join('')+'</ul></div>').join('');
+    } else { inner='<p class="muted">No chapters here yet — check back soon!</p>'; }
     return '<details class="cont"><summary>'+c+'</summary><div class="body">'+inner+'</div></details>';
-  }).join('') || '<p class="muted">No chapters yet — check back soon!</p>';
+  }).join('');
   return '<div class="wrap view"><div class="sechead"><div><h1 class="page-title" style="margin:0">Our chapters</h1></div><button class="btn btn-ghost btn-sm" onclick="go(\'chapters\')">← Back to Chapters</button></div>'+
     '<p class="page-intro">ESE chapters around the world. Open a continent to see its chapters.</p>'+
     (manage?'<div class="card" style="margin:18px 0"><strong style="color:var(--green)">Chapter admin</strong><p class="muted" style="margin:6px 0 10px">Add an approved chapter. Country and chapter names can be written in any language or script.</p><button class="btn btn-primary btn-sm" onclick="addChapterRow()">+ Add a chapter</button></div>':'<div style="height:8px"></div>')+
