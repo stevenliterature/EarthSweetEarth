@@ -1497,7 +1497,33 @@ function homeView(){
 function joinDiscord(){
   if(!isLoggedIn()){ popup('Almost there!','You have to make an account before you can join the Discord!'); return; }
   const url=content.discord||DISCORD_URL;
-  if(url){ window.open(safeUrl(url),'_blank','noopener'); } else { comingSoon(); }
+  if(url){ markDiscordJoined(); window.open(safeUrl(url),'_blank','noopener'); } else { comingSoon(); }
+}
+/* ---------- "Join our Discord" nudge ----------
+   We can't see whether someone actually joined the server (that would need Discord itself),
+   but we CAN tell whether they've ever used our "Join our Discord" link. We remember that in
+   the browser (localStorage). Until they do, we gently remind them once each time they open the
+   site. A member who has linked their Discord account (the verify flow) also counts as "in". */
+function discordJoinedLocally(){ try{ return localStorage.getItem('ese_discord_joined')==='1'; }catch(e){ return false; } }
+function markDiscordJoined(){ try{ localStorage.setItem('ese_discord_joined','1'); }catch(e){} }
+function discordAlreadyIn(){ return discordJoinedLocally() || !!(account && account.discord); }
+function maybeDiscordNudge(){
+  if(discordAlreadyIn()) return;                                    // already used the link (or linked Discord) — don't nag
+  const url=content.discord||DISCORD_URL;
+  if(!url) return;                                                  // no invite set yet — nothing to join
+  if(modal && modal.classList.contains('open')) return;            // don't stack on top of another popup
+  const intro=document.getElementById('langIntro');
+  if(intro && !intro.classList.contains('li-hidden')) return;      // let the language intro finish first
+  openDiscordNudge();
+}
+function openDiscordNudge(){
+  const needsAccount=!isLoggedIn();
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button>'+
+    '<h3>Come join us on Discord! 💬</h3>'+
+    '<p>Our Discord server is where Earth Sweet Earth plans events, shares announcements, and just chats. It’s the best way to stay in the loop — come say hi!</p>'+
+    (needsAccount?'<p class="muted" style="font-size:.9rem;margin-top:-4px">You’ll make a quick free account first — it only takes a moment.</p>':'')+
+    '<button class="btn btn-blue" style="width:100%;margin-top:6px" onclick="closeModal();joinDiscord()">Join our Discord server</button>'+
+    '<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="closeModal()">Maybe later</button>');
 }
 // winter snow: a field of flakes (deterministic) with per-flake size, drift, speed
 function snowLayer(){
@@ -1875,7 +1901,7 @@ function challengesView(){
     '<h2 class="acts-sub">School challenges</h2>'+
     bulletList('schoolch',ed)+
     (ed?'<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" onclick="addItem(\'schoolch\')">+ Add a school challenge</button></div>':'')+
-    '<h2 class="acts-sub">Individual challenges</h2>'+
+    '<h2 class="acts-sub">Individual challenges: September 2026</h2>'+
     bulletList('indivch',ed)+
     (ed?'<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" onclick="addItem(\'indivch\')">+ Add an individual challenge</button></div>':'')+
     participateSection()+
@@ -2530,15 +2556,14 @@ function chaptersListView(){                              // reached via "View o
   const byCont={};
   ensureChapters();
   chaptersRows.forEach(ch=>{ const c=conts.indexOf(ch.continent)>-1?ch.continent:'Other'; (byCont[c]=byCont[c]||{}); const co=ch.country||'—'; (byCont[c][co]=byCont[c][co]||[]).push(ch); });
-  const body=conts.map(c=>{
-    const countries=byCont[c]?Object.keys(byCont[c]).sort((a,b)=>a<b?-1:a>b?1:0):[];    // sort by Unicode code units
-    let inner;
-    if(countries.length){
-      inner=countries.map(co=>'<div class="chp-country"><div class="chp-cn">'+esc(co)+'</div><ul class="chp-list">'+
-        byCont[c][co].slice().sort((a,b)=>(a.name||'')<(b.name||'')?-1:1).map(ch=>'<li>'+esc(ch.name)+(manage?' <button class="btn btn-ghost btn-xs" style="padding:0 6px" title="Remove" onclick="deleteChapterRow(\''+ch.id+'\')">×</button>':'')+'</li>').join('')+'</ul></div>').join('');
-    } else { inner='<p class="muted">No chapters here yet — check back soon!</p>'; }
+  // Only show continents that actually have chapters — empty continent dropdowns are hidden.
+  const shown=conts.filter(c=>byCont[c]&&Object.keys(byCont[c]).length);
+  const body=shown.map(c=>{
+    const countries=Object.keys(byCont[c]).sort((a,b)=>a<b?-1:a>b?1:0);    // sort by Unicode code units
+    const inner=countries.map(co=>'<div class="chp-country"><div class="chp-cn">'+esc(co)+'</div><ul class="chp-list">'+
+      byCont[c][co].slice().sort((a,b)=>(a.name||'')<(b.name||'')?-1:1).map(ch=>'<li>'+esc(ch.name)+(manage?' <button class="btn btn-ghost btn-xs" style="padding:0 6px" title="Remove" onclick="deleteChapterRow(\''+ch.id+'\')">×</button>':'')+'</li>').join('')+'</ul></div>').join('');
     return '<details class="cont"><summary>'+c+'</summary><div class="body">'+inner+'</div></details>';
-  }).join('');
+  }).join('') || '<p class="muted">No chapters yet — check back soon!</p>';
   return '<div class="wrap view"><div class="sechead"><div><h1 class="page-title" style="margin:0">Our chapters</h1></div><button class="btn btn-ghost btn-sm" onclick="go(\'chapters\')">← Back to Chapters</button></div>'+
     '<p class="page-intro">ESE chapters around the world. Open a continent to see its chapters.</p>'+
     (manage?'<div class="card" style="margin:18px 0"><strong style="color:var(--green)">Chapter admin</strong><p class="muted" style="margin:6px 0 10px">Add an approved chapter. Country and chapter names can be written in any language or script.</p><button class="btn btn-primary btn-sm" onclick="addChapterRow()">+ Add a chapter</button></div>':'<div style="height:8px"></div>')+
@@ -2940,13 +2965,14 @@ function eventRow(e, canManage, isChapter){
   const eid=String(e.id), up=isUpcoming(e), n=eventCounts[eid]||0, mine=!!myEvents[eid];
   const open=e.link?('window.open(\''+escA(safeUrl(e.link))+'\',\'_blank\',\'noopener\')'):('openEventDetails(\''+eid+'\')');
   const join=up?('<button class="btn '+(mine?'btn-ghost':'btn-primary')+' btn-xs" onclick="joinEvent(\''+eid+'\')">'+(mine?'You\u2019re in \u2713':'I\u2019m in!')+'</button>'):'';
+  const remind=up?('<button class="btn btn-ghost btn-xs" title="Get a reminder" onclick="remindEvent(\''+eid+'\')">\ud83d\udd14 Remind me</button>'):'';
   const admin=canManage?(isChapter
     ?'<button class="btn btn-ghost btn-xs" onclick="editChapterEvent(\''+eid+'\')">Edit</button><button class="btn btn-ghost btn-xs" onclick="deleteChapterEvent(\''+eid+'\')">Delete</button>'
     :editDel('event',e.id)):'';
   return '<div class="cev" style="border-left-color:'+col+'"><div class="cev-main" onclick="'+open+'">'+
     '<span class="cev-dot" style="background:'+col+'"></span><div><div class="cev-name">'+esc(e.name)+(e.link?' <span class="cev-link">\u2197</span>':'')+'</div>'+
     '<div class="cev-date">'+meta+'</div></div></div>'+
-    '<div class="cev-side"><span class="cev-going" title="People signed up">👥 '+n+' going</span>'+join+admin+'</div></div>';
+    '<div class="cev-side"><span class="cev-going" title="People signed up">👥 '+n+' going</span>'+join+remind+admin+'</div></div>';
 }
 function openEventDetails(id){
   let e=(content.events||[]).find(function(x){return String(x.id)===String(id);});
@@ -2955,6 +2981,91 @@ function openEventDetails(id){
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3>'+esc(e.name)+'</h3>'+
     '<p class="muted">'+esc(fmtDate(e.date))+(e.time?' \u00b7 '+esc(e.time):'')+'</p>'+
     '<p>'+(e.details?esc(e.details):'<span class="muted">No extra details.</span>')+'</p>');
+}
+
+/* ---------- event reminders: "\ud83d\udd14 Remind me" (only for people who are signed up) ----------
+   We can't force a reminder onto someone's phone from a web page, but we CAN hand the event to
+   their own calendar app, which then reminds them. remindEvent() first checks the member is
+   signed up for THIS event (myEvents) \u2014 if not, it nudges them to sign up. Once signed up,
+   openReminderChooser() lets them pick how. Add-to-calendar works right now; browser push and
+   email reminders will plug into this same menu once their backend is switched on. */
+function findEventById(id){
+  let e=(content.events||[]).find(function(x){return String(x.id)===String(id);});
+  if(!e){ Object.keys(chapterEvents||{}).forEach(function(k){ const f=(chapterEvents[k]||[]).find(function(x){return String(x.id)===String(id);}); if(f)e=f; }); }
+  return e;
+}
+function remindEvent(eid){
+  eid=String(eid);
+  if(!isLoggedIn()){ goParticipate(); return; }              // not even a member yet
+  const e=findEventById(eid); if(!e) return;
+  if(!myEvents[eid]){                                          // signed up first? that's the rule
+    openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3>Sign up first \ud83d\udd14</h3>'+
+      '<p>Reminders are for people who are going. Sign up for <strong>'+esc(e.name)+'</strong>, then you can turn on a reminder.</p>'+
+      '<button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="remindSignupThenChoose(\''+eid+'\')">I\u2019m in! \u2014 sign me up</button>'+
+      '<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px" onclick="closeModal()">Maybe later</button>');
+    return;
+  }
+  openReminderChooser(e);
+}
+async function remindSignupThenChoose(eid){
+  eid=String(eid);
+  if(!myEvents[eid]) await joinEvent(eid);                    // signs them up (also re-renders the page behind the modal)
+  const e=findEventById(eid);
+  if(e && myEvents[eid]) openReminderChooser(e); else closeModal();
+}
+function openReminderChooser(e){
+  const eid=String(e.id);
+  const meta=esc(fmtDate(e.date))+(e.time?' \u00b7 '+esc(e.time):'');
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button>'+
+    '<h3>\ud83d\udd14 Remind me</h3>'+
+    '<p style="margin:2px 0 0;font-weight:600">'+esc(e.name)+'</p>'+
+    '<p class="muted" style="margin:2px 0 12px">'+meta+'</p>'+
+    '<p style="margin:0 0 10px">Add this event to your own calendar and it\u2019ll remind you \u2014 pick your app:</p>'+
+    '<button class="btn btn-blue" style="width:100%;margin-top:2px" onclick="closeModal();window.open(gcalUrl(findEventById(\''+eid+'\')),\'_blank\',\'noopener\')">\ud83d\udcc5 Add to Google Calendar</button>'+
+    '<button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="downloadEventIcs(\''+eid+'\')">\u2b07\ufe0f Apple Calendar / Outlook (.ics)</button>');
+}
+/* --- turn an event into a calendar link / file (no server needed) --- */
+function _pad2(n){ n=String(n); return n.length<2?'0'+n:n; }
+function _icsUTC(d){ return d.getUTCFullYear()+_pad2(d.getUTCMonth()+1)+_pad2(d.getUTCDate())+'T'+_pad2(d.getUTCHours())+_pad2(d.getUTCMinutes())+_pad2(d.getUTCSeconds())+'Z'; }
+function _nextDayCompact(dateStr){ const d=new Date(dateStr+'T00:00'); d.setDate(d.getDate()+1); return d.getFullYear()+_pad2(d.getMonth()+1)+_pad2(d.getDate()); }
+function eventWhen(e){
+  if(e.time){ const s=new Date(e.date+'T'+e.time); return { allDay:false, start:s, end:new Date(s.getTime()+3600000) }; }   // 1-hour default
+  return { allDay:true, start:(e.date||'').replace(/-/g,''), end:_nextDayCompact(e.date) };
+}
+function gcalUrl(e){
+  if(!e) return 'https://calendar.google.com/';
+  const w=eventWhen(e);
+  const dates=w.allDay?(w.start+'/'+w.end):(_icsUTC(w.start)+'/'+_icsUTC(w.end));
+  const det=(e.details||'')+(e.link?('\n'+e.link):'')+'\n\nvia Earth Sweet Earth';
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE'+
+    '&text='+encodeURIComponent(e.name||'Earth Sweet Earth event')+
+    '&dates='+dates+
+    '&details='+encodeURIComponent(det);
+}
+function eventIcs(e){
+  const w=eventWhen(e);
+  const enc=function(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n'); };
+  const start=w.allDay?('DTSTART;VALUE=DATE:'+w.start):('DTSTART:'+_icsUTC(w.start));
+  const end=w.allDay?('DTEND;VALUE=DATE:'+w.end):('DTEND:'+_icsUTC(w.end));
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Earth Sweet Earth//Events//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+    'BEGIN:VEVENT','UID:'+encodeURIComponent(String(e.id))+'@earthsweetearth.org','DTSTAMP:'+_icsUTC(new Date()),
+    start,end,'SUMMARY:'+enc(e.name||'Earth Sweet Earth event')];
+  if(e.details||e.link) lines.push('DESCRIPTION:'+enc((e.details||'')+(e.link?('\n'+e.link):'')));
+  if(!w.allDay) lines.push('BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:'+enc(e.name||'Reminder'),'TRIGGER:-PT1H','END:VALARM');
+  lines.push('END:VEVENT','END:VCALENDAR');
+  return lines.join('\r\n');
+}
+function downloadEventIcs(eid){
+  const e=findEventById(String(eid)); if(!e) return;
+  try{
+    const blob=new Blob([eventIcs(e)],{type:'text/calendar;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url;
+    a.download=(String(e.name||'event').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'event')+'.ics';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); },3000);
+    closeModal(); toast('Saved to your calendar app \ud83d\udcc5');
+  }catch(err){ toast('Couldn\u2019t create the calendar file.'); }
 }
 function calendarView(){
   const canE=canEdit('calendar_edit');
@@ -4309,6 +4420,7 @@ async function init(){
   if(!location.hash) location.hash='#/home';
   try{ await preP; }catch(e){}
   render();
+  setTimeout(maybeDiscordNudge,1200);   // gentle "join our Discord" reminder, once per site open (until they use the link)
 }
 document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ const el=document.getElementById('langIntro'); if(el && !el.classList.contains('li-hidden') && !el.classList.contains('revealing')) liHidePicker(); closeNavMenu(); closeSidebar(); } });
 window.addEventListener('resize',function(){ if(window.innerWidth>640){ const sb=document.getElementById('sidebar'); if(sb&&sb.classList.contains('open')) closeSidebar(); } });   // if a phone is rotated/resized to a wide layout, drop the mobile sidebar
