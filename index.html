@@ -1880,7 +1880,7 @@ function speakersView(){
         (ed?'<button class="btn btn-ghost btn-xs" onclick="editItem(\'speaker\',\''+sp.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" onclick="deleteItem(\'speaker\',\''+sp.id+'\')">Delete</button>':'')+'</div>'+
       '</div>';
     }).join('')+'</div>';
-  } else { h+='<p class="muted">The rest of this is still under construction!</p>'; }
+  } else { h+='<p class="muted">Check back soon!</p>'; }
   return h+'</div>';
 }
 
@@ -1897,8 +1897,8 @@ function challengesView(){
   return '<div class="wrap view">'+
     '<p><button class="btn btn-ghost btn-sm" onclick="go(\'activities\')">\u2190 Back to Activities</button></p>'+
     '<h1 class="page-title">Challenges</h1>'+
-    '<p class="page-intro">The current and archived challenges, along with their winners. Check back soon!</p>'+
-    '<h2 class="acts-sub">School challenges</h2>'+
+    '<p class="page-intro">The current and archived challenges, along with their winners.</p>'+
+    '<h2 class="acts-sub">Chapter challenges</h2>'+
     bulletList('schoolch',ed)+
     (ed?'<div style="margin-top:10px"><button class="btn btn-ghost btn-sm" onclick="addItem(\'schoolch\')">+ Add a school challenge</button></div>':'')+
     '<h2 class="acts-sub">Individual challenges: September 2026</h2>'+
