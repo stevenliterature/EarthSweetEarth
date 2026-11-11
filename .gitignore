@@ -11,3 +11,6 @@ Thumbs.db
 .vscode/*
 !.vscode/settings.json
 !.vscode/extensions.json
+
+# Local data backups (contain user emails/signatures — never publish to the public repo)
+backup-*/
