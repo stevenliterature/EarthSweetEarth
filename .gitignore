@@ -14,3 +14,5 @@ Thumbs.db
 
 # Local data backups (contain user emails/signatures — never publish to the public repo)
 backup-*/
+
+backup-2026-11-17-newversion/
