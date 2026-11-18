@@ -2863,6 +2863,9 @@ const CAPS = [
   {id:'chapter_manage',  label:'Manage their own chapter (Chapter Hub tab)'},
   {id:'admin_settings',  label:'Open Owner Settings & manage roles'},
   {id:'comment_moderate',label:'Edit & delete anyone’s comments'},
+  {id:'hub_mute',        label:'Mute members in the Hub chat'},
+  {id:'hub_ban',         label:'Ban & unban accounts'},
+  {id:'hub_moderate',    label:'Delete Hub messages, polls & uploads'},
   {id:'views_tracked',   label:'Count this role’s views in analytics'},
 ];
 const allCaps=(v)=>Object.fromEntries(CAPS.map(c=>[c.id, c.id==='views_tracked'?true:v]));   // views count by default; the owner can switch a role off (e.g. a beta-tester role) so their visits don't inflate analytics
@@ -2870,13 +2873,13 @@ let roles = {
   developer: {name:'Developer', locked:true, caps:allCaps(true)},   // hidden super-role: everything the owner has, plus the /#/developer page; only developers can appoint developers
   owner:     {name:'Owner',     locked:true, caps:allCaps(true)},
   admin:     {name:'Admin',     caps:allCaps(true)},
-  moderator: {name:'Moderator', caps:{...allCaps(false), newsletter_post:true, programs_update:true}},
+  moderator: {name:'Moderator', caps:{...allCaps(false), newsletter_post:true, programs_update:true, hub_mute:true, hub_ban:true, hub_moderate:true}},
   chapter_leader:{name:'Chapter Leader', caps:{...allCaps(false), chapter_manage:true, view_chapters:true, view_gallery:true, view_calendar:true}},
   member:    {name:'Member',    caps:allCaps(false)},
   public:    {name:'Public',    caps:{...allCaps(false), view_chapters:true, view_gallery:true, view_calendar:true}},   // logged-out visitors
 };
 /* ---- 2.8: role rank (who outranks whom), name colors and defaults ---- */
-const ROLE_RANK={member:1,chapter_leader:2,moderator:3,admin:4,owner:5,developer:6};
+const ROLE_RANK={member:1,chapter_leader:2,moderator:3,admin:4,developer:5,owner:6};   // OWNER is the TOP rank — strictly above developer — so the owner can mute/ban anyone and no one can mute/ban the owner
 const NAME_COLORS={
   black:'#20302a',blue:'#2083C4',red:'#c0392b',purple:'#7c3aed',turquoise:'#0e9488',darkred:'#7f1d1d',green:'#007600',darkorange:'#b45309',
   pink:'#d6336c',magenta:'#a21caf',rose:'#be123c',orange:'#ea580c',gold:'#ca8a04',lime:'#65a30d',cyan:'#0891b2',skyblue:'#0ea5e9',
@@ -2901,6 +2904,14 @@ const nameColorHex=(k)=>NAME_COLORS[k]||NAME_COLORS.black;
 const isLeader=()=> isLoggedIn() && ((ROLE_RANK[(session&&session.roleId)||'member']||0)>=3);
 const isDev=()=> isLoggedIn() && session.roleId==='developer';
 const isMainDev=()=> isOwner();   /* the owner is the top authority — can appoint/remove developers and manage all roles through owner settings */
+/* Hub moderation gates — the OWNER can always do everything; a role can be granted these powers via the new
+   permission toggles (hub_mute / hub_ban / hub_moderate). Existing moderators & up keep their powers by rank.
+   Server RLS still enforces the real hierarchy (built-in moderator/admin rank), so a dedicated human mod should
+   hold the Moderator role (or higher). */
+const myDisplayRank=()=> (ROLE_RANK[(session&&session.roleId)||'member']||0);
+const canHubMute=()=>   isLoggedIn() && (isOwner() || can('hub_mute')     || myDisplayRank()>=3);
+const canHubBan=()=>    isLoggedIn() && (isOwner() || can('hub_ban')      || myDisplayRank()>=5);
+const canHubDelete=()=> isLoggedIn() && (isOwner() || can('hub_moderate') || myDisplayRank()>=3);
 const DEFAULT_PUBLIC=()=>({name:'Public', caps:{...allCaps(false), view_chapters:true, view_gallery:true, view_calendar:true}});
 let people = [
   {id:1, username:'(you)', email:'owner@earthsweetearth.org', roleId:'owner'},
@@ -2925,7 +2936,8 @@ function recomputeSession(){
    ========================================================================== */
 const isLoggedIn=()=> session!==null;
 const myRole=()=> session ? (roles[session.roleId]||roles.member) : (roles.public||null);   // logged out → the Public role
-const can=(cap)=>{ const r=myRole(); return r ? !!r.caps[cap] : false; };
+const can=(cap)=>{ if(session&&session.roleId==='owner') return true;   // HARDCODED: the owner always has EVERY permission — complete access, above every role including Developer, nothing is ever locked away from the owner
+  const r=myRole(); return r ? !!r.caps[cap] : false; };
 function canView(r){
   if(r==='chapters'||r==='chapterslist') return can('view_chapters');
   if(r==='gallery')  return can('view_gallery');
@@ -5950,7 +5962,7 @@ function adminView(){
       memberResults.map(p=>{ const cur=p._newRole||p.roleId; const dirty=p._newRole&&p._newRole!==p.roleId;
         return '<tr><td><span class="mflag" title="'+escA(p.country||'Country not set')+'">'+flagEmoji(p.country)+'</span>'+esc(p.username)+(p.isDeveloper?' <span class="pill" title="Developer">Dev</span>':'')+(p.banned?' <span class="pill" style="background:#d0463b;color:#fff" title="This account is banned and can\'t sign in">Banned</span>':'')+'</td><td class="muted">'+esc(p.email)+'</td>'+
           '<td><select class="rsel" onchange="stageMemberRole(\''+String(p.id)+'\',this.value)">'+Object.keys(roles).filter(id=>id!=='public'&&!(id==='developer'&&!isDev())).map(id=>'<option value="'+id+'" '+(cur===id?'selected':'')+'>'+esc(roles[id].name)+'</option>').join('')+'</select></td>'+
-          '<td style="white-space:nowrap"><button class="btn btn-primary btn-xs" '+(dirty?'':'disabled')+' onclick="saveMemberRole(\''+String(p.id)+'\')">Save</button> '+((isDev()||isOwner())?(p.isDeveloper?(isMainDev()?'<button class="btn btn-ghost btn-xs" onclick="toggleDeveloper(\''+String(p.id)+'\')">Remove dev</button> ':''):'<button class="btn btn-ghost btn-xs" onclick="toggleDeveloper(\''+String(p.id)+'\')">Make dev</button> '):'')+((isDev()||isOwner())?'<button class="btn btn-ghost btn-xs" style="color:#d0463b" onclick="confirmBan(\''+String(p.id)+'\')">'+(p.banned?'Unban':'Ban')+'</button> ':'')+'<button class="btn btn-danger btn-xs" onclick="confirmDeleteUser(\''+String(p.id)+'\')">Delete</button></td></tr>';
+          '<td style="white-space:nowrap"><button class="btn btn-primary btn-xs" '+(dirty?'':'disabled')+' onclick="saveMemberRole(\''+String(p.id)+'\')">Save</button> '+((isDev()||isOwner())?(p.isDeveloper?(isMainDev()?'<button class="btn btn-ghost btn-xs" onclick="toggleDeveloper(\''+String(p.id)+'\')">Remove dev</button> ':''):'<button class="btn btn-ghost btn-xs" onclick="toggleDeveloper(\''+String(p.id)+'\')">Make dev</button> '):'')+((canHubBan() && (p.isDeveloper?ROLE_RANK.developer:(ROLE_RANK[p.roleId]||1)) < myDisplayRank())?'<button class="btn btn-ghost btn-xs" style="color:#d0463b" onclick="confirmBan(\''+String(p.id)+'\')">'+(p.banned?'Unban':'Ban')+'</button> ':'')+'<button class="btn btn-danger btn-xs" onclick="confirmDeleteUser(\''+String(p.id)+'\')">Delete</button></td></tr>';
       }).join('')+'</tbody></table></div>';
   }
   return '<div class="wrap view"><h1 class="page-title">Owner Settings</h1><p class="page-intro">Set what each role can do, and manage members. Changes here update the site live.</p>'+
@@ -6053,6 +6065,8 @@ function confirmBan(id){
 async function doBan(id){
   closeModal();
   const m=(memberResults||[]).find(x=>String(x.id)===String(id)); if(!m)return;
+  const tRank=(m.isDeveloper?ROLE_RANK.developer:(ROLE_RANK[m.roleId]||1));
+  if(!canHubBan() || tRank>=myDisplayRank()){ toast('You can’t ban someone of equal or higher rank','err'); return; }   // the owner (top rank) can never be banned by anyone
   const target=!m.banned;
   if(!BACKEND){ m.banned=target; toast((target?'(Preview) Banned ':'(Preview) Unbanned ')+m.username); render(); return; }
   try{ const {error}=await sb.from('profiles').update({banned:target}).eq('id',m.id);
@@ -6829,6 +6843,7 @@ async function checkHubMute(){
   try{ const res=await sb.rpc('hub_mute_until'); _hubMutedUntil=(res&&res.data)||null; }catch(e){ _hubMutedUntil=null; }
 }
 function hubMutedLeft(){
+  if(isOwner()) return 0;                 // the owner can NEVER be muted, no matter what
   if(!_hubMutedUntil) return 0;
   const ms=new Date(_hubMutedUntil).getTime()-Date.now();
   return ms>0?ms:0;
@@ -6937,7 +6952,7 @@ async function hubReact(mid,emoji){
 async function hubDelete(id){
   const m=(hubMsgs||[]).find(function(x){ return String(x.id)===String(id); });
   const mine=account&&m&&String(m.user_id)===String(account.id);
-  const canMod=(ROLE_RANK[(session&&session.roleId)||'member']||0)>=3;
+  const canMod=canHubDelete();
   if(!mine&&!canMod){ toast('You can only delete your own messages','err'); return; }
   if(!BACKEND){ hubMsgs=(hubMsgs||[]).filter(function(x){ return String(x.id)!==String(id); }); render(); return; }
   const snapshot=(hubMsgs||[]).slice(), rxSnap=Object.assign({},hubRx);
@@ -6950,7 +6965,7 @@ async function hubDelete(id){
 async function hubDeletePoll(pid){
   const p=(hubPolls||[]).find(function(x){ return String(x.id)===String(pid); });
   const mine=account&&p&&String(p.user_id)===String(account.id);
-  const canMod=(ROLE_RANK[(session&&session.roleId)||'member']||0)>=3;
+  const canMod=canHubDelete();
   if(!mine&&!canMod){ toast('You can only delete your own polls','err'); return; }
   if(!BACKEND){ hubPolls=(hubPolls||[]).filter(function(x){ return String(x.id)!==String(pid); }); render(); return; }
   const snap=(hubPolls||[]).slice(), vsnap=Object.assign({},hubVotes);
@@ -6960,7 +6975,7 @@ async function hubDeletePoll(pid){
   catch(e){ hubPolls=snap; hubVotes=vsnap; hubRefreshDom()||render(); toast('Couldn\u2019t delete the poll \u2014 '+((e&&e.message)||'try again'),'err'); }
 }
 function openHubMute(userId,username){
-  if((ROLE_RANK[(session&&session.roleId)||'member']||0)<3) return;
+  if(!canHubMute()) return;
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3>Mute '+esc(username)+'</h3>'+
     '<p class="muted" style="font-size:.88rem;margin:0 0 4px">They won\u2019t be able to post in the Hub until the mute ends.</p>'+
     '<div class="mute-grid">'+
@@ -6971,7 +6986,7 @@ function openHubMute(userId,username){
     '<div id="hm-custom" style="display:none"><label class="flab">Minutes</label><input id="hm-mins" type="number" min="1" style="width:100%"><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="doHubMuteCustomGo(\''+escA(String(userId))+'\',\''+escA(username)+'\')">Mute</button></div>');
 }
 async function doHubMute(userId,username,mins){
-  if((ROLE_RANK[(session&&session.roleId)||'member']||0)<3) return;
+  if(!canHubMute()) return;
   mins=Math.floor(Number(mins));
   if(!Number.isFinite(mins)||mins<1||mins>43200){ toast('Mute duration must be between 1 minute and 30 days','err'); return; }
   if(!account||String(userId)===String(account.id)){ toast('You can’t mute yourself','err'); return; }
@@ -7059,11 +7074,37 @@ function hubInputGrow(t){
   }
   hubSyncComposer();
 }
+/* ---------- Hub auto-filter: profanity, slurs & hateful / discriminatory language ----------
+   Strict, for a youth community. It resolves leetspeak (e.g. $→s, 3→e, @→a), accents, asterisks,
+   spacing and letter stretching, so disguised spellings are still caught. When it trips, the send
+   is blocked and the member is asked to edit or clear the message. A human mod (with the new Hub
+   permissions) is the backstop for anything that slips through. */
+const _LEETMAP={'@':'a','4':'a','8':'b','(':'c','<':'c','{':'c','3':'e','6':'g','9':'g','1':'i','!':'i','|':'i','0':'o','5':'s','$':'s','7':'t','+':'t','2':'z'};
+function _hubStrip(s){   // -> only a-z, leetspeak resolved, accents removed, everything else dropped
+  s=String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  let out=''; for(const ch of s){ const m=_LEETMAP[ch]; if(m) out+=m; else if(ch>='a'&&ch<='z') out+=ch; }
+  return out;
+}
+// longer / unambiguous terms — matched anywhere in the fully-squashed message (catches "f u c k", "f*ck", "sh!t")
+const HUB_BAD_SUBSTR=['fuck','shit','bitch','cunt','asshole','dumbass','jackass','motherf','bullshit','pussy','dickhead','cocksuck','whore','slut','faggot','nigger','nigga','retard','chink','spic','kike','gook','wetback','tranny','dyke','beaner','niglet','towelhead','sandnig','jigaboo','raghead','kkk','heilhitler','killyourself','killurself','kys','slityourwrist'];
+// short / embeddable words — matched only as whole words (+ common suffixes) so "class", "assist", "grape", "cockpit", "title" all pass
+const HUB_BAD_WORD=['ass','cum','fag','hoe','dick','cock','tit','rape','piss','prick','wank','twat','arse','damn','crap','bastard','homo','simp','thot','skank','coon','spaz','mong','slag'];
+function hubModerate(text){
+  if(!text) return {ok:true};
+  const sq=_hubStrip(text), sqC=sq.replace(/(.)\1+/g,'$1');   // squashed, and squashed+de-stretched (fuuuck -> fuck)
+  for(let i=0;i<HUB_BAD_SUBSTR.length;i++){ const t=HUB_BAD_SUBSTR[i]; if(sq.indexOf(t)>=0||sqC.indexOf(t)>=0) return {ok:false}; }
+  const toks=String(text).toLowerCase().split(/\s+/);
+  for(let j=0;j<toks.length;j++){ const w=_hubStrip(toks[j]); if(!w) continue;
+    for(let k=0;k<HUB_BAD_WORD.length;k++){ const b=HUB_BAD_WORD[k];
+      if(w===b||w===b+'s'||w===b+'es'||w===b+'ed'||w===b+'ing'||w===b+'er'||w===b+'y'||w===b+'in'||w===b+'z') return {ok:false}; } }
+  return {ok:true};
+}
 async function hubSend(){
   if(_hubSending) return;
   const inp=document.getElementById('hub-in'); const body=(inp&&inp.value||'').trim();
   if(!body&&!_hubImgs.length) return;
   if(!isLoggedIn()){ popup('Join in','Log in to post in the Hub!'); return; }
+  if(body && !hubModerate(body).ok){ popup('Keep it kind 🌱','Your message looks like it contains language that isn’t allowed in our community — profanity, slurs, or hurtful / discriminatory words (including disguised spellings).<br><br>Please <strong>edit</strong> it, or <strong>clear</strong> it, and try again.'); return; }
   if(hubMutedLeft()>0){ toast('You’re muted in the Hub — '+fmtMuteLeft(hubMutedLeft())+' remaining','err'); return; }
   if(wordCount(body)>300){ toast('Hub messages are limited to 300 words — yours is '+wordCount(body),'err'); return; }
   if(body.length>12000){ toast('Hub messages must be under 12,000 characters','err'); return; }
@@ -7110,6 +7151,7 @@ async function doHubPoll(){
   const opts=[0,1,2,3].map(function(i){ return ((document.getElementById('hp-o'+i)||{}).value||'').trim(); }).filter(Boolean);
   if(!q.trim()||opts.length<2){ toast('A poll needs a question and at least 2 options','err'); return; }
   if(!isLoggedIn()){ popup('Join in','Log in first!'); return; }
+  if(!hubModerate(q).ok||opts.some(function(o){ return !hubModerate(o).ok; })){ popup('Keep it kind 🌱','Your poll looks like it contains language that isn’t allowed in our community. Please edit the question or options and try again.'); return; }
   closeModal();
   try{ const {error}=await sb.from('hub_polls').insert({id:'p_'+uid(),user_id:account.id,username:account.username,question:q.trim(),options:opts}); if(error) throw error; }
   catch(e){ toast('Couldn\u2019t post the poll \u2014 '+((e&&e.message)||'try again'),'err'); return; }
@@ -7163,7 +7205,7 @@ function hubImgsOf(v){
 function hubRow(m,grouped){
   const col=(m.name_color&&NAME_COLORS[m.name_color])?NAME_COLORS[m.name_color]:null;
   const mine=account&&String(m.user_id)===String(account.id);
-  const canMod=(ROLE_RANK[(session&&session.roleId)||'member']||0)>=3;
+  const canDel=canHubDelete(), canMute=canHubMute();
   const pending=!!hubPendingReactions[String(m.id)];
   const rx=hubRx[m.id]||{counts:{},mine:{}};
   const chips=Object.keys(rx.counts).filter(function(e){return HUB_EMOJIS.indexOf(e)>=0&&rx.counts[e]>0;}).map(function(e){
@@ -7185,8 +7227,8 @@ function hubRow(m,grouped){
       '<div class="hub-acts">'+
         '<button type="button" title="Reply" aria-label="Reply to '+escA(m.username||'member')+'" onclick="hubReply('+hubJsArg(m.id)+','+hubJsArg(m.username||'')+')">'+ICONS.reply+' Reply</button>'+
         (m.body?'<button type="button" title="Copy message" aria-label="Copy message" onclick="hubCopyMsg('+hubJsArg(m.id)+')">⧉ Copy</button>':'')+
-        ((mine||canMod)?'<button type="button" title="Delete message" onclick="hubDelete('+hubJsArg(m.id)+')">'+ICONS.trash+' Delete</button>':'')+
-        ((canMod&&!mine)?'<button type="button" title="Mute this member" onclick="openHubMute('+hubJsArg(m.user_id)+','+hubJsArg(m.username||'')+')">'+ICONS.volume+' Mute</button>':'')+
+        ((mine||canDel)?'<button type="button" title="Delete message" onclick="hubDelete('+hubJsArg(m.id)+')">'+ICONS.trash+' Delete</button>':'')+
+        ((canMute&&!mine)?'<button type="button" title="Mute this member" onclick="openHubMute('+hubJsArg(m.user_id)+','+hubJsArg(m.username||'')+')">'+ICONS.volume+' Mute</button>':'')+
       '</div>'+
       '<div class="hub-rx">'+HUB_EMOJIS.slice(0,6).map(function(e){ return '<button type="button" class="'+(rx.mine[e]?'on':'')+'" '+(pending?'disabled':'')+' aria-pressed="'+(rx.mine[e]?'true':'false')+'" aria-label="React with '+e+'" onclick="hubReact('+hubJsArg(m.id)+','+hubJsArg(e)+')">'+e+'</button>'; }).join('')+chips+'</div>'+
     '</div></div>';
@@ -10113,7 +10155,7 @@ async function loadSiteContent(){
         roles.developer.locked=true; roles.developer.caps=allCaps(true);   // developer always keeps every permission (the DB copy may not have a Developer row)
         if(!roles.chapter_leader) roles.chapter_leader={name:'Chapter Leader',caps:Object.assign(allCaps(false),{chapter_manage:true,view_chapters:true,view_gallery:true,view_calendar:true})};
         if(!roles.public) roles.public=DEFAULT_PUBLIC();           // logged-out visitors always have a Public row
-        Object.keys(roles).forEach(function(k){ const c=roles[k].caps=roles[k].caps||{}; CAPS.forEach(function(cap){ if(c[cap.id]===undefined) c[cap.id]=(cap.id==='views_tracked'); }); });   // backfill caps missing from an older save (the new "views_tracked" defaults ON)
+        Object.keys(roles).forEach(function(k){ const c=roles[k].caps=roles[k].caps||{}; const modish=(k==='moderator'||k==='admin'||!!c.admin_settings); CAPS.forEach(function(cap){ if(c[cap.id]===undefined) c[cap.id]=(cap.id==='views_tracked')?true:((cap.id==='hub_mute'||cap.id==='hub_ban'||cap.id==='hub_moderate')?modish:false); }); });   // backfill caps from an older save: "views_tracked" ON; the new Hub-moderation caps default ON for moderator/admin-type roles, OFF for others
       }
     }
   }catch(e){ /* table may not exist yet — falls back to defaults */ }
