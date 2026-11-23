@@ -1421,7 +1421,7 @@
   .tour-dot{width:7px;height:7px;border-radius:50%;background:var(--line);}
   .tour-dot.on{background:var(--green);transform:scale(1.3);}
   @media(max-width:640px){.tour-card{bottom:max(12px,env(safe-area-inset-bottom));padding:16px}.tour-btns{gap:12px}.tour-dots{display:none}.tour-actions{margin-left:auto}}
-  @media(prefers-reduced-motion:reduce){.hub-msg,.tdots span,.tour-card{animation:none!important}.tour-box,.tour-progress i{transition:none!important}}
+  @media(prefers-reduced-motion:reduce){.hub-msg,.tour-card{animation:none!important}.tour-box,.tour-progress i{transition:none!important}}
   /* changelog drag-to-reorder */
   .cl-wrap.dragging{user-select:none;}
   .cl-item.drag-src{opacity:.35;}
@@ -1883,10 +1883,6 @@
 .hub-rx button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;font:inherit;font-size:.76rem;padding:4px 9px;cursor:pointer;transition:transform .12s,border-color .12s,background .12s;}
 .hub-rx button:hover{transform:translateY(-1px);border-color:var(--blue);}
 .hub-rx button.on{border-color:var(--blue);background:rgba(32,131,196,.14);}
-.hub-typing{padding:0 18px 8px;font-size:.78rem;color:var(--muted);min-height:22px;font-style:italic;}
-.tdots span{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--muted);margin-left:2px;animation:tdot 1.2s infinite;}
-.tdots span:nth-child(2){animation-delay:.2s}.tdots span:nth-child(3){animation-delay:.4s}
-@keyframes tdot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
 .hub-composer{border-top:1px solid var(--line);padding:13px 15px max(13px,env(safe-area-inset-bottom));position:relative;background:var(--card);}
 .hub-attach{display:flex;align-items:center;gap:8px;margin-bottom:9px;flex-wrap:wrap;}
 .hub-attach img{width:58px;height:58px;object-fit:cover;border-radius:10px;border:1px solid var(--line);}
@@ -2185,7 +2181,6 @@ body.calm .sx-walker,body.calm .sx-fish,body.calm .sx-gull,body.calm .sx-snowy,b
   .hub-rx button.on{background:rgba(32,131,196,.16);border-color:var(--blue);color:var(--blue-dk);}
   [data-theme="dark"] .hub-rx button.on{color:var(--blue);}
   .hub-rx button:disabled,.hp-opt:disabled{opacity:.65;cursor:wait;}
-  .hub-typing{padding:2px 20px 9px;min-height:24px;}
   .hub-newbtn{position:absolute;right:24px;bottom:118px;z-index:8;display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border:1px solid color-mix(in srgb,var(--blue) 45%,var(--line));border-radius:999px;background:var(--card);color:var(--blue-dk);font:700 .78rem/1.2 Arial,sans-serif;box-shadow:0 7px 22px rgba(0,0,0,.16);cursor:pointer;animation:hubMsgIn .2s ease both;}
   [data-theme="dark"] .hub-newbtn{color:var(--blue);}
   .hub-newbtn .ic{width:14px;height:14px;}
@@ -2194,6 +2189,13 @@ body.calm .sx-walker,body.calm .sx-fish,body.calm .sx-gull,body.calm .sx-snowy,b
   .hub-empty>span:last-child{font-size:.84rem;max-width:34ch;}
   .hub-empty-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:rgba(32,131,196,.1);color:var(--blue);margin-bottom:5px;}
   .hub-empty-icon .ic{width:22px;height:22px;}
+  /* mini loader — a small version of the page's Earth-orbits-Sun loader (no progress bar), used for lazy loads */
+  .mini-loader{display:flex;flex-direction:column;align-items:center;gap:9px;padding:20px 10px;color:var(--muted);font-size:.82rem;}
+  .mini-solar{position:relative;width:46px;height:46px;}
+  .mini-solar .mi-sun{position:absolute;top:50%;left:50%;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;border-radius:50%;background:radial-gradient(circle at 40% 36%,#ffe9a3,#f4c430 70%,#e3a51c);box-shadow:0 0 8px 2px rgba(244,196,48,.5);}
+  .mini-solar .mi-orbit{position:absolute;inset:0;animation:miOrbit 1.3s linear infinite;}
+  .mini-solar .mi-earth{position:absolute;top:0;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#9bd4ff,#1f6fb8 78%,#0f4c8b);box-shadow:0 0 0 1px rgba(130,200,255,.4);}
+  @keyframes miOrbit{to{transform:rotate(360deg);}}
   .hub-loading{display:flex;flex-direction:column;gap:16px;padding:20px 4px;}
   .hub-loading span{height:66px;max-width:68%;border-radius:15px;background:linear-gradient(90deg,var(--bg),color-mix(in srgb,var(--line) 55%,var(--card)),var(--bg));background-size:220% 100%;animation:hubShimmer 1.35s ease-in-out infinite;}
   .hub-loading span:nth-child(2){align-self:flex-end;max-width:58%;height:78px;}
@@ -4073,7 +4075,7 @@ function announcementsView(){
   return h+'</div>';
 }
 function toggleAnnMonth(key){ annOpen[key]=!annOpen[key]; objSet('ese_ann_open',annOpen); var b=document.getElementById('annm-'+key); if(b){ b.classList.toggle('open',!!annOpen[key]); var c=b.closest('.nl-card'); if(c)c.classList.toggle('open',!!annOpen[key]); } }
-function nlCommentBtn(id){ const n=ensureSocial(id).comments.length; return '<button class="gcomment" onclick="openNewsletterComments(\''+id+'\')">'+ICONS.chat+(n?n+(n===1?' comment':' comments'):'Comment')+'</button>'; }
+function nlCommentBtn(id){ ensureSocial(id); const n=cCount(id); return '<button class="gcomment" onclick="openNewsletterComments(\''+id+'\')">'+ICONS.chat+(n?n+(n===1?' comment':' comments'):'Comment')+'</button>'; }
 function newsletterCard(n){
   const open=!!nlOpen[n.id];
   const head='<div class="nl-head" onclick="toggleNewsletter(\''+n.id+'\')"><div class="nl-meta"><span class="nl-time">'+esc(fmtDateTime(n.publishedAt))+'</span><span class="nl-title">'+esc(n.title)+'</span></div><span class="nl-arrow">\u25BE</span></div>';
@@ -5063,29 +5065,50 @@ function galleryItems(){ return content.gallery||[]; }
 function gPhotos(g){ return (g.photos&&g.photos.length)?g.photos:(g.photo?[g.photo]:[]); }   // tolerate older single-photo posts
 function ensureSocial(id){ if(!gSocial[id]) gSocial[id]={reactions:{},mine:null,comments:[]}; return gSocial[id]; }
 // load all saved reactions + comments from Supabase into gSocial (so they persist + are shared, not just in-memory)
+/* EGRESS: on page load we fetch only reactions (small) + a per-post comment COUNT (ids only, no
+   bodies/avatars). The heavy part — comment text and author avatars — loads per post, on demand,
+   the first time a thread is opened (loadPostComments), with a mini loader. This turns a ~1.2 MB
+   download on every page view into a few KB. */
 async function loadSocial(){
   if(!BACKEND) return;
   try{
     const res=await Promise.all([
-      sb.from('post_comments').select('id,post_id,user_id,username,avatar,name_color,body,parent_id,created_at,edited_at').order('created_at',{ascending:true}),
+      sb.from('post_comments').select('post_id').order('created_at',{ascending:true}),   // counts only
       sb.from('post_reactions').select('target_id,user_id,emoji')
     ]);
     const cmts=(res[0]&&res[0].data)||[], rx=(res[1]&&res[1].data)||[];
-    const uids=[...new Set(cmts.map(function(c){return c.user_id;}).filter(Boolean))];
-    let currentAvatars={};
-    if(uids.length){
-      try{ const pr=await sb.from('profiles').select('id,avatar,username').in('id',uids);
-        (pr.data||[]).forEach(function(p){currentAvatars[String(p.id)]=p;});
-      }catch(e){}
-    }
     gSocial={};                       // rebuild from the source of truth
-    const cIndex={};
-    cmts.forEach(function(c){ const prof=currentAvatars[String(c.user_id)]||{};
-      const liveAvatar=(account&&String(c.user_id)===String(account.id))?account.avatar:(prof.avatar||c.avatar||null);
-      const s=ensureSocial(c.post_id); const obj={id:c.id,userId:c.user_id,user:prof.username||c.username||'Member',avatar:liveAvatar,nameColor:c.name_color||null,body:c.body,ts:new Date(c.created_at).getTime(),edited:!!c.edited_at,parentId:c.parent_id||null,reactions:{},mine:null}; s.comments.push(obj); cIndex[c.id]=obj; });
-    rx.forEach(function(r){ const store=cIndex[r.target_id]||ensureSocial(r.target_id); store.reactions[r.emoji]=(store.reactions[r.emoji]||0)+1; if(account&&String(r.user_id)===String(account.id)) store.mine=r.emoji; });
+    cmts.forEach(function(c){ const s=ensureSocial(c.post_id); s.commentCount=(s.commentCount||0)+1; });
+    rx.forEach(function(r){ const store=ensureSocial(r.target_id); store.reactions[r.emoji]=(store.reactions[r.emoji]||0)+1; if(account&&String(r.user_id)===String(account.id)) store.mine=r.emoji; });
   }catch(e){}
 }
+/* Lazy-load one post's full comments (bodies + the authors' CURRENT avatars) the first time its
+   thread is shown. Reactions on each comment were already loaded above (keyed by comment id). */
+async function loadPostComments(postId){
+  const s=ensureSocial(postId);
+  if(s.commentsLoaded||s._loadingComments) return;
+  if(!BACKEND){ s.commentsLoaded=true; return; }
+  s._loadingComments=true;
+  try{
+    const {data:cmts}=await sb.from('post_comments').select('id,post_id,user_id,username,name_color,body,parent_id,created_at,edited_at').eq('post_id',postId).order('created_at',{ascending:true});
+    const rows=cmts||[];
+    const uids=[...new Set(rows.map(function(c){return c.user_id;}).filter(Boolean))];
+    let avs={};
+    if(uids.length){ try{ const pr=await sb.from('profiles').select('id,avatar,username').in('id',uids); (pr.data||[]).forEach(function(p){avs[String(p.id)]=p;}); }catch(e){} }
+    s.comments=[];
+    rows.forEach(function(c){ const prof=avs[String(c.user_id)]||{};
+      const liveAvatar=(account&&String(c.user_id)===String(account.id))?account.avatar:(prof.avatar||null);
+      const rstore=gSocial[c.id]||{reactions:{},mine:null};
+      s.comments.push({id:c.id,userId:c.user_id,user:prof.username||c.username||'Member',avatar:liveAvatar,nameColor:c.name_color||null,body:c.body,ts:new Date(c.created_at).getTime(),edited:!!c.edited_at,parentId:c.parent_id||null,reactions:rstore.reactions||{},mine:rstore.mine||null});
+    });
+    s.commentCount=s.comments.length;
+    s.commentsLoaded=true;
+  }catch(e){}
+  s._loadingComments=false;
+  scheduleRender&&scheduleRender();
+}
+// the comment count to show before a thread is opened (commentCount), or after (the real array)
+function cCount(id){ const s=gSocial[id]; if(!s) return 0; return s.commentsLoaded?s.comments.length:(s.commentCount||0); }
 // save/remove the current user's reaction on a target (a post id OR a comment id)
 function persistReaction(targetId,emoji){
   if(!BACKEND||!account) return;
@@ -5153,7 +5176,7 @@ function galleryTile(g,admin){
   else if(n) media='<img id="gimg-'+g.id+'" src="'+escA(ps[i])+'" alt="'+escA(g.caption||'')+'">';
   else media='<div class="g-ph"><span>'+ICONS.leaf+'</span></div>';
   const nav=(n>1 && !g.inDrive)?'<button class="gnav gprev" title="Previous" onclick="gStep(\''+g.id+'\',-1,event)">\u2039</button><button class="gnav gnext" title="More photos" onclick="gStep(\''+g.id+'\',1,event)">\u203A</button><span class="gcount" id="gcount-'+g.id+'">'+(i+1)+'/'+n+'</span>':'';
-  const s=ensureSocial(g.id), nC=s.comments.length;
+  const s=ensureSocial(g.id), nC=cCount(g.id);
   return '<figure class="gtile">'+
     '<div class="gphoto" onclick="openGalleryPost(\''+g.id+'\')">'+media+nav+
       ((n&&!g.inDrive)?'<button class="gexp" data-tip="Open full view" aria-label="Open full-screen photo" onclick="event.stopPropagation();openLightbox(\''+g.id+'\','+i+')">'+ICONS.expand+'</button>':'')+
@@ -5386,7 +5409,7 @@ async function doPostComment(id, body){
   const obj={id:cid, userId:account.id, user:account.username||'You', avatar:account.avatar||null, nameColor:account.nameColor||null, body:body, ts:Date.now(), edited:false, parentId:null, reactions:{}, mine:null};
   ensureSocial(id).comments.push(obj);
   refreshSocial(id);
-  if(BACKEND){ try{ const {error}=await sb.from('post_comments').insert({id:cid, post_id:id, user_id:account.id, username:obj.user, avatar:obj.avatar, name_color:(account.nameColor||null), body:body}); if(error) toast('Comment didn’t save — '+(error.message||'try again')); }catch(e){ toast('Comment didn’t save — try again'); } }
+  if(BACKEND){ try{ const {error}=await sb.from('post_comments').insert({id:cid, post_id:id, user_id:account.id, username:obj.user, name_color:(account.nameColor||null), body:body}); if(error) toast('Comment didn’t save — '+(error.message||'try again')); }catch(e){ toast('Comment didn’t save — try again'); } }
 }
 function showCommentConfirm(){
   const pc=_pendingComment; if(!pc)return;
@@ -5404,7 +5427,10 @@ function editPendingComment(){ const pc=_pendingComment; _pendingComment=null; i
 }
 // ---- replies: a reply is a comment with a parentId (a top-level comment). Same actions as any comment. ----
 let _replyTo=null;
+function miniLoader(msg){ return '<div class="mini-loader" role="status" aria-live="polite"><div class="mini-solar" aria-hidden="true"><div class="mi-sun"></div><div class="mi-orbit"><div class="mi-earth"></div></div></div>'+(msg?'<span>'+esc(msg)+'</span>':'')+'</div>'; }
 function commentThread(postId, comments){
+  const s=gSocial[postId];
+  if(s && !s.commentsLoaded && (s.commentCount||0)>0){ setTimeout(function(){ loadPostComments(postId); },0); return miniLoader('Loading comments…'); }   // lazy-load this thread's comments on first open
   if(!comments.length) return '<p class="muted" style="text-align:center;margin:14px 0">No comments yet — be the first!</p>';
   const byParent={}; comments.forEach(function(c){ const k=c.parentId||''; (byParent[k]=byParent[k]||[]).push(c); });
   const one=function(c,isReply){ return commentRow(postId,c,isReply)+(_replyTo===c.id?'<div class="creply-box">'+replyComposer(postId)+'</div>':''); };
@@ -5433,7 +5459,7 @@ async function doPostReply(postId, body, replyTo){
   const cid='c_'+uid();
   const obj={id:cid, userId:account.id, user:account.username||'You', avatar:account.avatar||null, nameColor:account.nameColor||null, body:body, ts:Date.now(), edited:false, parentId:parentId, reactions:{}, mine:null};
   s.comments.push(obj); _replyTo=null; refreshSocial(postId);
-  if(BACKEND){ try{ const {error}=await sb.from('post_comments').insert({id:cid, post_id:postId, user_id:account.id, username:obj.user, avatar:obj.avatar, name_color:(account.nameColor||null), body:body, parent_id:parentId}); if(error) toast('Reply didn’t save — '+(error.message||'try again')); }catch(e){ toast('Reply didn’t save — try again'); } }
+  if(BACKEND){ try{ const {error}=await sb.from('post_comments').insert({id:cid, post_id:postId, user_id:account.id, username:obj.user, name_color:(account.nameColor||null), body:body, parent_id:parentId}); if(error) toast('Reply didn’t save — '+(error.message||'try again')); }catch(e){ toast('Reply didn’t save — try again'); } }
 }
 function commentReact(pid,commentId,emoji){
   if(!isLoggedIn()){ popup('Join in','Log in to react!'); return; }
@@ -6718,7 +6744,6 @@ async function leaderSend(){
   const tmp={id:'tmp_'+Date.now(), user_id:account.id, username:account.username, name_color:account.nameColor||null, body:body, reply_to:(rt?rt.id:null), reply_to_name:(rt?rt.name:null), created_at:new Date().toISOString()};
   leaderMsgs=(leaderMsgs||[]).concat([tmp]);
   inp.value=''; render();
-  const list=document.getElementById('ld-list'); if(list) list.scrollTop=list.scrollHeight;
   try{ const {error}=await sb.from('leader_messages').insert({user_id:account.id,username:account.username,name_color:account.nameColor||null,body:body,reply_to:(rt?rt.id:null),reply_to_name:(rt?rt.name:null)});
     if(error) throw error;
     loadLeaderMsgs().then(function(){ if(route()==='leader') render(); });   // quiet refresh swaps the live copy in (no waiting, no flicker)
@@ -6729,8 +6754,9 @@ async function leaderSend(){
 }
 
 /* ===================== 3.7: THE HUB — the public chat room ===================== */
-let hubMsgs=null, hubPeeps=null, hubRx={}, hubPolls=null, hubVotes={}, hubTypers=[], _hubReplyTo=null, _hubImgs=[], _hubMutedUntil=null, _lastTypingPing=0;
+let hubMsgs=null, hubPeeps=null, hubRx={}, hubPolls=null, hubVotes={}, _hubReplyTo=null, _hubImgs=[], _hubMutedUntil=null;
 let _hubSending=false, hubPendingReactions={}, hubPendingVotes={}, hubNewCount=0;
+let _hubLastCount=-1, _ldLastCount=-1;
 const HUB_EMOJIS=['😀','😄','😂','🥳','😎','🤩','🙌','👏','👍','💚','🌍','🌱','✨','🎉','❤️','🔥','😮','😢','🤔','👀','🍀','☀️','🌙','⭐','🌈','🦋','🐢','🐝','🌸','🌊','⛰️','❄️'];
 /* 3.9 egress savings: pictures and profiles are fetched ONCE per id (avatars re-check after 10 min)
    instead of being re-downloaded by every background refresh — this is what keeps data use low */
@@ -6983,7 +7009,14 @@ function openHubMute(userId,username){
       [60,360,1440].map(function(m){ return '<button onclick="doHubMute(\''+escA(String(userId))+'\',\''+escA(username)+'\','+m+')">'+(m<1440?(m/60)+' hour'+(m===60?'':'s'):'1 day')+'</button>'; }).join('')+
       '<button onclick="doHubMuteCustom(\''+escA(String(userId))+'\',\''+escA(username)+'\')">Custom\u2026</button>'+
     '</div>'+
-    '<div id="hm-custom" style="display:none"><label class="flab">Minutes</label><input id="hm-mins" type="number" min="1" style="width:100%"><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="doHubMuteCustomGo(\''+escA(String(userId))+'\',\''+escA(username)+'\')">Mute</button></div>');
+    '<div id="hm-custom" style="display:none"><label class="flab">Minutes</label><input id="hm-mins" type="number" min="1" style="width:100%"><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="doHubMuteCustomGo(\''+escA(String(userId))+'\',\''+escA(username)+'\')">Mute</button></div>'+
+    '<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)"><button class="btn btn-ghost btn-sm" style="width:100%" onclick="doHubUnmute(\''+escA(String(userId))+'\',\''+escA(username)+'\')">'+ICONS.volume+' Unmute '+esc(username)+'</button></div>');
+}
+async function doHubUnmute(userId,username){
+  if(!canHubMute()) return;
+  closeModal();
+  try{ const {error}=await sb.from('hub_mutes').delete().eq('user_id',userId); if(error) throw error; toast(username+' is unmuted'); }
+  catch(e){ toast('Couldn’t unmute — '+((e&&e.message)||'try again'),'err'); }
 }
 async function doHubMute(userId,username,mins){
   if(!canHubMute()) return;
@@ -7002,33 +7035,6 @@ function doHubMuteCustomGo(userId,username){
   const n=parseInt((document.getElementById('hm-mins')||{}).value,10);
   if(!n||n<1||n>43200){ toast('Enter between 1 and 43,200 minutes (30 days)','err'); return; }
   doHubMute(userId,username,n);
-}
-function hubTypingPing(){
-  const now=Date.now();
-  if(now-_lastTypingPing<3000) return;   // throttle: at most one upsert every 3s
-  _lastTypingPing=now;
-  if(!BACKEND||!account) return;
-  try{ sb.from('hub_typing').upsert({user_id:account.id,username:account.username,updated_at:new Date().toISOString()}).then(function(){},function(){}); }catch(e){}
-}
-async function pollHubTyping(){
-  if(!BACKEND||route()!=='hub'||document.hidden) return;   // a hidden tab never polls
-  try{
-    const since=new Date(Date.now()-7000).toISOString();
-    const {data,error}=await sb.from('hub_typing').select('user_id,username,updated_at').gte('updated_at',since);
-    if(error) return;
-    const rows=(data||[]).filter(function(t){ return !account||String(t.user_id)!==String(account.id); });
-    const before=JSON.stringify(hubTypers);
-    hubTypers=rows;
-    if(before!==JSON.stringify(hubTypers)){
-      const el=document.getElementById('hub-typing'); if(el){ el.innerHTML=hubTypingHtml(); }
-    }
-  }catch(e){}
-}
-function hubTypingHtml(){
-  if(!hubTypers.length) return '';
-  const names=hubTypers.slice(0,3).map(function(t){ return esc(t.username||'Someone'); });
-  const label=names.length===1?names[0]+' is typing\u2026':(names.length===2?names[0]+' and '+names[1]+' are typing\u2026':names.join(', ')+' are typing\u2026');
-  return label+'<span class="tdots"><span></span><span></span><span></span></span>';
 }
 function hubPickImage(input){
   const f=input&&input.files&&input.files[0]; if(!f) return;
@@ -7052,7 +7058,7 @@ function hubInsertEmoji(e){
   const start=(typeof t.selectionStart==='number'?t.selectionStart:t.value.length), end=(typeof t.selectionEnd==='number'?t.selectionEnd:t.value.length);
   t.value=t.value.slice(0,start)+e+t.value.slice(end);
   const pos=start+e.length; t.focus(); try{t.setSelectionRange(pos,pos);}catch(x){}
-  hubInputGrow(t); hubTypingPing();
+  hubInputGrow(t);
 }
 function hubCountWords(s){ return wordCount(s); }
 function hubSyncComposer(){
@@ -7117,7 +7123,6 @@ async function hubSend(){
   hubMsgs=(hubMsgs||[]).concat([tmp]);
   if(inp) inp.value='';
   render();
-  const list=document.getElementById('hub-list'); if(list) list.scrollTop=list.scrollHeight;
   try{
     const {error}=await sb.from('hub_messages').insert({id:'h_'+uid(),user_id:account.id,username:account.username,name_color:account.nameColor||null,body:body,image:imgVal,reply_to:(rt?rt.id:null),reply_to_name:(rt?rt.name:null)});
     if(error) throw error;
@@ -7125,7 +7130,6 @@ async function hubSend(){
     await loadHubMsgs();
     if(route()==='hub'){
       if(!hubRefreshDom()) render();   /* swap the optimistic message for the saved one without rebuilding the composer */
-      const sl=document.getElementById('hub-list'); if(sl) sl.scrollTop=sl.scrollHeight;
     }
   }catch(e){
     _hubSending=false;
@@ -7270,7 +7274,7 @@ function hubComposerHtml(){
         '</div>'+
         '<div class="hub-emoji-pop" id="hub-emoji-pop" style="display:none">'+HUB_EMOJIS.map(function(e){ return '<button type="button" onclick="hubInsertEmoji(\''+e+'\')">'+e+'</button>'; }).join('')+'</div>'+
       '</div>'+
-      '<textarea id="hub-in" rows="1" aria-label="Write a message to the Hub" placeholder="Message the Hub\u2026" oninput="hubInputGrow(this);hubTypingPing()" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();hubSend();}"></textarea>'+
+      '<textarea id="hub-in" rows="1" aria-label="Write a message to the Hub" placeholder="Message the Hub\u2026" oninput="hubInputGrow(this)" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();hubSend();}"></textarea>'+
       '<button type="button" id="hub-send" class="hub-round hub-send" title="Send message" aria-label="Send message" '+((_hubSending||!_hubImgs.length)?'disabled':'')+' onclick="hubSend()">'+ICONS.send+'</button>'+
     '</div>'+
     '<div class="hub-compose-foot"><span class="hub-compose-hint">Enter to send <i>·</i> Shift + Enter for a new line</span><span class="hub-wordcount" id="hub-wc">0 / 300 words · 0 / 12,000 characters</span></div>'+
@@ -7314,7 +7318,6 @@ function hubRefreshDom(){
   if(route()!=='hub') return false;
   const list=document.getElementById('hub-list'); if(!list) return false;
   list.innerHTML=hubFeedHtml();
-  const ty=document.getElementById('hub-typing'); if(ty) ty.innerHTML=hubTypingHtml();
   const live=document.querySelector('.hub-live'); if(live) live.innerHTML=hubLiveHtml();
   const sub=document.querySelector('.hub-sub'); if(sub) sub.innerHTML=esc((content.hubInfo&&content.hubInfo.trim())?content.hubInfo:HUB_INFO_DEFAULT);
   const side=document.querySelector('.hub-side'); if(side) side.innerHTML='<div class="hub-sidecard"><h4>'+ICONS.users+' Who\u2019s around</h4>'+hubSideHtml()+'</div>';
@@ -7337,7 +7340,6 @@ function hubView(){
           '<div class="hub-card">'+
             '<div class="hub-list" id="hub-list" onscroll="hubOnScroll(this)" aria-label="Hub conversation" aria-live="off">'+feed+'</div>'+
             hubNewButtonHtml()+
-            '<div class="hub-typing" id="hub-typing" role="status" aria-live="polite">'+hubTypingHtml()+'</div>'+
             hubComposerHtml()+
           '</div>'+
         '</div>'+
@@ -7351,7 +7353,9 @@ const blogCategoryLabel=id=>((BLOG_CATS.find(c=>c.id===id)||{}).label)||'Other';
 let _blogCategory='all',_blogNavOpen=false;
 let blogs=null,_openBlogId=null,blogsError=null,blogsLoading=false;
 let myBlogs=null,myBlogsLoading=false,_blogQ='',_blogSort='new';   // Your Blogs + the blogs search/sort controls
-const _blogViewed=(function(){ try{ return new Set(JSON.parse(sessionStorage.getItem('ese_blog_views')||'[]')); }catch(e){ return new Set(); } })();
+const BLOG_VIEW_TTL=5*3600*1000;   // a blog counts a view at most once per reader per 5 hours (anti-farming + fewer writes)
+function _blogViewAllowed(id){ try{ const m=objGet('ese_blog_view_ts',{})||{}; return Date.now()-(m[String(id)]||0)>BLOG_VIEW_TTL; }catch(e){ return true; } }
+function _blogViewMark(id){ try{ const m=objGet('ese_blog_view_ts',{})||{}; m[String(id)]=Date.now(); objSet('ese_blog_view_ts',m); }catch(e){} }
 async function loadBlogs(){
   if(!BACKEND){ blogs=[]; blogsError=null; blogsLoading=false; return true; }
   blogsLoading=true; blogsError=null;
@@ -7849,9 +7853,9 @@ async function bePublish(btn,asDraft){
   const editing=!!_beEditId;
   return withButtonLoading(btn,asDraft?'Saving…':(editing?'Saving…':'Publishing…'),async function(){
     let clean=sanBlogHtml(d.body);
-    if(!asDraft){ try{ clean=await externalizeBlogImages(clean); }catch(mediaErr){ console.warn('Blog image upload skipped:',mediaErr); } }
+    try{ clean=await externalizeBlogImages(clean); }catch(mediaErr){ console.warn('Blog image upload skipped:',mediaErr); }   // EGRESS: move inline images to storage on EVERY save (drafts too), not just publish
     let coverImage=_beCover;
-    if(!asDraft && /^data:image\//i.test(String(coverImage||''))){try{coverImage=await storeImageDataUrl(coverImage,'blog-covers');}catch(mediaErr){}}
+    if(/^data:image\//i.test(String(coverImage||''))){try{coverImage=await storeImageDataUrl(coverImage,'blog-covers');}catch(mediaErr){}}
     const plainBody=blogPlain(d.body).replace(/\s+/g,' ').trim();
     const words=wordCount(plainBody);
     const base={title:title.slice(0,120),body:clean,excerpt:plainBody.slice(0,180),word_count:words,read_minutes:Math.max(1,Math.ceil(words/200)),category:(d.category||'environment'),kicker:(d.kicker||'').trim().slice(0,80)||null,subtitle:(d.sub||'').trim().slice(0,200)||null,image:coverImage,user_id:account.id,username:account.username,name_color:account.nameColor||null,published:!asDraft,allow_download:_beAllowDl};
@@ -7891,9 +7895,8 @@ async function openBlog(id){
       b.body=(data&&data.body)||'';
     }catch(e){ _openBlogId=null; toast(netErrMsg(e,'Could not open this blog post'),'err'); return; }
   }
-  if(!_blogViewed.has(id)){
-    _blogViewed.add(id);
-    try{ sessionStorage.setItem('ese_blog_views',JSON.stringify([..._blogViewed])); }catch(e){}
+  if(_blogViewAllowed(id)){
+    _blogViewMark(id);
     b.views=(b.views||0)+1;   // count immediately for the viewer
     if(BACKEND){ try{ sb.rpc('bump_blog_views',{p_id:id}).then(function(){},function(){}); }catch(e){} }
   }
@@ -8382,11 +8385,17 @@ const transCache={};
 function isRtl(c){ const l=LANGS.find(function(x){return x.code===c;}); return !!(l&&l.rtl); }
 
 /* ---- translation engine (cache-first; Edge Function, then MyMemory fallback) ---- */
+const TCACHE_V=1, TCACHE_TTL=14*24*3600*1000;   // translation cache format version + 14-day freshness window
 async function preloadTranslations(code){
   if(code==='en'||!BACKEND) return;
   transCache[code]=transCache[code]||{};
+  // EGRESS: a returning visitor serves the whole language from localStorage instead of re-downloading it.
+  // (Safe to be a little stale: any new/changed source string is a cache miss and gets fetched on demand.)
+  try{ const cached=objGet('ese_tcache_'+code,null); if(cached&&cached.v===TCACHE_V&&cached.d&&(Date.now()-(cached.t||0)<TCACHE_TTL)){ Object.assign(transCache[code],cached.d); return; } }catch(e){}
   try{ const {data}=await sb.from('translations').select('source_text,translated').eq('target',code);
-    (data||[]).forEach(function(r){ transCache[code][r.source_text]=r.translated; }); }catch(e){}
+    (data||[]).forEach(function(r){ transCache[code][r.source_text]=r.translated; });
+    try{ objSet('ese_tcache_'+code,{v:TCACHE_V,t:Date.now(),d:transCache[code]}); }catch(e){}
+  }catch(e){}
 }
 function mmLang(c){ return ({'zh-CN':'zh-CN'})[c]||c; }
 let _edgeXlate=(typeof BACKEND!=='undefined'&&BACKEND);   // Edge Function available? disabled after a failure
@@ -8690,12 +8699,12 @@ function render(){
     if(_winY!=null&&window.scrollY!==_winY){ try{ window.scrollTo(0,_winY); }catch(e){} }
     if(r==='hub'){ const _hbNew=document.getElementById('hub-list');   /* the Hub ALWAYS opens on the newest message: first view and after sending go to the bottom; scrolling up to read history is respected */
       if(_hbNew){ const _sbh=_hbNew.style.scrollBehavior; _hbNew.style.scrollBehavior='auto';
-        if(_hbState&&!_hbState.atBottom) _hbNew.scrollTop=_hbState.top; else _hbNew.scrollTop=_hbNew.scrollHeight;
+        if(_hbState) _hbNew.scrollTop=_hbState.top; else _hbNew.scrollTop=_hbNew.scrollHeight;
         _hbNew.style.scrollBehavior=_sbh||''; }
       if(_hubDraft){ const _hubInput=document.getElementById('hub-in'); if(_hubInput){ _hubInput.value=_hubDraft.value; hubInputGrow(_hubInput); if(_hubDraft.focused){ _hubInput.focus(); try{_hubInput.setSelectionRange(_hubDraft.start,_hubDraft.end);}catch(e){} } } }
     }
     if(_ldState){ const _ldNew=document.getElementById('ld-list');   /* a background re-render must never throw the chat back to the top */
-      if(_ldNew){ const _sb=_ldNew.style.scrollBehavior; _ldNew.style.scrollBehavior='auto'; _ldNew.scrollTop=_ldState.atBottom?_ldNew.scrollHeight:_ldState.top; _ldNew.style.scrollBehavior=_sb||''; } }
+      if(_ldNew){ const _sb=_ldNew.style.scrollBehavior; _ldNew.style.scrollBehavior='auto'; _ldNew.scrollTop=_ldState.top; _ldNew.style.scrollBehavior=_sb||''; } }
     if(routeChanged){ window.scrollTo(0,0); const fc=app.firstChild; if(fc&&fc.classList) fc.classList.add('fade'); }
     if(r==='home'){ initHero(); _lastHeroKey=heroKey; }
     if(r==='chapterapply') requestAnimationFrame(initChapterApply);   // set up consent image, signature pads, reCAPTCHA after layout
@@ -8703,7 +8712,7 @@ function render(){
     if(r==='write') requestAnimationFrame(beInit);                    // the blog editor: toolbar, live counts, saved draft
     if(r==='youthapply') requestAnimationFrame(initYouthApply);
     if(r==='leader'){ if(leaderMsgs===null) loadLeaderMsgs().then(function(){ if(route()==='leader') render(); }); if(leaderPeeps===null) loadLeaderPeeps().then(function(){ if(route()==='leader') render(); }); }         // first load of the chat + who's around
-    if(r==='hub'){ if(hubMsgs===null) loadHubMsgs().then(function(){ if(route()==='hub') render(); }); if(hubPeeps===null) loadHubPeeps().then(function(){ if(route()==='hub') render(); }); checkHubMute(); pollHubTyping(); }   // first load of the Hub
+    if(r==='hub'){ if(hubMsgs===null) loadHubMsgs().then(function(){ if(route()==='hub') render(); }); if(hubPeeps===null) loadHubPeeps().then(function(){ if(route()==='hub') render(); }); checkHubMute(); }   // first load of the Hub
     if(r==='blogs'&&blogs===null) loadBlogs().then(function(){ if(route()==='blogs') render(); });                                                                                              // first load of the blogs
     if(r==='myblogs'&&myBlogs===null) loadMyBlogs().then(function(){ if(route()==='myblogs') render(); });                                                                                      // first load of Your Blogs
     if(r==='developer'&&devData===null) loadDevData().then(function(){ if(route()==='developer') render(); });          // first load of the dashboard
@@ -10319,55 +10328,62 @@ async function init(){
   /* 2.8: keep this account "online" (last_seen heartbeat) + refresh the leader chat while you're on it */
   setInterval(function(){ if(BACKEND&&account&&account.id&&!document.hidden){ try{ sb.rpc('touch_profile').then(function(){},function(){}); }catch(e){} } },45000);   // a hidden tab never pings
   setInterval(function(){ if(BACKEND&&!document.hidden&&route()==='leader'){
-    const list=document.getElementById('ld-list'), input=document.getElementById('ld-in');
-    const ppl=function(a){ return (a||[]).map(function(p){ return [p.id,p.username,p.avatar,p.name_color,p.role].join('~'); }).join(','); };   /* last_seen is volatile — it must never trigger a re-render (that was the page-jumping bug) */
-    const before=JSON.stringify({messages:leaderMsgs||[],reactions:leaderRx||{}})+'|'+ppl(leaderPeeps);
-    const wasBottom=!!(list&&list.scrollHeight-list.scrollTop-list.clientHeight<48);
-    const oldTop=list?list.scrollTop:0, keep=(input&&input.value)||'';
-    const hadFocus=!!(input&&document.activeElement===input);
-    const cursor=input?input.selectionStart:null;
-    const winY=window.scrollY;
-    Promise.all([loadLeaderMsgs(),loadLeaderPeeps()]).then(function(){
-      if(route()!=='leader') return;
-      const after=JSON.stringify({messages:leaderMsgs||[],reactions:leaderRx||{}})+'|'+ppl(leaderPeeps);
-      if(before===after) return; // no visual refresh when nothing changed
-      render();
-      if(window.scrollY!==winY){ try{ window.scrollTo(0,winY); }catch(e){} }   // a background refresh must never scroll the page
-      const nextList=document.getElementById('ld-list'), nextInput=document.getElementById('ld-in');
-      if(nextList) nextList.scrollTop=wasBottom?nextList.scrollHeight:oldTop;
-      if(nextInput){ nextInput.value=keep; if(hadFocus){ nextInput.focus(); try{nextInput.setSelectionRange(cursor,cursor);}catch(e){} } }
-    });
-  } },15000);   // refresh without jumping the conversation or interrupting typing
+    sb.from('leader_messages').select('id',{count:'exact',head:true}).then(function(cr){   // EGRESS: cheap count check first
+      if(route()!=='leader'||document.hidden) return;
+      const cnt=(cr&&cr.count); if(cnt!=null&&cnt===_ldLastCount) return;   // nothing added/removed — skip the heavy fetch
+      _ldLastCount=cnt;
+      const list=document.getElementById('ld-list'), input=document.getElementById('ld-in');
+      const ppl=function(a){ return (a||[]).map(function(p){ return [p.id,p.username,p.avatar,p.name_color,p.role].join('~'); }).join(','); };
+      const before=JSON.stringify({messages:leaderMsgs||[],reactions:leaderRx||{}})+'|'+ppl(leaderPeeps);
+      const oldTop=list?list.scrollTop:0, keep=(input&&input.value)||'';
+      const hadFocus=!!(input&&document.activeElement===input);
+      const cursor=input?input.selectionStart:null;
+      const winY=window.scrollY;
+      Promise.all([loadLeaderMsgs(),loadLeaderPeeps()]).then(function(){
+        if(route()!=='leader') return;
+        const after=JSON.stringify({messages:leaderMsgs||[],reactions:leaderRx||{}})+'|'+ppl(leaderPeeps);
+        if(before===after) return;
+        render();
+        if(window.scrollY!==winY){ try{ window.scrollTo(0,winY); }catch(e){} }
+        const nextList=document.getElementById('ld-list'), nextInput=document.getElementById('ld-in');
+        if(nextList) nextList.scrollTop=oldTop;   // preserve reading position — no auto-scroll
+        if(nextInput){ nextInput.value=keep; if(hadFocus){ nextInput.focus(); try{nextInput.setSelectionRange(cursor,cursor);}catch(e){} } }
+      });
+    },function(){});
+  } },20000);
   /* 3.7: the Hub refreshes on the same gentle pattern, and the typing indicator polls every 4s */
   setInterval(function(){ if(BACKEND&&!document.hidden&&route()==='hub'){
-    const list=document.getElementById('hub-list'), input=document.getElementById('hub-in');
-    const ppl=function(a){ return (a||[]).map(function(p){ return [p.id,p.username,p.avatar,p.name_color,p.role].join('~'); }).join(','); };
-    const before=JSON.stringify({messages:hubMsgs||[],reactions:hubRx||{},polls:hubPolls||[],votes:hubVotes||{}})+'|'+ppl(hubPeeps);
-    const wasBottom=!!(list&&list.scrollHeight-list.scrollTop-list.clientHeight<48);
-    const oldItems=(hubMsgs||[]).concat(hubPolls||[]), oldIds=new Set(oldItems.map(function(x){return String(x.id);}));
-    const oldTop=list?list.scrollTop:0, keep=(input&&input.value)||'';
-    const hadFocus=!!(input&&document.activeElement===input);
-    const selectionStart=input?input.selectionStart:null, selectionEnd=input?input.selectionEnd:null;
-    const winY=window.scrollY;
-    Promise.all([loadHubMsgs(),loadHubPeeps(),checkHubMute()]).then(function(){
-      if(route()!=='hub') return;
-      const after=JSON.stringify({messages:hubMsgs||[],reactions:hubRx||{},polls:hubPolls||[],votes:hubVotes||{}})+'|'+ppl(hubPeeps);
-      if(before===after) return;
-      const incoming=(hubMsgs||[]).concat(hubPolls||[]).filter(function(x){return !oldIds.has(String(x.id));}).length;
-      if(wasBottom) hubNewCount=0; else if(incoming) hubNewCount+=incoming;
-      if(hubRefreshDom()){   /* surgical refresh: the composer is never rebuilt, so typing is never interrupted and nothing flickers */
-        const nl=document.getElementById('hub-list');
-        if(nl) nl.scrollTop=wasBottom?nl.scrollHeight:oldTop;
-        return;
-      }
-      render();
-      if(window.scrollY!==winY){ try{ window.scrollTo(0,winY); }catch(e){} }
-      const nextList=document.getElementById('hub-list'), nextInput=document.getElementById('hub-in');
-      if(nextList) nextList.scrollTop=wasBottom?nextList.scrollHeight:oldTop;
-      if(nextInput){ nextInput.value=keep; hubInputGrow(nextInput); if(hadFocus){ nextInput.focus(); try{nextInput.setSelectionRange(selectionStart,selectionEnd);}catch(e){} } }
-    });
-  } },15000);
-  setInterval(function(){ pollHubTyping(); },4000);
+    sb.from('hub_messages').select('id',{count:'exact',head:true}).then(function(cr){   // EGRESS: cheap count check first
+      if(route()!=='hub'||document.hidden) return;
+      const cnt=(cr&&cr.count); if(cnt!=null&&cnt===_hubLastCount) return;   // nothing added/removed — skip the heavy fetch
+      _hubLastCount=cnt;
+      const list=document.getElementById('hub-list'), input=document.getElementById('hub-in');
+      const ppl=function(a){ return (a||[]).map(function(p){ return [p.id,p.username,p.avatar,p.name_color,p.role].join('~'); }).join(','); };
+      const before=JSON.stringify({messages:hubMsgs||[],reactions:hubRx||{},polls:hubPolls||[],votes:hubVotes||{}})+'|'+ppl(hubPeeps);
+      const oldItems=(hubMsgs||[]).concat(hubPolls||[]), oldIds=new Set(oldItems.map(function(x){return String(x.id);}));
+      const oldTop=list?list.scrollTop:0, keep=(input&&input.value)||'';
+      const hadFocus=!!(input&&document.activeElement===input);
+      const selectionStart=input?input.selectionStart:null, selectionEnd=input?input.selectionEnd:null;
+      const winY=window.scrollY;
+      Promise.all([loadHubMsgs(),loadHubPeeps(),checkHubMute()]).then(function(){
+        if(route()!=='hub') return;
+        const after=JSON.stringify({messages:hubMsgs||[],reactions:hubRx||{},polls:hubPolls||[],votes:hubVotes||{}})+'|'+ppl(hubPeeps);
+        if(before===after) return;
+        const incoming=(hubMsgs||[]).concat(hubPolls||[]).filter(function(x){return !oldIds.has(String(x.id));}).length;
+        if(incoming) hubNewCount+=incoming;
+        if(hubRefreshDom()){
+          const nl=document.getElementById('hub-list');
+          if(nl) nl.scrollTop=oldTop;   // preserve reading position — no auto-scroll
+          return;
+        }
+        render();
+        if(window.scrollY!==winY){ try{ window.scrollTo(0,winY); }catch(e){} }
+        const nextList=document.getElementById('hub-list'), nextInput=document.getElementById('hub-in');
+        if(nextList) nextList.scrollTop=oldTop;
+        if(nextInput){ nextInput.value=keep; hubInputGrow(nextInput); if(hadFocus){ nextInput.focus(); try{nextInput.setSelectionRange(selectionStart,selectionEnd);}catch(e){} } }
+      });
+    },function(){});
+  } },20000);
   setInterval(function(){ if(!document.hidden&&canSeeBugReports()){ const b=bugNotifCount; loadBugNotifCount().then(function(){ if(bugNotifCount!==b) render(); }); } },60000);   // a new bug report pings the admins within a minute (paused in hidden tabs)
   /* 2.8: saved changes reach every open tab — content + announcements re-sync in the background (DOM only rebuilds if something actually changed) */
   async function syncLiveContent(){
