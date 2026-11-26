@@ -1861,6 +1861,28 @@
 .mp-setchap .flab{display:block;margin-bottom:6px;}
 .mp-setchap select,.mchap select{font:inherit;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%;}
 .mchap{display:inline-flex;gap:4px;align-items:center;}
+/* Phase 3: Hub moderation UI */
+.hub-toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;background:var(--card);border:1px solid var(--line);border-bottom:none;}
+.hub-tools-l,.hub-tools-r{display:flex;gap:6px;flex-wrap:wrap;}
+.hub-tool{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid var(--line);border-radius:9px;padding:6px 10px;font:inherit;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer;}
+.hub-tool svg{width:16px;height:16px;flex:none;}
+.hub-tool:hover{border-color:var(--blue);color:var(--blue);}
+.hub-tool.on{color:var(--green);border-color:var(--green);}
+.hub-tool.has{color:var(--blue);border-color:var(--blue);}
+.hub-shell.hub-noside{grid-template-columns:minmax(0,1fr);}
+.hub-shell.hub-noside .hub-side{display:none;}
+.hub-pin-tag{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:700;color:var(--sun);margin-bottom:4px;}
+.hub-pin-tag svg{width:13px;height:13px;}
+.hub-msg.hub-ispinned .hub-bubble{box-shadow:inset 3px 0 0 var(--green);}
+.hub-rules{margin:4px 0 0;padding-left:20px;}
+.hub-rules li{margin:6px 0;line-height:1.45;}
+.hub-report-quote{background:var(--bg);border-left:3px solid var(--line);border-radius:0 8px 8px 0;padding:8px 12px;font-size:.88rem;color:var(--muted);white-space:pre-wrap;word-break:break-word;}
+.hub-warn-item{background:rgba(208,70,59,.08);border:1px solid rgba(208,70,59,.3);border-radius:10px;padding:10px 12px;margin:8px 0;}
+.pin-item{border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+.pin-acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.hub-fullwrap.hub-fs{position:fixed;inset:0;z-index:400;background:var(--bg);margin:0;padding:10px clamp(10px,3vw,26px) env(safe-area-inset-bottom);overflow-y:auto;}
+.hub-fullwrap.hub-fs .hub-list{height:calc(100dvh - 300px);min-height:320px;}
+@media (max-width:640px){.hub-tool{padding:6px 8px;font-size:.76rem;}.hub-fs-lab{display:none;}.hub-fullwrap.hub-fs .hub-list{height:calc(100dvh - 240px);}}
 /* redesigned Discord card */
 .discord{position:relative;overflow:hidden;border-radius:18px;padding:28px 30px;background:linear-gradient(135deg,#7986d8,#6a76e0 45%,#5865F2);color:#fff;box-shadow:0 12px 30px rgba(88,101,242,.22);}
 .discord::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-18deg);animation:dcSheen 5.5s ease-in-out infinite;}
@@ -7035,6 +7057,7 @@ function openHubMute(userId,username){
   if(!canHubMute()) return;
   openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><h3>Mute '+esc(username)+'</h3>'+
     '<p class="muted" style="font-size:.88rem;margin:0 0 4px">They won\u2019t be able to post in the Hub until the mute ends.</p>'+
+    '<label class="flab" style="margin:2px 0 4px">Reason (optional — shared privately with them)</label><input id="hm-reason" style="width:100%;margin-bottom:8px" placeholder="e.g. Rule 1 — keep it kind">'+
     '<div class="mute-grid">'+
       [5,15,30].map(function(m){ return '<button onclick="doHubMute(\''+escA(String(userId))+'\',\''+escA(username)+'\','+m+')">'+m+' min</button>'; }).join('')+
       [60,360,1440].map(function(m){ return '<button onclick="doHubMute(\''+escA(String(userId))+'\',\''+escA(username)+'\','+m+')">'+(m<1440?(m/60)+' hour'+(m===60?'':'s'):'1 day')+'</button>'; }).join('')+
@@ -7054,11 +7077,13 @@ async function doHubMute(userId,username,mins){
   mins=Math.floor(Number(mins));
   if(!Number.isFinite(mins)||mins<1||mins>43200){ toast('Mute duration must be between 1 minute and 30 days','err'); return; }
   if(!account||String(userId)===String(account.id)){ toast('You can’t mute yourself','err'); return; }
+  const reasonEl=document.getElementById('hm-reason'); const reason=(reasonEl?reasonEl.value:'').trim().slice(0,200);
   closeModal();
   try{
-    const {error}=await sb.from('hub_mutes').upsert({user_id:userId,username:username,muted_until:new Date(Date.now()+mins*60000).toISOString(),created_by:account.id},{onConflict:'user_id'});
+    const {error}=await sb.from('hub_mutes').upsert({user_id:userId,username:username,muted_until:new Date(Date.now()+mins*60000).toISOString(),created_by:account.id,reason:reason||null},{onConflict:'user_id'});
     if(error) throw error;
     toast(username+' is muted for '+fmtMuteLeft(mins*60000));
+    try{ await sb.from('notifications').insert([{id:'n_'+uid(),user_id:String(userId),from_id:account.id,from_name:account.username,from_color:account.nameColor||null,kind:'hub_notice',context:'hub',body:'You were muted in the Hub for '+fmtMuteLeft(mins*60000)+'.'+(reason?(' Reason: '+reason):'')}]); }catch(e2){}
   }catch(e){ toast('Couldn’t mute — '+((e&&e.message)||'try again'),'err'); }
 }
 function doHubMuteCustom(userId,username){ const box=document.getElementById('hm-custom'); if(box) box.style.display='block'; }
@@ -7134,6 +7159,7 @@ function hubModerate(text){
   for(let j=0;j<toks.length;j++){ const w=_hubStrip(toks[j]); if(!w) continue;
     for(let k=0;k<HUB_BAD_WORD.length;k++){ const b=HUB_BAD_WORD[k];
       if(w===b||w===b+'s'||w===b+'es'||w===b+'ed'||w===b+'ing'||w===b+'er'||w===b+'y'||w===b+'in'||w===b+'z') return {ok:false}; } }
+  for(let j=0;j<toks.length;j++){ if(_hubMaskHit(toks[j])) return {ok:false}; }   // asterisk-masked disguises (f***, s**t, f*ck)
   return {ok:true};
 }
 async function hubSend(){
@@ -7146,6 +7172,9 @@ async function hubSend(){
   if(wordCount(body)>300){ toast('Hub messages are limited to 300 words — yours is '+wordCount(body),'err'); return; }
   if(body.length>12000){ toast('Hub messages must be under 12,000 characters','err'); return; }
   if(!BACKEND||!account){ toast('The Hub needs a live account','err'); return; }
+  if(body && hubRulesUnacked()){ openHubRules(true); return; }   // must read the rules first
+  const _cl=hubCooldownLeft(); if(_cl>0){ toast('Slow mode is on — wait '+_cl+'s before posting again','err'); return; }
+  const _badDom=body?hubBlockedLink(body):null; if(_badDom){ hubLinkBlocked(_badDom); return; }
   const rt=_hubReplyTo; _hubReplyTo=null;
   const keptImgs=_hubImgs.slice(); _hubImgs=[];
   const imgVal=keptImgs.length?JSON.stringify(keptImgs):null;
@@ -7160,6 +7189,7 @@ async function hubSend(){
     const {error}=await sb.from('hub_messages').insert({id:mid,user_id:account.id,username:account.username,name_color:account.nameColor||null,body:body,image:imgVal,reply_to:(rt?rt.id:null),reply_to_name:(rt?rt.name:null),mentions:(mentions.length?mentions:null)});
     if(error) throw error;
     if(mentions.length) hubCreatePings(mid,mentions,body);   // send the pings once the message is saved
+    _hubLastSent=Date.now();   // slow-mode timer
     _hubSending=false; hubNewCount=0;
     await loadHubMsgs();
     if(route()==='hub'){
@@ -7244,6 +7274,7 @@ function hubRow(m,grouped){
   const col=(m.name_color&&NAME_COLORS[m.name_color])?NAME_COLORS[m.name_color]:null;
   const mine=account&&String(m.user_id)===String(account.id);
   const canDel=canHubDelete(), canMute=canHubMute();
+  const pinned=hubIsPinned(m.id);
   const pending=!!hubPendingReactions[String(m.id)];
   const rx=hubRx[m.id]||{counts:{},mine:{}};
   const chips=Object.keys(rx.counts).filter(function(e){return HUB_EMOJIS.indexOf(e)>=0&&rx.counts[e]>0;}).map(function(e){
@@ -7254,9 +7285,10 @@ function hubRow(m,grouped){
     : (m.avatar?'<img class="hub-av" src="'+escA(m.avatar)+'" alt="" loading="lazy">':'<span class="cinit hub-av-fb" role="img" aria-label="'+escA((m.username||'Member')+' avatar')+'">'+esc((m.username||'?').charAt(0).toUpperCase())+'</span>');
   const imgs=hubImgsOf(m.image);
   const media=imgs.length?'<div class="hub-imgs">'+imgs.map(function(src,i){ return '<button type="button" class="hub-img-open" aria-label="Open shared image '+(i+1)+'" onclick="openImgLightbox('+hubJsArg(src)+')"><img class="hub-img" src="'+escA(src)+'" alt="Shared image '+(i+1)+'" loading="lazy" onerror="this.closest(\'button\').classList.add(\'img-error\')"></button>'; }).join('')+'</div>':'';
-  return '<div class="hub-msg '+(mine?'mine ':'')+(grouped?'grouped ':'')+(hubPingsMe(m)?'hub-pinged ':'')+'" id="hm-'+escA(String(m.id))+'">'+
+  return '<div class="hub-msg '+(mine?'mine ':'')+(grouped?'grouped ':'')+(hubPingsMe(m)?'hub-pinged ':'')+(pinned?'hub-ispinned ':'')+'" id="hm-'+escA(String(m.id))+'">'+
     avatar+
     '<div class="hub-bubble">'+
+      (pinned?'<div class="hub-pin-tag">'+ICONS.pin+' Pinned</div>':'')+
       (m.reply_to_name?'<div class="hub-quote" role="button" tabindex="0" onclick="hubJumpTo('+hubJsArg(m.reply_to)+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();hubJumpTo('+hubJsArg(m.reply_to)+')}">'+ICONS.reply+'<span>Replying to '+esc(m.reply_to_name)+'</span></div>':'')+
       (!grouped?'<div class="hub-meta"><b'+(col?' style="color:'+col+'"':'')+' style="cursor:pointer" title="View profile" onclick="openMemberProfile('+hubJsArg(m.user_id||'')+','+hubJsArg(m.username||'Member')+')">'+esc(m.username||'Member')+'</b>'+hubTimeHtml(m.created_at)+'</div>':'')+
       (m.body?'<div class="hub-text" data-notranslate>'+hubRenderBody(m)+'</div>':'')+
@@ -7265,8 +7297,11 @@ function hubRow(m,grouped){
       '<div class="hub-acts">'+
         '<button type="button" title="Reply" aria-label="Reply to '+escA(m.username||'member')+'" onclick="hubReply('+hubJsArg(m.id)+','+hubJsArg(m.username||'')+')">'+ICONS.reply+' Reply</button>'+
         (m.body?'<button type="button" title="Copy message" aria-label="Copy message" onclick="hubCopyMsg('+hubJsArg(m.id)+')">⧉ Copy</button>':'')+
-        ((mine||canDel)?'<button type="button" title="Delete message" onclick="hubDelete('+hubJsArg(m.id)+')">'+ICONS.trash+' Delete</button>':'')+
+        ((isLoggedIn()&&!mine)?'<button type="button" title="Report to the moderators" onclick="hubReportMsg('+hubJsArg(m.id)+')">'+ICONS.flag+' Report</button>':'')+
+        (canHubPin()?'<button type="button" title="'+(pinned?'Unpin':'Pin')+' message" onclick="hubTogglePin('+hubJsArg(m.id)+')">'+ICONS.pin+' '+(pinned?'Unpin':'Pin')+'</button>':'')+
+        (mine?'<button type="button" title="Delete message" onclick="hubDelete('+hubJsArg(m.id)+')">'+ICONS.trash+' Delete</button>':(canDel?'<button type="button" title="Delete message" onclick="hubModDelete('+hubJsArg(m.id)+')">'+ICONS.trash+' Delete</button>':''))+
         ((canMute&&!mine)?'<button type="button" title="Mute this member" onclick="openHubMute('+hubJsArg(m.user_id)+','+hubJsArg(m.username||'')+')">'+ICONS.volume+' Mute</button>':'')+
+        ((canMute&&!mine)?'<button type="button" title="Warn this member" onclick="hubWarn('+hubJsArg(m.user_id)+','+hubJsArg(m.username||'')+')">'+ICONS.flag+' Warn</button>':'')+
       '</div>'+
       '<div class="hub-rx">'+HUB_EMOJIS.slice(0,6).map(function(e){ return '<button type="button" class="'+(rx.mine[e]?'on':'')+'" '+(pending?'disabled':'')+' aria-pressed="'+(rx.mine[e]?'true':'false')+'" aria-label="React with '+e+'" onclick="hubReact('+hubJsArg(m.id)+','+hubJsArg(e)+')">'+e+'</button>'; }).join('')+chips+'</div>'+
     '</div></div>';
@@ -7595,18 +7630,221 @@ function hubRefreshDom(){
   const nb=hubNewButtonHtml(); if(nb&&list.parentElement) list.insertAdjacentHTML('afterend',nb);
   return true;
 }
+/* ===================== Phase 3: Hub moderation (pins, rules, reports, warnings, cooldown, links) ===================== */
+let hubPinned=[], _hubLastSent=0, _hubWarnShown=false, _hubFs=false;
+const DEFAULT_HUB_DOMAINS=['earthsweetearth.org','youtube.com','youtu.be','docs.google.com','drive.google.com','forms.gle','sites.google.com','wikipedia.org','instagram.com','discord.gg','discord.com','zoom.us','meet.google.com','canva.com','nasa.gov','noaa.gov','epa.gov','nationalgeographic.com','nytimes.com'];
+
+function canHubPin(){ return canHubMute(); }   // owner/dev/mod
+function hubRules(){ return (Array.isArray(content.hubRules)?content.hubRules:[]).map(function(r){return String(r||'').trim();}).filter(Boolean); }
+function hubRulesVer(){ return Number(content.hubRulesVer||0); }
+function hubCooldownSec(){ return Math.max(0,Number(content.hubCooldownSec||0)); }
+function hubApprovedDomains(){ return DEFAULT_HUB_DOMAINS.concat((Array.isArray(content.hubDomains)?content.hubDomains:[]).map(function(d){return String(d||'').toLowerCase().trim();}).filter(Boolean)); }
+
+/* ---- stronger filter: catch asterisk-masked words like f***, f*ck, s**t (innocent words have no asterisks, so they pass) ---- */
+function _hubMaskHit(tok){
+  if(tok.indexOf('*')<0) return false;
+  let pat='', hasLetter=false; const low=String(tok).toLowerCase();
+  for(let i=0;i<low.length;i++){ const ch=low[i];
+    if(ch>='a'&&ch<='z'){ pat+=ch; hasLetter=true; }
+    else if(_LEETMAP[ch]){ pat+=_LEETMAP[ch]; hasLetter=true; }
+    else if(ch==='*'){ pat+='.+'; }
+  }
+  if(!hasLetter) return false;
+  pat=pat.replace(/(?:\.\+)+/g,'.+');
+  let re; try{ re=new RegExp('^'+pat+'$'); }catch(e){ return false; }
+  const all=HUB_BAD_SUBSTR.concat(HUB_BAD_WORD);
+  for(let i=0;i<all.length;i++){ if(re.test(all[i])) return true; }
+  return false;
+}
+
+/* ---- pinned messages (always loaded, so they survive outside the recent-50 window) ---- */
+async function loadHubPinned(){
+  if(!BACKEND){ hubPinned=[]; return; }
+  try{ const {data}=await sb.from('hub_messages').select('id,user_id,username,name_color,body,mentions,created_at').eq('pinned',true).order('created_at',{ascending:false}).limit(30); hubPinned=data||[]; }catch(e){ hubPinned=[]; }
+}
+function hubIsPinned(id){ return !!(hubPinned&&hubPinned.some(function(x){ return sameId(x.id,id); })); }
+function hubPinnedCount(){ return (hubPinned||[]).length; }
+async function hubTogglePin(id){
+  if(!canHubPin()) return;
+  const was=hubIsPinned(id);
+  try{ const {error}=await sb.from('hub_messages').update({pinned:!was}).eq('id',id); if(error) throw error;
+    toast(was?'Unpinned':'Pinned','ok');
+    await loadHubPinned(); if(route()==='hub'){ if(!hubRefreshDom()) render(); else render(); }
+  }catch(e){ toast('Couldn’t '+(was?'unpin':'pin')+' — '+((e&&e.message)||'try again'),'err'); }
+}
+function openHubPinned(){
+  const list=hubPinned||[];
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>'+ICONS.pin+' Pinned messages</h3>'+
+    (list.length? '<div class="notif-feed">'+list.map(function(m){
+      const col=(m.name_color&&NAME_COLORS[m.name_color])?NAME_COLORS[m.name_color]:null;
+      return '<div class="pin-item"><div class="nr-top"><b'+(col?' style="color:'+col+'"':'')+'>'+esc(m.username||'Member')+'</b><span class="nr-time">'+timeAgo(new Date(m.created_at).getTime())+'</span></div>'+
+        '<div class="nr-body" style="white-space:normal">'+hubRenderBody(m)+'</div>'+
+        '<div class="pin-acts"><button class="btn btn-ghost btn-sm" onclick="closeModal();hubJumpTo('+hubJsArg(m.id)+')">Jump to message</button>'+
+          (canHubPin()?'<button class="btn btn-ghost btn-sm" onclick="hubUnpinModal('+hubJsArg(m.id)+')">Unpin</button>':'')+'</div></div>';
+    }).join('')+'</div>' : '<p class="muted" style="padding:8px 2px">No pinned messages yet.'+(canHubPin()?' Pin an important message with its pin button.':'')+'</p>'));
+}
+async function hubUnpinModal(id){ await hubTogglePin(id); openHubPinned(); }
+
+/* ---- rules + first-visit acknowledgement ---- */
+function hubCanModerateTools(){ return isOwner()||isDev()||canHubMute(); }
+function openHubRules(ackMode){
+  const rs=hubRules(), can=hubCanModerateTools();
+  openModal((ackMode?'':'<button class="x" onclick="closeModal()" aria-label="Close">×</button>')+'<h3>'+ICONS.shield+' Hub rules</h3>'+
+    (rs.length? '<ol class="hub-rules">'+rs.map(function(r){ return '<li>'+esc(r)+'</li>'; }).join('')+'</ol>'
+      : '<p class="muted">No rules have been added yet.'+(can?' Add some with “Moderator tools” below.':'')+'</p>')+
+    (ackMode? '<p class="muted" style="font-size:.86rem;margin-top:10px">Please read these so everyone keeps the Hub kind.</p><button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="hubAckRules()">I’ll be kind — I agree</button>'
+      : (can?'<div style="margin-top:12px;text-align:right"><button class="btn btn-ghost btn-sm" onclick="openHubModTools()">'+ICONS.gear+' Moderator tools</button></div>':'')));
+}
+function hubAckRules(){ try{ strSet('ese_hub_rules_ack',String(hubRulesVer())); }catch(e){} closeModal(); }
+function hubRulesUnacked(){ return hubRules().length>0 && strGet('ese_hub_rules_ack','')!==String(hubRulesVer()); }
+function maybePromptHubRules(){ if(isLoggedIn() && hubRulesUnacked()){ openHubRules(true); } }
+
+/* ---- moderator tools: rules, slow mode, approved link domains ---- */
+function openHubModTools(){
+  if(!hubCanModerateTools()) return;
+  const rules=hubRules().join('\n');
+  const doms=(Array.isArray(content.hubDomains)?content.hubDomains:[]).join('\n');
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>'+ICONS.gear+' Hub moderator tools</h3>'+
+    '<label class="flab">Rules (one per line)</label><textarea id="hmt-rules" rows="5" style="width:100%">'+esc(rules)+'</textarea>'+
+    '<label class="flab" style="margin-top:10px">Slow mode — seconds between messages (0 = off)</label><input id="hmt-cool" type="number" min="0" max="3600" value="'+hubCooldownSec()+'" style="width:100%">'+
+    '<label class="flab" style="margin-top:10px">Approved link domains (one per line)</label><textarea id="hmt-doms" rows="4" style="width:100%" placeholder="example.org">'+esc(doms)+'</textarea>'+
+    '<p class="muted" style="font-size:.78rem;margin:6px 0 0">Members can only post links to these (plus always-allowed sites like youtube.com, docs.google.com, wikipedia.org).</p>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:14px" onclick="saveHubModTools()">Save</button>');
+}
+function saveHubModTools(){
+  const rEl=document.getElementById('hmt-rules'), cEl=document.getElementById('hmt-cool'), dEl=document.getElementById('hmt-doms');
+  const newRules=(rEl?rEl.value:'').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  if(JSON.stringify(newRules)!==JSON.stringify(hubRules())) content.hubRulesVer=hubRulesVer()+1;   // changed rules re-prompt everyone
+  content.hubRules=newRules;
+  content.hubCooldownSec=Math.max(0,Math.min(3600,parseInt((cEl?cEl.value:'0'),10)||0));
+  content.hubDomains=(dEl?dEl.value:'').split('\n').map(function(s){return String(s).toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/.*$/,'').trim();}).filter(Boolean);
+  saveSiteContent(); closeModal(); toast('Hub settings saved','ok');
+}
+
+/* ---- slow mode + approved-links enforcement (used by hubSend) ---- */
+function hubCooldownLeft(){ const cd=hubCooldownSec(); if(!cd||canHubMute()) return 0; const left=cd*1000-(Date.now()-_hubLastSent); return left>0?Math.ceil(left/1000):0; }
+function hubExtractDomains(text){
+  const out=[]; const re=/(https?:\/\/|www\.)[^\s<>()]+/gi; let m;
+  while((m=re.exec(text))){ let u=m[0]; if(/^www\./i.test(u)) u='http://'+u; try{ const h=new URL(u).hostname.toLowerCase().replace(/^www\./,''); if(h) out.push(h); }catch(e){} }
+  return out;
+}
+function hubDomainApproved(host){ return hubApprovedDomains().some(function(d){ return host===d||host.endsWith('.'+d); }); }
+function hubBlockedLink(text){ const ds=hubExtractDomains(text); for(let i=0;i<ds.length;i++){ if(!hubDomainApproved(ds[i])) return ds[i]; } return null; }
+function hubLinkBlocked(domain){
+  const can=hubCanModerateTools();
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Link not allowed yet</h3>'+
+    '<p>Links to <b>'+esc(domain)+'</b> aren’t on the Hub’s approved list, so this message wasn’t sent. This keeps everyone safe from sketchy links.</p>'+
+    (can?'<button class="btn btn-primary" style="width:100%;margin-top:10px" onclick="hubApproveDomain('+hubJsArg(domain)+')">Approve '+esc(domain)+' for the Hub</button>':'<p class="muted" style="font-size:.85rem">Ask an owner, developer or moderator to approve it.</p>')+
+    '<button class="btn btn-ghost" style="width:100%;margin-top:8px" onclick="closeModal()">OK</button>');
+}
+function hubApproveDomain(domain){
+  if(!hubCanModerateTools()) return;
+  const list=(Array.isArray(content.hubDomains)?content.hubDomains:[]).slice();
+  const d=String(domain).toLowerCase(); if(list.indexOf(d)<0) list.push(d);
+  content.hubDomains=list; saveSiteContent(); closeModal(); toast(domain+' approved — send your message again','ok');
+}
+
+/* ---- report a message to the moderators (reuses the notifications system) ---- */
+function hubFindMsg(id){ return (hubMsgs||[]).find(function(x){return sameId(x.id,id);})||(hubPinned||[]).find(function(x){return sameId(x.id,id);}); }
+function hubReportMsg(id){
+  const m=hubFindMsg(id); if(!m) return;
+  if(!isLoggedIn()){ popup('Log in','Log in to report a message.'); return; }
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>'+ICONS.flag+' Report this message</h3>'+
+    '<div class="hub-report-quote">'+esc(String(m.body||'(image / poll)').slice(0,200))+'</div>'+
+    '<label class="flab" style="margin-top:8px">What’s wrong? (optional)</label><textarea id="hrep-why" rows="3" style="width:100%" placeholder="Tell the moderators what’s wrong…"></textarea>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="hubReportSend('+hubJsArg(id)+')">Send report</button>');
+}
+async function hubReportSend(id){
+  const m=hubFindMsg(id); const el=document.getElementById('hrep-why'); const why=(el?el.value:'').trim().slice(0,200);
+  closeModal(); if(!m||!account) return;
+  try{
+    const {data}=await sb.from('profiles').select('id').or('role.in.(owner,admin,moderator),is_developer.eq.true').limit(100);
+    const ids=(data||[]).map(function(r){return String(r.id);}).filter(function(x){return !sameId(x,account.id);});
+    if(!ids.length){ toast('Thanks — report noted','ok'); return; }
+    const excerpt='Reported '+(m.username||'a member')+': “'+String(m.body||'(image/poll)').slice(0,100)+'”'+(why?(' — '+why):'');
+    const rows=ids.map(function(rid){ return {id:'n_'+uid(),user_id:rid,from_id:account.id,from_name:account.username,from_color:account.nameColor||null,kind:'hub_report',context:'hub',target_id:String(id),body:excerpt}; });
+    await sb.from('notifications').insert(rows);
+    toast('Thanks — the moderators were notified','ok');
+  }catch(e){ toast('Couldn’t send the report — '+((e&&e.message)||'try again'),'err'); }
+}
+
+/* ---- warnings (must be acknowledged) ---- */
+function hubWarn(userId,username){
+  if(!canHubMute()||!userId) return;
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Warn '+esc(username)+'</h3>'+
+    '<p class="muted" style="font-size:.88rem;margin:0 0 6px">They’ll see this next time they open the site and must acknowledge it.</p>'+
+    '<label class="flab">Reason / which rule</label><textarea id="hwarn-why" rows="3" style="width:100%" placeholder="e.g. Rule 2 — please keep it kind"></textarea>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="hubWarnSend('+hubJsArg(userId)+','+hubJsArg(username)+')">Send warning</button>');
+}
+async function hubWarnSend(userId,username){
+  const el=document.getElementById('hwarn-why'); const why=(el?el.value:'').trim().slice(0,240);
+  closeModal(); if(!account) return;
+  try{ await sb.from('notifications').insert([{id:'n_'+uid(),user_id:String(userId),from_id:account.id,from_name:account.username,from_color:account.nameColor||null,kind:'hub_warning',context:'hub',body:(why||'Please follow the Hub rules.')}]);
+    toast('Warning sent to '+username,'ok');
+  }catch(e){ toast('Couldn’t send the warning — '+((e&&e.message)||'try again'),'err'); }
+}
+async function checkHubWarnings(){
+  if(!BACKEND||!account||_hubWarnShown) return;
+  try{ const {data}=await sb.from('notifications').select('id,from_name,body,created_at').eq('user_id',account.id).eq('kind','hub_warning').is('read_at',null).order('created_at',{ascending:false}).limit(5);
+    const warns=data||[]; if(!warns.length) return;
+    _hubWarnShown=true;
+    openModal('<h3 style="color:var(--danger)">'+ICONS.flag+' A note from the moderators</h3>'+
+      warns.map(function(w){ return '<div class="hub-warn-item"><b>From '+esc(w.from_name||'a moderator')+'</b><p style="margin:4px 0 0">'+esc(w.body||'')+'</p></div>'; }).join('')+
+      '<button class="btn btn-primary" style="width:100%;margin-top:12px" onclick="hubAckWarnings()">I understand</button>');
+  }catch(e){}
+}
+async function hubAckWarnings(){
+  closeModal(); if(!account) return;
+  try{ await sb.from('notifications').update({read_at:new Date().toISOString()}).eq('user_id',account.id).eq('kind','hub_warning').is('read_at',null); }catch(e){}
+  loadPingCount();
+}
+
+/* ---- moderator delete with a private reason to the author ---- */
+function hubModDelete(id){
+  const m=(hubMsgs||[]).find(function(x){return sameId(x.id,id);});
+  if(!m||(account&&sameId(m.user_id,account.id))){ hubDelete(id); return; }
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Delete this message</h3>'+
+    '<div class="hub-report-quote">'+esc(String(m.body||'(image/poll)').slice(0,200))+'</div>'+
+    '<label class="flab" style="margin-top:8px">Private reason for '+esc(m.username||'the author')+' (optional)</label><input id="hmod-why" style="width:100%" placeholder="e.g. Rule 2 — no name-calling">'+
+    '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Cancel</button><button class="btn btn-danger" style="flex:1" onclick="hubModDeleteGo('+hubJsArg(id)+')">Delete</button></div>');
+}
+async function hubModDeleteGo(id){
+  const m=(hubMsgs||[]).find(function(x){return sameId(x.id,id);});
+  const el=document.getElementById('hmod-why'); const why=(el?el.value:'').trim().slice(0,200);
+  closeModal(); await hubDelete(id);
+  if(m&&account&&!sameId(m.user_id,account.id)){
+    try{ await sb.from('notifications').insert([{id:'n_'+uid(),user_id:String(m.user_id),from_id:account.id,from_name:account.username,from_color:account.nameColor||null,kind:'hub_notice',context:'hub',body:'A moderator removed one of your Hub messages.'+(why?(' Reason: '+why):'')}]); }catch(e){}
+  }
+}
+
+/* ---- Hub toolbar (rules / pinned / members / fullscreen / mod tools) ---- */
+function toggleHubSide(){ prefSet('ese_hub_side',!prefGet('ese_hub_side',true)); render(); }
+function toggleHubFullscreen(){ _hubFs=!_hubFs; const w=document.querySelector('.hub-fullwrap'); if(w) w.classList.toggle('hub-fs',_hubFs); }
+function hubToolbarHtml(){
+  const can=hubCanModerateTools(), sideOn=prefGet('ese_hub_side',true), pc=hubPinnedCount();
+  return '<div class="hub-toolbar">'+
+    '<div class="hub-tools-l"><button type="button" class="hub-tool" onclick="openHubRules()" title="Hub rules">'+ICONS.shield+'<span>Rules</span></button></div>'+
+    '<div class="hub-tools-r">'+
+      '<button type="button" class="hub-tool'+(pc?' has':'')+'" onclick="openHubPinned()" title="Pinned messages">'+ICONS.pin+'<span>Pinned'+(pc?' ('+pc+')':'')+'</span></button>'+
+      '<button type="button" class="hub-tool'+(sideOn?' on':'')+'" onclick="toggleHubSide()" title="Show who’s around">'+ICONS.users+'<span>Members</span></button>'+
+      '<button type="button" class="hub-tool" onclick="toggleHubFullscreen()" title="Fullscreen">'+ICONS.expand+'<span class="hub-fs-lab">Fullscreen</span></button>'+
+      (can?'<button type="button" class="hub-tool" onclick="openHubModTools()" title="Moderator tools">'+ICONS.gear+'</button>':'')+
+    '</div></div>';
+}
+
 function hubView(){
   if(!canView('hub')) return deniedView('The Hub is unavailable right now.');
   const feed=hubFeedHtml();
   return '<div class="wrap view" style="max-width:1280px">'+
     '<div class="hub-page-title"><div><h1 class="page-title">The Hub</h1><p class="page-intro">The public chat room for everyone in Earth Sweet Earth — say hi, share news, and be kind.</p></div><span class="hub-page-tag">'+ICONS.globe+' Community chat</span></div>'+
-    '<div class="hub-fullwrap">'+
-      '<div class="hub-shell">'+
+    '<div class="hub-fullwrap'+(_hubFs?' hub-fs':'')+'">'+
+      '<div class="hub-shell'+(prefGet('ese_hub_side',true)?'':' hub-noside')+'">'+
         '<div style="flex:1;min-width:0">'+
           '<div class="hub-head">'+
             '<div class="hub-head-top"><div><h2>The Hub'+((isOwner()||isDev())?' <button type="button" class="btn btn-ghost btn-xs" style="vertical-align:middle;color:#fff;border-color:rgba(255,255,255,.45)" title="Edit the Hub info (Owner + developers)" onclick="editHubInfo()">'+ICONS.pencil+' Edit</button>':'')+'</h2><div class="hub-sub">'+esc((content.hubInfo&&content.hubInfo.trim())?content.hubInfo:HUB_INFO_DEFAULT)+'</div></div><span class="hub-live-pill"><i></i> Live room</span></div>'+
             '<div class="hub-live">'+hubLiveHtml()+'</div>'+
           '</div>'+
+          hubToolbarHtml()+
           '<div class="hub-card">'+
             '<div class="hub-list" id="hub-list" onscroll="hubOnScroll(this)" aria-label="Hub conversation" aria-live="off">'+feed+'</div>'+
             hubNewButtonHtml()+
@@ -8991,7 +9229,7 @@ function render(){
     if(r==='admin'&&annAdminList===null&&BACKEND) loadAnnAdmin().then(function(){ if(route()==='admin') render(); });    // announcement manager list
     requestAnimationFrame(function(){ buildMiniMap(); hydrateMemberSince(); updateToTop(); });   // section mini-map, member badges, back-to-top state
   }
-  if(routeChanged){ lastRoute=r; if(r==='changelog'){ clShown=10; try{ localStorage.setItem('ese_cl_seen',String(clEntries().length)); }catch(e){} } logPageView(r); try{ document.title=(r==='home'?'Earth Sweet Earth':((TAB[r]||r)+' \u00b7 Earth Sweet Earth')); }catch(e){} }   // the tab title follows the page (hash URLs are distinct already)
+  if(routeChanged){ lastRoute=r; if(r==='hub'){ loadHubPinned().then(function(){ if(route()==='hub'&&!hubRefreshDom()) render(); }); checkHubWarnings(); maybePromptHubRules(); } if(r==='changelog'){ clShown=10; try{ localStorage.setItem('ese_cl_seen',String(clEntries().length)); }catch(e){} } logPageView(r); try{ document.title=(r==='home'?'Earth Sweet Earth':((TAB[r]||r)+' \u00b7 Earth Sweet Earth')); }catch(e){} }   // the tab title follows the page (hash URLs are distinct already)
   // chapters title now uses the normal page-title size (no one-line scaling)
   if(r==='about') ensureAboutStats();
   if(r==='analytics'){ ensureAnalytics(); if(changed) requestAnimationFrame(function(){ countUpStats(app); }); }
