@@ -1834,6 +1834,33 @@
 .reddot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 0 rgba(229,72,77,.5);animation:redpulse 1.8s infinite;vertical-align:middle;margin-left:7px;}
 .reddot.plain{animation:none;box-shadow:none;}
 @keyframes redpulse{0%{box-shadow:0 0 0 0 rgba(229,72,77,.5)}70%{box-shadow:0 0 0 8px rgba(229,72,77,0)}100%{box-shadow:0 0 0 0 rgba(229,72,77,0)}}
+/* Phase 2: @mentions, pings & notifications */
+.hub-composer{position:relative;}
+.hub-mention{position:absolute;left:12px;right:12px;bottom:100%;margin-bottom:6px;z-index:40;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);overflow-y:auto;max-height:240px;}
+.hm-item{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 12px;cursor:pointer;font:inherit;color:var(--ink);}
+.hm-item:last-child{border-bottom:none;}
+.hm-item.on,.hm-item:hover{background:rgba(32,131,196,.1);}
+.hm-nm{font-weight:600;font-size:.9rem;display:inline-flex;align-items:center;gap:6px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hm-at{color:var(--blue);font-weight:800;}
+.hm-kind{font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700;color:#fff;background:var(--green);border-radius:6px;padding:2px 6px;}
+.hm-sub{font-size:.74rem;color:var(--muted);flex:none;}
+.hub-mtag{display:inline;background:rgba(32,131,196,.12);color:var(--blue);border:0;font:inherit;font-weight:700;cursor:pointer;border-radius:5px;padding:0 3px;}
+.hub-mtag:hover{text-decoration:underline;}
+.hub-mtag-grp{background:rgba(0,118,0,.12);color:var(--green);cursor:default;}
+.hub-msg.hub-pinged .hub-bubble{box-shadow:inset 3px 0 0 var(--sun);background:rgba(244,196,48,.1);}
+.hub-msg.hub-pinged .hub-text{font-weight:600;}
+.pingbell .leafbadge.pingbadge{background:linear-gradient(140deg,#e5675f,#c0352c);}
+.notif-feed{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;}
+.notif-row{text-align:left;width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font:inherit;color:var(--ink);}
+.notif-row:hover{border-color:var(--blue);}
+.notif-row.unread{background:rgba(32,131,196,.07);border-color:rgba(32,131,196,.3);}
+.nr-top{display:flex;align-items:center;gap:6px;font-size:.9rem;}
+.nr-time{margin-left:auto;font-size:.72rem;color:var(--muted);}
+.nr-body{font-size:.84rem;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mp-setchap{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);text-align:left;}
+.mp-setchap .flab{display:block;margin-bottom:6px;}
+.mp-setchap select,.mchap select{font:inherit;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);max-width:100%;}
+.mchap{display:inline-flex;gap:4px;align-items:center;}
 /* redesigned Discord card */
 .discord{position:relative;overflow:hidden;border-radius:18px;padding:28px 30px;background:linear-gradient(135deg,#7986d8,#6a76e0 45%,#5865F2);color:#fff;box-shadow:0 12px 30px rgba(88,101,242,.22);}
 .discord::after{content:'';position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-18deg);animation:dcSheen 5.5s ease-in-out infinite;}
@@ -3625,6 +3652,7 @@ function renderChrome(){
   const langBtn='<button class="iconbtn langbtn" data-tip="Choose language" aria-label="Choose language" onclick="openLangPicker()">'+ICONS.globe+'<span id="navLangText" dir="'+(LANGS[navLangI].rtl?'rtl':'ltr')+'">'+esc(LANGS[navLangI].name)+'</span></button>';
   const pvBtn=canManagePreview()?'<button class="iconbtn" data-tip="'+(previewBarHidden?'Show the preview bar':'Hide the preview bar')+'" aria-label="Toggle the preview bar" onclick="togglePreviewBar()">'+ICONS.eye+'</button>':'';
   const reportBtn='<button class="iconbtn" data-tip="Report a bug or problem" aria-label="Report a problem" onclick="openReport()">'+ICONS.flag+'</button>';
+  const pingBell=(isLoggedIn()&&pingNotifOn())?'<button class="iconbtn bellbtn pingbell" data-tip="'+(pingCount>0?pingCount+' new notification'+(pingCount===1?'':'s'):'Notifications')+'" aria-label="Notifications" onclick="openNotifications()">'+ICONS.bell+(pingCount>0?'<span class="leafbadge pingbadge"><b>'+(pingCount>9?'9+':pingCount)+'</b></span>':'')+'</button>':'';
   let acct;
   if(account){
     const av=account.avatar?'<span class="avatar"><img src="'+escA(account.avatar)+'" style="width:100%;height:100%;object-fit:cover"></span>':'<span class="avatar">'+avLetterImg((account.username||'?').charAt(0).toUpperCase())+'</span>';
@@ -3637,7 +3665,7 @@ function renderChrome(){
       '<div class="acct-div"></div>'+
       '<button class="acct-btn acct-btn-out" onclick="closeNavMenu();logout()">'+ICONS.logout+'<span>Sign out</span></button>'+
     '</div>';
-    acct=pvBtn+(bell||'')+searchBtn+reportBtn+themeBtn+langBtn+'<div class="acct-profile"><button class="userbtn" data-tip="Account" aria-label="Account" aria-haspopup="true" onclick="toggleNavMenu()">'+av+'<span class="uname">' + esc(account.username)+'</span></button>'+card+'</div>';
+    acct=pvBtn+(bell||'')+pingBell+searchBtn+reportBtn+themeBtn+langBtn+'<div class="acct-profile"><button class="userbtn" data-tip="Account" aria-label="Account" aria-haspopup="true" onclick="toggleNavMenu()">'+av+'<span class="uname">' + esc(account.username)+'</span></button>'+card+'</div>';
   }else{
     // Keep the preview-bar eye control available even while logged out; otherwise
     // hiding the preview strip leaves no way to bring it back.
@@ -5371,6 +5399,7 @@ async function openMemberProfile(userId,name){
         '<div class="mp-stat"><b>'+(country?esc(country):'\u2014')+'</b><span>From</span></div>'+
         '<div class="mp-stat"><b>'+(chap?esc(chap):'\u2014')+'</b><span>Chapter</span></div>'+
       '</div>':'')+
+      ((isOwner()||isDev())&&userId?'<div class="mp-setchap"><label class="flab">Add to a chapter</label>'+chapterSelectHtml('mp-chap','')+'<button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="setMemberChapter('+hubJsArg(userId)+',document.getElementById(\'mp-chap\').value)">Set chapter</button></div>':'')+
     '</div>');
 }
 function openTeamMember(i){
@@ -5988,7 +6017,7 @@ function adminView(){
       memberResults.map(p=>{ const cur=p._newRole||p.roleId; const dirty=p._newRole&&p._newRole!==p.roleId;
         return '<tr><td><span class="mflag" title="'+escA(p.country||'Country not set')+'">'+flagEmoji(p.country)+'</span>'+esc(p.username)+(p.isDeveloper?' <span class="pill" title="Developer">Dev</span>':'')+(p.banned?' <span class="pill" style="background:#d0463b;color:#fff" title="This account is banned and can\'t sign in">Banned</span>':'')+'</td><td class="muted">'+esc(p.email)+'</td>'+
           '<td><select class="rsel" onchange="stageMemberRole(\''+String(p.id)+'\',this.value)">'+Object.keys(roles).filter(id=>id!=='public'&&!(id==='developer'&&!isDev())).map(id=>'<option value="'+id+'" '+(cur===id?'selected':'')+'>'+esc(roles[id].name)+'</option>').join('')+'</select></td>'+
-          '<td style="white-space:nowrap"><button class="btn btn-primary btn-xs" '+(dirty?'':'disabled')+' onclick="saveMemberRole(\''+String(p.id)+'\')">Save</button> '+((isDev()||isOwner())?(p.isDeveloper?(isMainDev()?'<button class="btn btn-ghost btn-xs" onclick="toggleDeveloper(\''+String(p.id)+'\')">Remove dev</button> ':''):'<button class="btn btn-ghost btn-xs" onclick="toggleDeveloper(\''+String(p.id)+'\')">Make dev</button> '):'')+((canHubBan() && (p.isDeveloper?ROLE_RANK.developer:(ROLE_RANK[p.roleId]||1)) < myDisplayRank())?'<button class="btn btn-ghost btn-xs" style="color:#d0463b" onclick="confirmBan(\''+String(p.id)+'\')">'+(p.banned?'Unban':'Ban')+'</button> ':'')+'<button class="btn btn-danger btn-xs" onclick="confirmDeleteUser(\''+String(p.id)+'\')">Delete</button></td></tr>';
+          '<td style="white-space:nowrap"><button class="btn btn-primary btn-xs" '+(dirty?'':'disabled')+' onclick="saveMemberRole(\''+String(p.id)+'\')">Save</button> '+((isDev()||isOwner())?(p.isDeveloper?(isMainDev()?'<button class="btn btn-ghost btn-xs" onclick="toggleDeveloper(\''+String(p.id)+'\')">Remove dev</button> ':''):'<button class="btn btn-ghost btn-xs" onclick="toggleDeveloper(\''+String(p.id)+'\')">Make dev</button> '):'')+((canHubBan() && (p.isDeveloper?ROLE_RANK.developer:(ROLE_RANK[p.roleId]||1)) < myDisplayRank())?'<button class="btn btn-ghost btn-xs" style="color:#d0463b" onclick="confirmBan(\''+String(p.id)+'\')">'+(p.banned?'Unban':'Ban')+'</button> ':'')+((isOwner()||isDev())?('<span class="mchap">'+chapterSelectHtml('mchap-'+String(p.id),p.chapter)+'<button class="btn btn-ghost btn-xs" onclick="setMemberChapter(\''+String(p.id)+'\',document.getElementById(\'mchap-'+String(p.id)+'\').value)">Set</button></span> '):'')+'<button class="btn btn-danger btn-xs" onclick="confirmDeleteUser(\''+String(p.id)+'\')">Delete</button></td></tr>';
       }).join('')+'</tbody></table></div>';
   }
   return '<div class="wrap view"><h1 class="page-title">Owner Settings</h1><p class="page-intro">Set what each role can do, and manage members. Changes here update the site live.</p>'+
@@ -6051,7 +6080,7 @@ async function searchMembers(){
   try{
     const {data,error}=await sb.rpc('admin_search_profiles',{p_query:q.slice(0,100)});
     if(error){ toast('Search error: '+error.message); memberResults=[]; }
-    else memberResults=(data||[]).map(r=>({id:r.id,username:r.username||'(member)',email:r.email||'',roleId:r.role||'member',isDeveloper:!!r.is_developer,country:r.country||'',banned:!!r.banned}));
+    else memberResults=(data||[]).map(r=>({id:r.id,username:r.username||'(member)',email:r.email||'',roleId:r.role||'member',isDeveloper:!!r.is_developer,country:r.country||'',banned:!!r.banned,chapter:r.chapter||null}));
   }catch(e){ memberResults=[]; toast('Search failed — check that the latest Supabase patch has been run.'); }
   render();
 }
@@ -6408,6 +6437,8 @@ function settingsView(){
       '<div class="srow"><span class="sr-ic">'+ICONS.volume+'</span><div class="sr-main"><div class="sr-title">Heavy animations</div><div class="sr-sub">Pause walkers, breezes, butterflies and other busy scene motion.</div></div><div class="sr-actions"><label class="switch"><input type="checkbox" '+(prefGet('ese_no_anim',false)?'checked':'')+' onchange="togglePref(\'ese_no_anim\',this.checked)"><span class="slider"></span></label></div></div>'+
       '<div class="srow"><span class="sr-ic">'+ICONS.cloud+'</span><div class="sr-main"><div class="sr-title">Weather effects</div><div class="sr-sub">Turn the daily rain, snow and fog in the hero scene off.</div></div><div class="sr-actions"><label class="switch"><input type="checkbox" '+(prefGet('ese_no_weather',false)?'checked':'')+' onchange="togglePref(\'ese_no_weather\',this.checked)"><span class="slider"></span></label></div></div>'+
       '<div class="srow"><span class="sr-ic">'+ICONS.globe+'</span><div class="sr-main"><div class="sr-title">Device-tilt parallax</div><div class="sr-sub">Stop the scene from shifting when you tilt your phone.</div></div><div class="sr-actions"><label class="switch"><input type="checkbox" '+(prefGet('ese_no_parallax',false)?'checked':'')+' onchange="togglePref(\'ese_no_parallax\',this.checked)"><span class="slider"></span></label></div></div>'+
+      '<div class="srow"><span class="sr-ic">'+ICONS.bell+'</span><div class="sr-main"><div class="sr-title">Ping notifications</div><div class="sr-sub">Show a red dot on the bell when someone @mentions you in the Hub.</div></div><div class="sr-actions"><label class="switch"><input type="checkbox" '+(prefGet('ese_ping_notif',true)?'checked':'')+' onchange="togglePref(\'ese_ping_notif\',this.checked);loadPingCount()"><span class="slider"></span></label></div></div>'+
+      '<div class="srow"><span class="sr-ic">'+ICONS.volume+'</span><div class="sr-main"><div class="sr-title">Ping sound</div><div class="sr-sub">Play a soft chime when a new ping arrives.</div></div><div class="sr-actions"><label class="switch"><input type="checkbox" '+(prefGet('ese_ping_sound',true)?'checked':'')+' onchange="togglePref(\'ese_ping_sound\',this.checked);if(this.checked)pingSound()"><span class="slider"></span></label></div></div>'+
     '</div>'+
     '<div class="card set-group">'+
       '<h2>About</h2><p class="sg-sub">Platform information.</p>'+
@@ -6786,7 +6817,7 @@ async function loadHubMsgs(){
     /* 3.9: the text of the last 50 messages + the poll questions — no pictures here.
        Pictures, reactions and votes are fetched below, scoped to just those messages/polls. */
     const res=await Promise.all([
-      sb.from('hub_messages').select('id,user_id,username,name_color,body,reply_to,reply_to_name,created_at').order('created_at',{ascending:false}).limit(50),
+      sb.from('hub_messages').select('id,user_id,username,name_color,body,reply_to,reply_to_name,mentions,created_at').order('created_at',{ascending:false}).limit(50),
       sb.from('hub_polls').select('id,user_id,username,question,options,created_at').order('created_at',{ascending:false}).limit(10)
     ]);
     if(res[0]&&!res[0].error){
@@ -7118,14 +7149,17 @@ async function hubSend(){
   const rt=_hubReplyTo; _hubReplyTo=null;
   const keptImgs=_hubImgs.slice(); _hubImgs=[];
   const imgVal=keptImgs.length?JSON.stringify(keptImgs):null;
-  const tmp={id:'tmp_'+uid(), user_id:account.id, username:account.username, avatar:account.avatar||null, name_color:account.nameColor||null, body:body, image:imgVal, reply_to:(rt?rt.id:null), reply_to_name:(rt?rt.name:null), created_at:new Date().toISOString()};
+  const mentions=hubResolveMentions(body); _hubPendingMentions=[];   // who this message @mentions
+  const mid='h_'+uid();
+  const tmp={id:'tmp_'+uid(), user_id:account.id, username:account.username, avatar:account.avatar||null, name_color:account.nameColor||null, body:body, image:imgVal, reply_to:(rt?rt.id:null), reply_to_name:(rt?rt.name:null), mentions:mentions, created_at:new Date().toISOString()};
   _hubSending=true;
   hubMsgs=(hubMsgs||[]).concat([tmp]);
   if(inp) inp.value='';
   render();
   try{
-    const {error}=await sb.from('hub_messages').insert({id:'h_'+uid(),user_id:account.id,username:account.username,name_color:account.nameColor||null,body:body,image:imgVal,reply_to:(rt?rt.id:null),reply_to_name:(rt?rt.name:null)});
+    const {error}=await sb.from('hub_messages').insert({id:mid,user_id:account.id,username:account.username,name_color:account.nameColor||null,body:body,image:imgVal,reply_to:(rt?rt.id:null),reply_to_name:(rt?rt.name:null),mentions:(mentions.length?mentions:null)});
     if(error) throw error;
+    if(mentions.length) hubCreatePings(mid,mentions,body);   // send the pings once the message is saved
     _hubSending=false; hubNewCount=0;
     await loadHubMsgs();
     if(route()==='hub'){
@@ -7220,12 +7254,12 @@ function hubRow(m,grouped){
     : (m.avatar?'<img class="hub-av" src="'+escA(m.avatar)+'" alt="" loading="lazy">':'<span class="cinit hub-av-fb" role="img" aria-label="'+escA((m.username||'Member')+' avatar')+'">'+esc((m.username||'?').charAt(0).toUpperCase())+'</span>');
   const imgs=hubImgsOf(m.image);
   const media=imgs.length?'<div class="hub-imgs">'+imgs.map(function(src,i){ return '<button type="button" class="hub-img-open" aria-label="Open shared image '+(i+1)+'" onclick="openImgLightbox('+hubJsArg(src)+')"><img class="hub-img" src="'+escA(src)+'" alt="Shared image '+(i+1)+'" loading="lazy" onerror="this.closest(\'button\').classList.add(\'img-error\')"></button>'; }).join('')+'</div>':'';
-  return '<div class="hub-msg '+(mine?'mine ':'')+(grouped?'grouped':'')+'" id="hm-'+escA(String(m.id))+'">'+
+  return '<div class="hub-msg '+(mine?'mine ':'')+(grouped?'grouped ':'')+(hubPingsMe(m)?'hub-pinged ':'')+'" id="hm-'+escA(String(m.id))+'">'+
     avatar+
     '<div class="hub-bubble">'+
       (m.reply_to_name?'<div class="hub-quote" role="button" tabindex="0" onclick="hubJumpTo('+hubJsArg(m.reply_to)+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();hubJumpTo('+hubJsArg(m.reply_to)+')}">'+ICONS.reply+'<span>Replying to '+esc(m.reply_to_name)+'</span></div>':'')+
       (!grouped?'<div class="hub-meta"><b'+(col?' style="color:'+col+'"':'')+' style="cursor:pointer" title="View profile" onclick="openMemberProfile('+hubJsArg(m.user_id||'')+','+hubJsArg(m.username||'Member')+')">'+esc(m.username||'Member')+'</b>'+hubTimeHtml(m.created_at)+'</div>':'')+
-      (m.body?'<div class="hub-text" data-notranslate>'+esc(m.body)+'</div>':'')+
+      (m.body?'<div class="hub-text" data-notranslate>'+hubRenderBody(m)+'</div>':'')+
       media+
       (grouped?'<div class="hub-group-time">'+hubTimeHtml(m.created_at)+'</div>':'')+
       '<div class="hub-acts">'+
@@ -7255,6 +7289,242 @@ function copyFallback(text,done){
   }catch(e){ toast("Couldn't copy — select the message text and copy it manually",'err'); }
 }
 function hubJumpTo(id){ const el=document.getElementById('hm-'+id); if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.style.transition='background .4s'; el.style.background='rgba(32,131,196,.12)'; setTimeout(function(){ el.style.background=''; },900); } }
+
+/* ===================== Phase 2: @mentions, pings & notifications ===================== */
+let pingCount=0, _pingPrev=-1, _pingLoading=false;
+let mentionDir=[], _mentionDirAt=0;
+const MENTION_DIR_TTL=6*3600*1000;   // the @-autocomplete name list is cached locally and refreshed every 6h
+let _hubMentionOpen=false, _hubMentionItems=[], _hubMentionIdx=0, _hubMentionAnchor=0, _hubPendingMentions=[];
+
+function pingNotifOn(){ return prefGet('ese_ping_notif',true); }   // both default ON
+function pingSoundOn(){ return prefGet('ese_ping_sound',true); }
+
+/* a short two-note chime when a ping lands, reusing the ambient AudioContext (no audio files) */
+function pingSound(){
+  if(!pingSoundOn()) return;
+  try{
+    if(!_ac) _ac=new (window.AudioContext||window.webkitAudioContext)();
+    if(_ac.state==='suspended') _ac.resume();
+    const ac=_ac, t0=ac.currentTime;
+    [[880,0],[1174.7,0.11]].forEach(function(p){
+      const o=ac.createOscillator(), g=ac.createGain(), t=t0+p[1];
+      o.type='sine'; o.frequency.setValueAtTime(p[0],t);
+      g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(0.13,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.22);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+0.26);
+    });
+  }catch(e){}
+}
+
+/* ----- the @-autocomplete directory: a small, cached list of everyone's username ----- */
+async function loadMentionDir(force){
+  if(!BACKEND||(!force&&!isLoggedIn())) return;   // only members use the @-autocomplete, so don't fetch it for signed-out visitors
+  const now=Date.now();
+  if(!force && mentionDir.length && now-_mentionDirAt<MENTION_DIR_TTL) return;
+  if(!force){ const c=objGet('ese_mentiondir',null); if(c&&c.t&&now-c.t<MENTION_DIR_TTL&&Array.isArray(c.d)){ mentionDir=c.d; _mentionDirAt=c.t; return; } }
+  try{
+    const {data}=await sb.from('profiles').select('id,username,name_color,role,is_developer').order('username');
+    mentionDir=(data||[]).map(function(p){ return {id:String(p.id),username:p.username||'',name_color:p.name_color||null,role:p.is_developer?'developer':(p.role||'member')}; }).filter(function(p){ return p.username; });
+    _mentionDirAt=now; objSet('ese_mentiondir',{t:now,d:mentionDir});
+  }catch(e){}
+}
+function mentionByName(nm){ nm=String(nm||'').toLowerCase(); return mentionDir.find(function(p){ return p.username.toLowerCase()===nm; })||null; }
+
+/* "contains the typed characters in any order" matching (substring always wins) */
+function _fuzzyHit(name,q){
+  name=String(name||'').toLowerCase(); q=String(q||'').toLowerCase();
+  if(!q) return true;
+  if(name.indexOf(q)>=0) return true;
+  const pool=name.split('');
+  for(let i=0;i<q.length;i++){ const j=pool.indexOf(q[i]); if(j<0) return false; pool.splice(j,1); }
+  return true;
+}
+function _fuzzyRank(name,q){ name=String(name||'').toLowerCase(); q=String(q||'').toLowerCase(); if(name===q) return 0; if(name.indexOf(q)===0) return 1; if(name.indexOf(q)>=0) return 2; return 3; }
+
+function hubCanMassPing(){ return isLoggedIn() && (isOwner()||isDev()||canHubMute()); }   // owner/dev/mod can ping a chapter or a role
+
+/* figure out whether the caret sits inside an @token, and what's been typed after the @ */
+function hubMentionCtx(t){
+  const pos=(typeof t.selectionStart==='number')?t.selectionStart:t.value.length;
+  const left=t.value.slice(0,pos);
+  const at=left.lastIndexOf('@');
+  if(at<0) return null;
+  if(at>0 && !/\s/.test(left[at-1])) return null;   // @ must start a word
+  const q=left.slice(at+1);
+  if(/\s/.test(q)||q.length>30) return null;         // the query ends at the first space
+  return {at:at,q:q};
+}
+function hubMentionType(t){
+  const ctx=hubMentionCtx(t);
+  if(!ctx){ hubMentionClose(); return; }
+  _hubMentionAnchor=ctx.at;
+  const q=ctx.q, seen={}, users=[];
+  mentionDir.concat((hubPeeps||[]).map(function(p){ return {id:String(p.id),username:p.username||'',name_color:p.name_color||null,role:p.role}; }))
+    .forEach(function(p){
+      if(!p.username||seen[p.id]) return;
+      if(account&&sameId(p.id,account.id)) return;
+      if(_fuzzyHit(p.username,q)){ seen[p.id]=1; users.push({type:'user',id:p.id,label:p.username,color:p.name_color,sub:(roles[p.role]&&roles[p.role].name)||p.role||'',rank:_fuzzyRank(p.username,q)}); }
+    });
+  users.sort(function(a,b){ return a.rank-b.rank || a.label.localeCompare(b.label); });
+  let items=users.slice(0,6);
+  if(hubCanMassPing()){
+    const extra=[];
+    chaptersRows.forEach(function(c){ if(c.name&&_fuzzyHit(c.name,q)){ extra.push({type:'chapter',id:String(c.id),label:c.name,sub:'Ping this chapter'}); } });
+    Object.keys(roles).forEach(function(k){ if(k==='public') return; const nm=(roles[k]&&roles[k].name)||k; if(_fuzzyHit(nm,q)||_fuzzyHit(k,q)){ extra.push({type:'role',id:k,label:nm,sub:'Ping everyone with this role'}); } });
+    items=items.concat(extra.slice(0,6));
+  }
+  if(!items.length){ hubMentionClose(); return; }
+  _hubMentionItems=items; _hubMentionIdx=0; _hubMentionOpen=true; hubMentionRender();
+}
+function hubMentionRender(){
+  const bar=document.querySelector('.hub-composer .hub-inputbar'); if(!bar){ hubMentionClose(); return; }
+  let box=document.getElementById('hub-mention');
+  if(!box){ box=document.createElement('div'); box.id='hub-mention'; box.className='hub-mention'; bar.parentNode.insertBefore(box,bar); }
+  box.innerHTML=_hubMentionItems.map(function(it,i){
+    const col=(it.color&&NAME_COLORS[it.color])?NAME_COLORS[it.color]:null;
+    const tag=it.type==='user'?'<span class="hm-at">@</span>':'<span class="hm-kind">'+it.type+'</span>';
+    return '<button type="button" class="hm-item'+(i===_hubMentionIdx?' on':'')+'" onmousedown="event.preventDefault();hubMentionPick('+i+')">'+
+      '<span class="hm-nm"'+(col?' style="color:'+col+'"':'')+'>'+tag+' '+esc(it.label)+'</span>'+
+      '<span class="hm-sub">'+esc(it.sub||'')+'</span></button>';
+  }).join('');
+}
+function hubMentionMove(d){ if(!_hubMentionOpen) return; _hubMentionIdx=(_hubMentionIdx+d+_hubMentionItems.length)%_hubMentionItems.length; hubMentionRender(); }
+function hubMentionClose(){ _hubMentionOpen=false; _hubMentionItems=[]; const b=document.getElementById('hub-mention'); if(b) b.remove(); }
+function hubMentionBlur(){ setTimeout(hubMentionClose,160); }
+function hubMentionPick(i){
+  const it=_hubMentionItems[i]; if(!it) return;
+  const t=document.getElementById('hub-in'); if(!t) return;
+  const pos=(typeof t.selectionStart==='number')?t.selectionStart:t.value.length;
+  const before=t.value.slice(0,_hubMentionAnchor), after=t.value.slice(pos), token='@'+it.label+' ';
+  t.value=before+token+after;
+  const np=(before+token).length; t.focus(); try{ t.setSelectionRange(np,np); }catch(e){}
+  _hubPendingMentions.push(it.type==='user'?{type:'user',id:it.id,username:it.label}:(it.type==='chapter'?{type:'chapter',id:it.id,name:it.label}:{type:'role',key:it.id,name:it.label}));
+  hubMentionClose(); hubInputGrow(t);
+}
+/* the composer's keydown: the dropdown gets first dibs on the arrows / enter / tab / escape */
+function hubComposerKey(e){
+  if(_hubMentionOpen){
+    if(e.key==='ArrowDown'){ e.preventDefault(); hubMentionMove(1); return; }
+    if(e.key==='ArrowUp'){ e.preventDefault(); hubMentionMove(-1); return; }
+    if(e.key==='Enter'||e.key==='Tab'){ e.preventDefault(); hubMentionPick(_hubMentionIdx); return; }
+    if(e.key==='Escape'){ e.preventDefault(); hubMentionClose(); return; }
+  }
+  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); hubSend(); }
+}
+
+/* turn what was typed/selected into a clean list of who to ping (pending picks + any plain @username) */
+function hubResolveMentions(body){
+  const out=[], seen={};
+  function addUser(id,username){ if(!id||seen['u'+id]) return; seen['u'+id]=1; out.push({type:'user',id:String(id),username:username}); }
+  _hubPendingMentions.forEach(function(pm){
+    const tok='@'+(pm.username||pm.name||''); if(body.indexOf(tok)<0) return;
+    if(pm.type==='user') addUser(pm.id,pm.username);
+    else if(pm.type==='chapter'){ if(!seen['c'+pm.id]){ seen['c'+pm.id]=1; out.push({type:'chapter',id:String(pm.id),name:pm.name}); } }
+    else if(pm.type==='role'){ if(!seen['r'+pm.key]){ seen['r'+pm.key]=1; out.push({type:'role',key:pm.key,name:pm.name}); } }
+  });
+  (body.match(/(^|\s)@([A-Za-z0-9_.\-]{2,32})/g)||[]).forEach(function(tok){ const p=mentionByName(tok.trim().slice(1)); if(p) addUser(p.id,p.username); });
+  return out;
+}
+/* create the notification rows for everyone a message pinged */
+async function hubCreatePings(mid,mentions,body){
+  if(!account||!mentions||!mentions.length) return;
+  const recips={}, privileged=hubCanMassPing();
+  for(const m of mentions){
+    if(m.type==='user'){ if(!sameId(m.id,account.id)) recips[m.id]=true; }
+    else if(m.type==='chapter'&&privileged){
+      try{ const {data}=await sb.from('profiles').select('id').eq('chapter',m.id).limit(500); (data||[]).forEach(function(r){ if(!sameId(r.id,account.id)) recips[r.id]=true; }); }catch(e){}
+    } else if(m.type==='role'&&privileged){
+      try{ const q=(m.key==='developer')?sb.from('profiles').select('id').eq('is_developer',true).limit(500):sb.from('profiles').select('id').eq('role',m.key).limit(500);
+        const {data}=await q; (data||[]).forEach(function(r){ if(!sameId(r.id,account.id)) recips[r.id]=true; }); }catch(e){}
+    }
+  }
+  const ids=Object.keys(recips).slice(0,300); if(!ids.length) return;
+  const excerpt=String(body||'').slice(0,160);
+  const group=mentions.some(function(x){ return x.type!=='user'; });
+  const rows=ids.map(function(rid){ return {id:'n_'+uid(),user_id:rid,from_id:account.id,from_name:account.username,from_color:account.nameColor||null,kind:group?'hub_group':'hub_ping',context:'hub',target_id:mid,body:excerpt}; });
+  try{ await sb.from('notifications').insert(rows); }catch(e){}
+}
+
+/* does this message ping the current viewer? (drives the highlight + bold) */
+function hubPingsMe(m){
+  if(!account||!m||!m.mentions) return false;
+  return (m.mentions||[]).some(function(x){
+    if(x.type==='user') return sameId(x.id,account.id);
+    if(x.type==='chapter') return !!(account.chapter&&sameId(x.id,account.chapter));
+    if(x.type==='role') return account.roleId===x.key||account.devBaseRole===x.key;
+    return false;
+  });
+}
+/* render a message body with @mentions turned into clickable, colored chips */
+function hubRenderBody(m){
+  let html=esc(m.body||'');
+  const ms=(m.mentions||[]).slice().sort(function(a,b){ return String(b.username||b.name||'').length-String(a.username||a.name||'').length; });
+  ms.forEach(function(x){
+    const nm=x.username||x.name||''; if(!nm) return;
+    const tok='@'+esc(nm); let chip;
+    if(x.type==='user'){
+      const p=mentionByName(nm); const key=(p&&p.name_color)||x.name_color; const col=(key&&NAME_COLORS[key])?NAME_COLORS[key]:null;
+      chip='<button type="button" class="hub-mtag" data-uid="'+escA(String(x.id||(p&&p.id)||''))+'" data-nm="'+escA(nm)+'"'+(col?' style="color:'+col+'"':'')+' onclick="openMemberProfile(this.dataset.uid,this.dataset.nm)">@'+esc(nm)+'</button>';
+    } else { chip='<span class="hub-mtag hub-mtag-grp">@'+esc(nm)+'</span>'; }
+    html=html.split(tok).join(chip);
+  });
+  return html;
+}
+
+/* ----- the notifications bell + panel ----- */
+async function loadPingCount(){
+  if(!BACKEND||!isLoggedIn()||!account||!pingNotifOn()){ if(pingCount!==0){ pingCount=0; renderChrome(); } return; }
+  if(_pingLoading) return; _pingLoading=true;
+  try{
+    const r=await sb.from('notifications').select('id',{count:'exact',head:true}).eq('user_id',account.id).is('read_at',null);
+    const n=r.count||0, prev=_pingPrev; _pingPrev=n;
+    if(n!==pingCount){ pingCount=n; renderChrome(); }
+    if(prev>=0&&n>prev) pingSound();   // something new arrived since the last check
+  }catch(e){}
+  finally{ _pingLoading=false; }
+}
+async function openNotifications(){
+  if(!BACKEND||!account) return;
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>Notifications</h3><div id="notif-body">'+miniLoader('Loading…')+'</div>');
+  let rows=[];
+  try{ const r=await sb.from('notifications').select('id,from_id,from_name,from_color,kind,context,target_id,body,created_at,read_at').eq('user_id',account.id).order('created_at',{ascending:false}).limit(40); rows=(r&&r.data)||[]; }catch(e){}
+  const body=document.getElementById('notif-body'); if(!body) return;
+  if(!rows.length){ body.innerHTML='<p class="muted" style="padding:10px 2px">No notifications yet. When someone @mentions you in the Hub, it’ll show up here.</p>'; return; }
+  const unread=rows.filter(function(r){ return !r.read_at; }).length;
+  body.innerHTML=(unread?'<div style="text-align:right;margin:0 0 8px"><button class="btn btn-ghost btn-sm" onclick="markAllPingsRead()">Mark all read</button></div>':'')+
+    '<div class="notif-feed">'+rows.map(function(r){
+      const col=(r.from_color&&NAME_COLORS[r.from_color])?NAME_COLORS[r.from_color]:null;
+      const what=r.kind==='hub_group'?'pinged a group you’re in':'mentioned you';
+      return '<button type="button" class="notif-row'+(r.read_at?'':' unread')+'" onclick="openPing('+hubJsArg(r.id)+','+hubJsArg(r.context||'')+','+hubJsArg(r.target_id||'')+')">'+
+        '<div class="nr-top"><b'+(col?' style="color:'+col+'"':'')+'>'+esc(r.from_name||'Someone')+'</b> <span class="muted">'+what+'</span><span class="nr-time">'+timeAgo(new Date(r.created_at).getTime())+'</span></div>'+
+        (r.body?'<div class="nr-body">'+esc(r.body)+'</div>':'')+'</button>';
+    }).join('')+'</div>';
+}
+async function openPing(id,context,target){
+  try{ await sb.from('notifications').update({read_at:new Date().toISOString()}).eq('id',id); }catch(e){}
+  closeModal(); loadPingCount();
+  if(context){ go(context); if(target){ setTimeout(function(){ hubJumpTo(target); },800); } }
+}
+async function markAllPingsRead(){
+  if(!account) return;
+  try{ await sb.from('notifications').update({read_at:new Date().toISOString()}).eq('user_id',account.id).is('read_at',null); }catch(e){}
+  closeModal(); pingCount=0; _pingPrev=0; renderChrome();
+}
+
+/* ----- owner/dev: add a member to a chapter ----- */
+function chapterSelectHtml(id,current){
+  return '<select id="'+id+'"><option value="">— No chapter —</option>'+chaptersRows.map(function(c){ return '<option value="'+escA(String(c.id))+'"'+(sameId(c.id,current)?' selected':'')+'>'+esc(c.name)+'</option>'; }).join('')+'</select>';
+}
+async function setMemberChapter(userId,chapId){
+  if(!(isOwner()||isDev())||!BACKEND||!userId) return;
+  try{
+    const {error}=await sb.from('profiles').update({chapter:chapId||null}).eq('id',userId); if(error) throw error;
+    toast(chapId?('Added to '+chapterName(chapId)):'Chapter cleared','ok');
+    if(typeof memberResults!=='undefined'&&memberResults){ memberResults.forEach(function(m){ if(sameId(m.id,userId)) m.chapter=chapId||null; }); }
+    if(modal&&modal.classList.contains('open')) closeModal();
+    render();
+  }catch(e){ toast('Couldn’t update chapter — '+((e&&e.message)||'try again'),'err'); }
+}
+
 function hubComposerHtml(){
   if(!isLoggedIn()) return '<div class="hub-mutednote">Log in to join the conversation \u2014 everyone is welcome!</div>';
   const left=hubMutedLeft();
@@ -7274,7 +7544,7 @@ function hubComposerHtml(){
         '</div>'+
         '<div class="hub-emoji-pop" id="hub-emoji-pop" style="display:none">'+HUB_EMOJIS.map(function(e){ return '<button type="button" onclick="hubInsertEmoji(\''+e+'\')">'+e+'</button>'; }).join('')+'</div>'+
       '</div>'+
-      '<textarea id="hub-in" rows="1" aria-label="Write a message to the Hub" placeholder="Message the Hub\u2026" oninput="hubInputGrow(this)" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();hubSend();}"></textarea>'+
+      '<textarea id="hub-in" rows="1" aria-label="Write a message to the Hub" placeholder="Message the Hub\u2026 (@ to mention someone)" oninput="hubInputGrow(this);hubMentionType(this)" onblur="hubMentionBlur()" onkeydown="hubComposerKey(event)"></textarea>'+
       '<button type="button" id="hub-send" class="hub-round hub-send" title="Send message" aria-label="Send message" '+((_hubSending||!_hubImgs.length)?'disabled':'')+' onclick="hubSend()">'+ICONS.send+'</button>'+
     '</div>'+
     '<div class="hub-compose-foot"><span class="hub-compose-hint">Enter to send <i>·</i> Shift + Enter for a new line</span><span class="hub-wordcount" id="hub-wc">0 / 300 words · 0 / 12,000 characters</span></div>'+
@@ -10322,9 +10592,9 @@ async function init(){
   restoreLang();
   setTimeout(bootDone,2000);   // safety net: never leave someone stuck on the loader (2s fixed)
   const preP = (BACKEND && langChosen && lang!=='en') ? preloadTranslations(lang).catch(function(){}) : Promise.resolve();   // load the cached translations in parallel with the backend, so the first paint is already in the saved language (no English-then-flip)
-  if(BACKEND){ try{ await loadSession(); if(account){ await loadSiteContent(); } else { loadSiteContent().then(function(){ scheduleRender(); }); } }catch(e){} loadNotifCount(); loadBugNotifCount(); loadEventData(); ensureChapters(); checkDiscord(); loadSiteAnn().then(function(){ scheduleRender(); }); loadSocial().then(function(){ scheduleRender(); }); loadMyGiftedColors().then(function(){ if(route()==='settings') render(); });   // reactions + comments (persist + shared) + my gifted name colors
+  if(BACKEND){ try{ await loadSession(); if(account){ await loadSiteContent(); } else { loadSiteContent().then(function(){ scheduleRender(); }); } }catch(e){} loadNotifCount(); loadBugNotifCount(); loadPingCount(); loadMentionDir(); loadEventData(); ensureChapters(); checkDiscord(); loadSiteAnn().then(function(){ scheduleRender(); }); loadSocial().then(function(){ scheduleRender(); }); loadMyGiftedColors().then(function(){ if(route()==='settings') render(); });   // reactions + comments (persist + shared) + my gifted name colors
     sb.auth.onAuthStateChange((ev)=>{ if(ev==='INITIAL_SESSION'||ev==='TOKEN_REFRESHED') return;   // these fire on every page load and token renewal — re-rendering for them caused the blank-flash; sign-in / sign-out still re-render
-      loadSession().then(function(){loadSocial().then(function(){scheduleRender();});loadNotifCount();loadBugNotifCount();loadSiteAnn();eventDataLoaded=false;ensureEventData();chaptersLoaded=false;ensureChapters();}).catch(()=>{});}); }
+      loadSession().then(function(){loadSocial().then(function(){scheduleRender();});loadNotifCount();loadBugNotifCount();loadPingCount();loadMentionDir(true);loadSiteAnn();eventDataLoaded=false;ensureEventData();chaptersLoaded=false;ensureChapters();}).catch(()=>{});}); }
   /* 2.8: keep this account "online" (last_seen heartbeat) + refresh the leader chat while you're on it */
   setInterval(function(){ if(BACKEND&&account&&account.id&&!document.hidden){ try{ sb.rpc('touch_profile').then(function(){},function(){}); }catch(e){} } },45000);   // a hidden tab never pings
   setInterval(function(){ if(BACKEND&&!document.hidden&&route()==='leader'){
@@ -10385,6 +10655,7 @@ async function init(){
     },function(){});
   } },20000);
   setInterval(function(){ if(!document.hidden&&canSeeBugReports()){ const b=bugNotifCount; loadBugNotifCount().then(function(){ if(bugNotifCount!==b) render(); }); } },60000);   // a new bug report pings the admins within a minute (paused in hidden tabs)
+  setInterval(function(){ if(!document.hidden&&isLoggedIn()) loadPingCount(); },45000);   // check for new @mention pings (tiny count query)
   /* 2.8: saved changes reach every open tab — content + announcements re-sync in the background (DOM only rebuilds if something actually changed) */
   async function syncLiveContent(){
     if(!BACKEND||_contentSaving) return;
@@ -10401,7 +10672,7 @@ async function init(){
      embedded pictures) was being re-downloaded constantly, which drove egress way up.
      The focus listener below still catches up the moment you come back to the tab. */
   setInterval(function(){ if(!document.hidden) syncLiveContent(); },30000);
-  window.addEventListener('focus',function(){ syncLiveContent(); if(BACKEND&&route()==='hub') loadHubMsgs().then(function(){ if(route()==='hub'&&!hubRefreshDom()) render(); }); });   // back on the tab: catch up right away
+  window.addEventListener('focus',function(){ syncLiveContent(); loadPingCount(); if(BACKEND&&route()==='hub') loadHubMsgs().then(function(){ if(route()==='hub'&&!hubRefreshDom()) render(); }); });   // back on the tab: catch up right away
   if(!location.hash) location.hash='#/home';
   try{ await preP; }catch(e){}
   render();
