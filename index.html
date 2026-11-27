@@ -1894,6 +1894,18 @@
 .credit-sug-it.on,.credit-sug-it:hover{background:rgba(32,131,196,.1);}
 .credit-line{display:flex;align-items:flex-start;gap:6px;margin:10px 0 2px;font-size:.88rem;color:var(--muted);}
 .credit-line svg{width:15px;height:15px;flex:none;margin-top:2px;color:var(--green);}
+/* Phase 4b: badges */
+.mp-badgerow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px;}
+.ubadge{display:inline-flex;align-items:center;gap:3px;color:#fff;border-radius:20px;padding:3px 10px;font-size:.74rem;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.25);}
+.ubadge-x{background:rgba(255,255,255,.3);border:0;color:#fff;border-radius:50%;width:15px;height:15px;line-height:1;font-size:.8rem;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;}
+.ubadge-x:hover{background:rgba(255,255,255,.55);}
+.mp-badge-add{background:none;border:1px dashed var(--line);color:var(--muted);border-radius:20px;padding:3px 10px;font:inherit;font-size:.74rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;}
+.mp-badge-add svg{width:12px;height:12px;}
+.mp-badge-add:hover{border-color:var(--blue);color:var(--blue);}
+.bdg-prev{margin-top:12px;text-align:center;min-height:24px;}
+.bdg-custom{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;box-shadow:0 0 0 1.5px var(--line);cursor:pointer;color:var(--muted);position:relative;overflow:hidden;}
+.bdg-custom input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.bdg-custom svg{width:15px;height:15px;}
 .pin-acts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
 .hub-fullwrap.hub-fs{position:fixed;inset:0;z-index:400;background:var(--bg);margin:0;padding:10px clamp(10px,3vw,26px) env(safe-area-inset-bottom);overflow-y:auto;}
 .hub-fullwrap.hub-fs .hub-list{height:calc(100dvh - 300px);min-height:320px;}
@@ -3426,7 +3438,7 @@ async function loadSession(){
   const {data:{user}}=await sb.auth.getUser();
   if(!user){ account=null; recomputeSession(); return; }
   let role='member',username=user.email.split('@')[0];
-  const {data:profile}=await sb.from('profiles').select('username, role, is_developer, name_color, country, avatar, chapter, discord_username, created_at, banned').eq('id',user.id).single();
+  const {data:profile}=await sb.from('profiles').select('username, role, is_developer, name_color, country, avatar, chapter, discord_username, created_at, banned, badges').eq('id',user.id).single();
   if(profile&&profile.banned){   /* banned accounts are signed out immediately and told why */
     try{ await sb.auth.signOut(); }catch(e){}
     account=null; recomputeSession();
@@ -3436,7 +3448,7 @@ async function loadSession(){
   let country='',av=null,chap=null,dc=null,nc=null,isDevAcc=false; if(profile){role=profile.role||'member';username=profile.username||username;country=profile.country||'';av=profile.avatar||null;chap=profile.chapter||null;dc=profile.discord_username||null;nc=profile.name_color||null;isDevAcc=!!profile.is_developer;}
   const effRole=isDevAcc?'developer':role;
   account={roleId:effRole,devBaseRole:isDevAcc?role:null,id:user.id,username,email:user.email,avatar:av||(account&&account.avatar)||null,country:country,chapter:chap,discord:dc,nameColor:(nc&&NAME_COLORS[nc])?nc:ROLE_DEFAULT_COLOR[effRole],   /* gifted colors are valid too — the server-side guard already rejects anything the role may not wear */
-createdAt:(profile&&profile.created_at)||user.created_at||null};
+createdAt:(profile&&profile.created_at)||user.created_at||null,badges:(profile&&Array.isArray(profile.badges))?profile.badges:[]};
   previewAs=null;   // a fresh session always starts as YOUR role: owner → Owner preview, developer → Developer preview
   recomputeSession();
 }
@@ -5443,8 +5455,61 @@ function creditsLine(credits){
   return '<div class="credit-line">'+ICONS.leaf+'<span>With thanks to '+credits.map(function(c){ const nm=(c&&c.username)?c.username:'member'; return '<button type="button" class="hub-mtag" onclick="openMemberProfile('+hubJsArg((c&&c.id)||'')+','+hubJsArg(nm)+')">@'+esc(nm)+'</button>'; }).join(' ')+'</span></div>';
 }
 
+/* ===================== Phase 4b: gifted badges (owner/dev) ===================== */
+let _badgeTargetId=null, _badgeTargetName='', _badgeColor='green';
+function badgeColor(c){ c=String(c||'').trim(); if(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c)) return c; if(NAME_COLORS[c]) return NAME_COLORS[c]; return NAME_COLORS.green; }
+function userBadgesHtml(badges,userId,name,canEdit){
+  if(!Array.isArray(badges)) return '';
+  return badges.map(function(bd,i){ if(!bd||!bd.label) return ''; const c=badgeColor(bd.color); return '<span class="ubadge" style="background:'+c+'">'+esc(bd.label)+(canEdit?'<button type="button" class="ubadge-x" aria-label="Remove badge" onclick="removeBadge('+hubJsArg(userId)+','+i+','+hubJsArg(name||'')+')">×</button>':'')+'</span>'; }).join('');
+}
+function openGiftBadge(userId,username){
+  if(!(isOwner()||isDev())||!userId) return;
+  _badgeTargetId=String(userId); _badgeTargetName=username||'member'; _badgeColor='green';
+  const palette=['green','blue','purple','red','gold','darkorange','teal','magenta','crimson','navy'];
+  openModal('<button class="x" onclick="closeModal()" aria-label="Close">×</button><h3>'+ICONS.gift+' Gift a badge to '+esc(_badgeTargetName)+'</h3>'+
+    '<p class="muted" style="font-size:.85rem;margin:0 0 10px">A little label shown on their profile — e.g. Founder, Top contributor, Photographer.</p>'+
+    '<label class="flab">Badge text</label><input id="bdg-label" maxlength="22" placeholder="e.g. Founder" style="width:100%" oninput="pickBadgeColor(_badgeColor)">'+
+    '<label class="flab" style="margin-top:10px">Color</label>'+
+    '<div class="nc-row" id="bdg-colors">'+palette.map(function(k,i){ return '<button type="button" class="nc-dot'+(i===0?' on':'')+'" data-c="'+k+'" style="background:'+nameColorHex(k)+'" title="'+esc(k)+'" aria-label="'+esc(k)+'" onclick="pickBadgeColor(\''+k+'\')"></button>'; }).join('')+'<label class="bdg-custom" title="Custom color"><input type="color" value="#007600" oninput="pickBadgeColor(this.value)">'+ICONS.gift+'</label></div>'+
+    '<div class="bdg-prev" id="bdg-prev"></div>'+
+    '<button class="btn btn-primary" style="width:100%;margin-top:14px" onclick="doGiftBadge()">Gift badge</button>');
+  pickBadgeColor('green');
+}
+function pickBadgeColor(c){
+  _badgeColor=c;
+  const dots=document.querySelectorAll('#bdg-colors .nc-dot'); dots.forEach(function(d){ d.classList.toggle('on',d.getAttribute('data-c')===c); });
+  const prev=document.getElementById('bdg-prev'), lab=document.getElementById('bdg-label');
+  if(prev) prev.innerHTML='<span class="ubadge" style="background:'+badgeColor(c)+'">'+esc(((lab&&lab.value)||'Badge').slice(0,22)||'Badge')+'</span>';
+}
+async function doGiftBadge(){
+  if(!(isOwner()||isDev())||!_badgeTargetId||!account) return;
+  const label=String((document.getElementById('bdg-label')||{}).value||'').trim().slice(0,22);
+  if(!label){ toast('Give the badge some text','err'); return; }
+  try{
+    const {data}=await sb.from('profiles').select('badges').eq('id',_badgeTargetId).single();
+    const cur=(data&&Array.isArray(data.badges))?data.badges:[];
+    if(cur.length>=8){ toast('That member already has 8 badges (the max)','err'); return; }
+    const next=cur.concat([{label:label,color:_badgeColor}]);
+    const {error}=await sb.from('profiles').update({badges:next}).eq('id',_badgeTargetId); if(error) throw error;
+    try{ await sb.from('notifications').insert([{id:'n_'+uid(),user_id:_badgeTargetId,from_id:account.id,from_name:account.username,from_color:account.nameColor||null,kind:'badge',context:'',body:'gave you a badge: “'+label+'”'}]); }catch(e){}
+    if(account&&sameId(account.id,_badgeTargetId)) account.badges=next;
+    closeModal(); toast('Badge gifted!');
+  }catch(e){ toast('Couldn’t gift the badge — '+((e&&e.message)||'try again'),'err'); }
+}
+async function removeBadge(userId,idx,name){
+  if(!(isOwner()||isDev())) return;
+  try{
+    const {data}=await sb.from('profiles').select('badges').eq('id',userId).single();
+    const cur=(data&&Array.isArray(data.badges))?data.badges:[]; if(idx<0||idx>=cur.length){ return; }
+    cur.splice(idx,1);
+    const {error}=await sb.from('profiles').update({badges:cur}).eq('id',userId); if(error) throw error;
+    if(account&&sameId(account.id,userId)) account.badges=cur;
+    toast('Badge removed'); openMemberProfile(userId,name||'Member');
+  }catch(e){ toast('Couldn’t remove the badge — '+((e&&e.message)||'try again'),'err'); }
+}
+
 async function openMemberProfile(userId,name){
-  let nm=name||'Member', av=null, role='', country='', chap='', since='', nC=null, nc=null, online=null, nBlogs=null, nNews=null;
+  let nm=name||'Member', av=null, role='', country='', chap='', since='', nC=null, nc=null, online=null, nBlogs=null, nNews=null, pBadges=[];
   if(BACKEND&&userId){
     openModal('<button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button><div class="mp-card">'+
       '<div class="skl" style="width:84px;height:84px;border-radius:50%"></div>'+
@@ -5465,6 +5530,7 @@ async function openMemberProfile(userId,name){
   if(BACKEND&&userId){
     try{ const bc=await sb.from('blogs').select('id',{count:'exact',head:true}).eq('user_id',userId).eq('published',true); nBlogs=(bc&&bc.count!=null)?bc.count:null; }catch(e){}
     try{ nNews=(newsletters||[]).filter(function(n){ return Array.isArray(n.credits)&&n.credits.some(function(c){ return sameId((c&&c.id)||c,userId); }); }).length; }catch(e){}
+    try{ const pb=await sb.from('profiles').select('badges').eq('id',userId).single(); pBadges=(pb&&pb.data&&Array.isArray(pb.data.badges))?pb.data.badges:[]; }catch(e){}
   }
   const avHtml=av?'<img src="'+escA(av)+'" alt="">':'<span class="mp-init">'+esc((nm||'?').charAt(0).toUpperCase())+'</span>';
   const roleNm=role?((roles[role]&&roles[role].name)||role):'';
@@ -5476,6 +5542,7 @@ async function openMemberProfile(userId,name){
       '<div class="mp-av">'+avHtml+'</div>'+
       '<h3 class="mp-name'+ncl+'">'+esc(nm)+'</h3>'+
       (roleNm?'<div class="mp-badge'+roleCls+'">'+esc(roleNm)+'</div>':'')+
+      ((pBadges.length||((isOwner()||isDev())&&userId))?'<div class="mp-badgerow">'+userBadgesHtml(pBadges,userId,nm,(isOwner()||isDev()))+(((isOwner()||isDev())&&userId)?'<button type="button" class="mp-badge-add" title="Gift a badge" onclick="openGiftBadge('+hubJsArg(userId)+','+hubJsArg(nm)+')">'+ICONS.gift+' Badge</button>':'')+'</div>':'')+
       (online===null?'':'<div class="mp-status">'+(online?'<span class="mp-on"><i></i>Active now</span>':'<span class="mp-off"><i></i>Offline</span>')+'</div>')+
       (sinceTxt?'<div class="mp-since">'+ICONS.leaf+'<span>Joined '+esc(sinceTxt)+(country?(' \u00b7 '+esc(country)):'')+'</span></div>':(country?'<div class="mp-since">'+ICONS.leaf+'<span>From '+esc(country)+'</span></div>':''))+
       ((nC!=null||nBlogs!=null||nNews!=null||chap)?'<div class="mp-stats">'+
@@ -6277,6 +6344,7 @@ function profileView(){
       '<div class="pf-ava" aria-hidden="true"'+(pfNc?' style="border-color:'+pfNc+';box-shadow:0 0 0 3px '+(theme==='dark'?'rgba(255,255,255,.25)':'rgba(20,48,42,.12)')+', 0 0 14px '+pfNc+'55"':'')+'>'+av+'</div>'+
       '<div class="pf-head"><h1 class="pf-name'+(pfNcName?(' nc-'+pfNcName):'')+'" data-notranslate>'+esc(a.username||'Member')+'</h1>'+
         '<span class="pf-role">'+ICONS.shield+esc((account&&account.roleId==='developer')?((roles[account.devBaseRole]||roles.member).name):(role?role.name:'Member'))+'</span></div>'+
+      (Array.isArray(a.badges)&&a.badges.length?'<div class="mp-badgerow" style="justify-content:center;margin-top:8px">'+userBadgesHtml(a.badges,a.id,a.username,false)+'</div>':'')+
       '<div class="pf-meta">'+
         '<span class="pf-status" title="You are signed in on this device">'+ICONS.check+' Active now</span>'+
         (pfNcName?'<span class="pf-status" title="Your name color"><i style="display:inline-block;width:11px;height:11px;border-radius:50%;background:'+pfNc+';margin-right:2px"></i> Wearing <b style="color:'+pfNc+'">'+esc(pfNcName)+'</b></span>':'')+
