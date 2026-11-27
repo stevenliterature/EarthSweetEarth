@@ -2013,6 +2013,25 @@
 .hp-total{font-size:.72rem;color:var(--muted);margin-top:4px;}
 /* ============ Blogs ============ *//* ============ Blogs ============ */
 .blog-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;}
+/* Phase 5a: view toggle + list view + category counts + folder tree */
+.blog-viewtog{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.blog-viewtog button{background:var(--card);border:0;padding:8px 11px;cursor:pointer;color:var(--muted);display:inline-flex;align-items:center;}
+.blog-viewtog button+button{border-left:1px solid var(--line);}
+.blog-viewtog button.on{background:var(--green);color:#fff;}
+.blog-viewtog button svg{width:17px;height:17px;}
+.blog-listview{display:flex;flex-direction:column;gap:14px;}
+.blog-listrow{display:flex;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;transition:border-color .15s;}
+.blog-listrow:hover{border-color:var(--blue);}
+.blr-cover{width:150px;height:112px;object-fit:cover;border-radius:10px;flex:none;}
+.blr-fb{display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--green);}
+.blr-fb svg{width:28px;height:28px;}
+.blr-body{min-width:0;flex:1;}
+.blr-body h3{margin:6px 0 4px;font-size:1.18rem;}
+.blr-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.bcf-n{opacity:.55;font-size:.82em;font-weight:700;}
+.blog-folder-toggle .s-lab{font-weight:800;}
+.blog-folder-children .side-item{font-weight:500;padding-left:36px;font-size:1.04rem;}
+@media(max-width:560px){.blog-listrow{flex-direction:column;}.blr-cover{width:100%;height:160px;}}
 /* blogs: search + sort controls */
 .blog-ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
 .blog-ctl .search{flex:1;min-width:220px;}
@@ -2082,6 +2101,18 @@
 .be-select{font-family:inherit;font-size:.84rem;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer;max-width:130px;}
 .be-sw{width:20px;height:20px;border-radius:50%;border:2px solid rgba(0,0,0,.12);cursor:pointer;padding:0;flex:none;}
 .be-sw:hover{transform:scale(1.15);}
+/* Phase 5b: themed dropdowns + highlight swatches */
+.tdd{position:relative;display:inline-block;}
+.tdd-btn{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font:inherit;font-size:.84rem;color:var(--ink);cursor:pointer;max-width:150px;}
+.tdd-btn svg{width:13px;height:13px;opacity:.6;flex:none;}
+.tdd-cur{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tdd-menu{position:absolute;left:0;top:calc(100% + 4px);z-index:60;min-width:165px;max-height:264px;overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.18);padding:4px;display:none;}
+.tdd.open .tdd-menu{display:block;}
+.tdd-opt{display:block;width:100%;text-align:left;background:none;border:0;border-radius:7px;padding:8px 10px;font:inherit;font-size:.9rem;color:var(--ink);cursor:pointer;}
+.tdd-opt:hover{background:rgba(32,131,196,.1);}
+.tdd-opt.on{color:var(--green);font-weight:700;}
+.be-hi{width:20px;height:20px;border-radius:6px;border:1px solid rgba(0,0,0,.12);cursor:pointer;padding:0;flex:none;}
+.be-hi:hover{transform:scale(1.12);}
 .be-edit{min-height:46vh;background:var(--card);border:1px solid var(--line);border-top:none;border-radius:0 0 14px 14px;padding:26px 28px 34px;font-size:1.02rem;line-height:1.75;outline:none;overflow-wrap:break-word;}
 .be-edit:focus{border-color:var(--blue);}
 .be-edit:empty::before{content:attr(data-ph);color:var(--muted);opacity:.6;pointer-events:none;}
@@ -5392,7 +5423,7 @@ function renderPostModal(id){
     :'<p class="muted" style="text-align:center;margin:0"><a href="#" onclick="closeModal();openLogin();return false;">Log in</a> to join the conversation.</p>';
   openModal('<div id="gpost-modal"><button class="x" onclick="closeModal()" aria-label="Close">\u00d7</button>'+
     media+
-    (g.caption?'<p class="gp-cap">'+esc(g.caption)+'</p>':'')+
+    (g.caption?'<p class="gp-cap">'+esc(g.caption)+'</p>':'')+creditsLine(g.credits)+
     socialBar(id)+
     '<h3 style="font-size:1.05rem;margin:16px 0 4px">Comments</h3><div class="cthread">'+thread+'</div>'+compose+'</div>');
 }
@@ -5678,9 +5709,9 @@ function timeAgo(ts){ const d=Math.floor((Date.now()-ts)/1000); if(d<60)return '
 /* ---- gallery post editor: up to 15 photos, pick a cover, or hand off to the drive ---- */
 const GMAX=15;
 let _gEd=null;
-function newGalleryPost(){ _gEd={id:null,caption:'',photos:[],thumb:0,driveLink:content.driveUrl||'',inDrive:false,category:''}; renderGalleryEditor(); }
+function newGalleryPost(){ _gEd={id:null,caption:'',photos:[],thumb:0,driveLink:content.driveUrl||'',inDrive:false,category:''}; creditResetFrom(null); renderGalleryEditor(); }
 function editGalleryPost(id){ const g=(content.gallery||[]).find(function(x){return sameId(x.id,id);}); if(!g)return;
-  _gEd={id:g.id,caption:g.caption||'',photos:gPhotos(g).slice(),thumb:g.thumb||0,driveLink:g.driveLink||content.driveUrl||'',inDrive:!!g.inDrive,category:g.category||''}; renderGalleryEditor(); }
+  _gEd={id:g.id,caption:g.caption||'',photos:gPhotos(g).slice(),thumb:g.thumb||0,driveLink:g.driveLink||content.driveUrl||'',inDrive:!!g.inDrive,category:g.category||''}; creditResetFrom(g.credits); renderGalleryEditor(); }
 function syncGEd(){ const c=document.getElementById('ged-cap'), d=document.getElementById('ged-drive'), k=document.getElementById('ged-indrive'), cat=document.getElementById('ged-cat');
   if(c)_gEd.caption=c.value; if(d)_gEd.driveLink=d.value; if(k)_gEd.inDrive=k.checked; if(cat)_gEd.category=cat.value; }
 function renderGalleryEditor(){
@@ -5694,6 +5725,7 @@ function renderGalleryEditor(){
       '<option value=""'+(e.category?'':' selected')+'>Miscellaneous (no category)</option>'+
       GAL_CATS.map(function(c){ return '<option value="'+c.id+'"'+(e.category===c.id?' selected':'')+'>'+c.label+'</option>'; }).join('')+
     '</select>'+
+    '<label>Credit contributors (optional)</label>'+creditPickerHtml('gcredit')+
     '<label>Photos <span class="muted" style="font-weight:400">('+e.photos.length+'/'+GMAX+' \u2014 the \u2605 one is the cover)</span></label>'+
     (e.photos.length<GMAX?'<label class="btn btn-ghost btn-sm filebtn">'+ICONS.image+'<span>Add photos</span><input id="ged-file" type="file" accept="image/*" multiple></label>':'<p class="muted" style="font-size:.85rem;margin:0">You\u2019ve reached the '+GMAX+'-photo limit.</p>')+
     (thumbs?'<div class="ged-grid">'+thumbs+'</div>':'')+
@@ -5703,6 +5735,7 @@ function renderGalleryEditor(){
     '</div><p class="err" id="ged-err"></p>'+
     '<button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="saveGalleryPost()">Save post</button>');
   const f=document.getElementById('ged-file'); if(f) f.addEventListener('change', addGPhotos);
+  creditChipsRender('gcredit');
 }
 function addGPhotos(){
   syncGEd();
@@ -5763,8 +5796,9 @@ function saveGalleryPost(){
   content.gallery=content.gallery||[];
   const photos=e.inDrive?[]:e.photos, thumb=e.inDrive?0:e.thumb;
   if(e.id){ const g=content.gallery.find(function(x){return sameId(x.id,e.id);});
-    if(g){ g.caption=e.caption; g.photos=photos; g.thumb=thumb; g.driveLink=e.driveLink; g.inDrive=e.inDrive; g.category=e.category||''; delete g.photo; } }
-  else { content.gallery.unshift({id:uid(), caption:e.caption, photos:photos, thumb:thumb, driveLink:e.driveLink, inDrive:e.inDrive, category:e.category||'', featured:false, ts:Date.now()}); }
+    if(g){ g.caption=e.caption; g.photos=photos; g.thumb=thumb; g.driveLink=e.driveLink; g.inDrive=e.inDrive; g.category=e.category||''; g.credits=creditSelClean(); delete g.photo; } }
+  else { const gid=uid(); content.gallery.unshift({id:gid, caption:e.caption, photos:photos, thumb:thumb, driveLink:e.driveLink, inDrive:e.inDrive, category:e.category||'', credits:creditSelClean(), featured:false, ts:Date.now()}); if(_creditSel.length) createCredits(creditSelClean(),'gallery','gallery',gid,e.caption?e.caption.slice(0,60):'a gallery post'); }
+  _creditSel=[];
   gViewIdx={}; closeModal(); toast('Saved'); saveSiteContent(true); render();
 }
 
@@ -7993,7 +8027,7 @@ function hubView(){
 /* ===================== 3.7: BLOGS — anyone can write ===================== */
 const BLOG_CATS=[{id:'environment',label:'Environment'},{id:'about-us',label:'About Us'},{id:'do',label:'What we do'},{id:'observe',label:'What we observe'},{id:'community',label:'Community'},{id:'events',label:'Events'},{id:'education',label:'Education'},{id:'other',label:'Other'}];
 const blogCategoryLabel=id=>((BLOG_CATS.find(c=>c.id===id)||{}).label)||'Other';
-let _blogCategory='all',_blogNavOpen=false;
+let _blogCategory='all',_blogNavOpen=false,_blogView=(function(){try{return strGet('ese_blog_view','gallery')==='list'?'list':'gallery';}catch(e){return 'gallery';}})();
 let blogs=null,_openBlogId=null,blogsError=null,blogsLoading=false;
 let myBlogs=null,myBlogsLoading=false,_blogQ='',_blogSort='new';   // Your Blogs + the blogs search/sort controls
 const BLOG_VIEW_TTL=5*3600*1000;   // a blog counts a view at most once per reader per 5 hours (anti-farming + fewer writes)
@@ -8045,6 +8079,33 @@ function blogReadMin(b){ if(b&&Number(b.read_minutes)>0) return Number(b.read_mi
 function blogLikes(id){ const s=gSocial['blog:'+id]; return s?totalReactions(s.reactions):0; }
 function fmtViews(n){ n=n||0; return n>=1000?(n/1000).toFixed(1).replace(/\.0$/,'')+'k':String(n); }
 function blogPopScore(b){ return (b.views||0)+3*blogLikes(b.id); }
+/* ===================== Phase 5a: blog list/gallery toggle, category counts, PDF download ===================== */
+function blogCatCount(catId){ const list=(blogs||[]).filter(function(b){ return b.published!==false; }); if(catId==='all') return list.length; return list.filter(function(b){ return (b.category||'environment')===catId; }).length; }
+function blogViewSet(mode){ _blogView=(mode==='list')?'list':'gallery'; try{ strSet('ese_blog_view',_blogView); }catch(e){} const el=document.getElementById('blog-list-wrap'); if(el) el.innerHTML=blogListHtml(); const tg=document.querySelectorAll('.blog-viewtog button'); tg.forEach(function(b){ b.classList.toggle('on',b.dataset.v===_blogView); }); }
+const BLOG_ICO_GRID='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
+const BLOG_ICO_LIST='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>';
+function blogListRow(b){
+  const col=(b.name_color&&NAME_COLORS[b.name_color])?NAME_COLORS[b.name_color]:null;
+  return '<article class="blog-listrow" role="button" tabindex="0" aria-label="View blog: '+escA(b.title||'Untitled')+'" onclick="openBlog(\''+escA(String(b.id))+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openBlog(\''+escA(String(b.id))+'\')}">'+
+    (b.image?'<img class="blr-cover" src="'+escA(b.image)+'" alt="" loading="lazy">':'<div class="blr-cover blr-fb">'+ICONS.leaf+'</div>')+
+    '<div class="blr-body">'+
+      '<div class="blr-top"><span class="blog-category-chip">'+esc(blogCategoryLabel(b.category||'environment'))+'</span>'+(b.pinned?'<span class="blog-pin">'+ICONS.pin+' Pinned</span>':'')+'</div>'+
+      '<h3>'+esc(b.title||'Untitled')+'</h3>'+
+      '<p class="blog-ex">'+esc(blogExcerpt(b))+'</p>'+
+      '<div class="blog-by"><span style="'+(col?'color:'+col+';':'')+'cursor:pointer" title="View profile" onclick="event.stopPropagation();openMemberProfile(\''+escA(String(b.user_id||''))+'\',\''+escA(b.username||'Member')+'\')">'+esc(b.username||'Member')+'</span>'+
+        '<span>'+timeAgo(new Date(b.created_at).getTime())+'</span><span class="blog-read">'+blogReadMin(b)+' min read</span>'+
+        '<span class="bstat">'+ICONS.heart+' '+blogLikes(b.id)+'</span><span class="bstat">'+ICONS.eye+' '+fmtViews(b.views)+'</span></div>'+
+    '</div></article>';
+}
+/* lazily load the PDF tool only when someone downloads a post (keeps every other page lean) */
+let _pdfLibLoading=null;
+function loadPdfLib(){
+  if(window.html2pdf) return Promise.resolve();
+  if(_pdfLibLoading) return _pdfLibLoading;
+  _pdfLibLoading=new Promise(function(res,rej){ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'; s.onload=function(){ res(); }; s.onerror=function(){ _pdfLibLoading=null; rej(new Error('load')); }; document.head.appendChild(s); });
+  return _pdfLibLoading;
+}
+
 function blogListHtml(){
   let list=(blogs||[]).filter(function(b){ return b.published!==false; });
   if(_blogCategory!=='all') list=list.filter(function(b){ return (b.category||'environment')===_blogCategory; });
@@ -8055,6 +8116,7 @@ function blogListHtml(){
     return new Date(b.created_at)-new Date(a.created_at);
   });
   if(!list.length) return '<p class="muted" style="text-align:center;padding:28px 0">'+(_blogQ?'No posts match your search — try another title.':'No posts in this category yet.')+'</p>';
+  if(_blogView==='list') return '<div class="blog-listview">'+list.map(blogListRow).join('')+'</div>';
   return '<div class="blog-list">'+list.map(function(b){
       const col=(b.name_color&&NAME_COLORS[b.name_color])?NAME_COLORS[b.name_color]:null;
       return '<article class="blog-card" role="button" tabindex="0" aria-label="View blog: '+escA(b.title||'Untitled')+'" onclick="openBlog(\''+escA(String(b.id))+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openBlog(\''+escA(String(b.id))+'\')}">'+
@@ -8092,12 +8154,13 @@ function blogsView(){
     (isLoggedIn()?'<button class="btn btn-primary" onclick="openWrite()">'+ICONS.pencil+' Write a blog post</button>':'<button class="btn btn-primary" onclick="openLogin()">Log in to write</button>')+'</div>'+
     '<div class="blog-ctl">'+
       '<input id="blog-q" class="search" style="margin-bottom:0" type="search" placeholder="Search posts by title…" aria-label="Search blog posts by title" value="" oninput="blogFilter(this.value)">'+
-      '<select class="be-select" style="margin-bottom:0;width:auto" aria-label="Sort blog posts" onchange="blogSortChange(this.value)"><option value="new">Newest first</option><option value="top">Most popular</option></select>'+
+      themedSelect('blog-sort',[{v:'new',l:'Newest first'},{v:'top',l:'Most popular'}],_blogSort,'blogSortChange')+
       '<button class="btn btn-ghost btn-sm" onclick="refreshBlogs(this)">'+ICONS.check+' Refresh</button>'+
+      '<div class="blog-viewtog" role="group" aria-label="View mode"><button type="button" data-v="gallery"'+(_blogView==='gallery'?' class="on"':'')+' title="Gallery view" aria-label="Gallery view" onclick="blogViewSet(\'gallery\')">'+BLOG_ICO_GRID+'</button><button type="button" data-v="list"'+(_blogView==='list'?' class="on"':'')+' title="List view" aria-label="List view" onclick="blogViewSet(\'list\')">'+BLOG_ICO_LIST+'</button></div>'+
     '</div>'+
     '<div class="blog-cat-filters" aria-label="Filter blogs by category">'+
-      '<button class="blog-cat-filter'+(_blogCategory==='all'?' on':'')+'" data-cat="all" onclick="blogCategoryChange(\'all\')">All</button>'+
-      BLOG_CATS.map(function(c){return '<button class="blog-cat-filter'+(_blogCategory===c.id?' on':'')+'" data-cat="'+c.id+'" onclick="blogCategoryChange(\''+c.id+'\')">'+esc(c.label)+'</button>';}).join('')+
+      '<button class="blog-cat-filter'+(_blogCategory==='all'?' on':'')+'" data-cat="all" onclick="blogCategoryChange(\'all\')">All <span class="bcf-n">'+blogCatCount('all')+'</span></button>'+
+      BLOG_CATS.map(function(c){return '<button class="blog-cat-filter'+(_blogCategory===c.id?' on':'')+'" data-cat="'+c.id+'" onclick="blogCategoryChange(\''+c.id+'\')">'+esc(c.label)+' <span class="bcf-n">'+blogCatCount(c.id)+'</span></button>';}).join('')+
     '</div>'+
     (blogsError?'<div class="ese-error-line" role="alert">Couldn’t load blog posts: '+esc(blogsError)+' <button class="btn btn-ghost btn-xs" style="margin-left:8px" onclick="refreshBlogs(this)">Try again</button></div>':(blogs===null||blogsLoading?'<div class="ese-loading-line" role="status"><span class="ese-mini-spinner" aria-hidden="true"></span> Loading blog posts…</div>':''))+
     '<div id="blog-list-wrap">'+blogListHtml()+'</div>'+
@@ -8168,30 +8231,32 @@ async function toggleBlogPin(id){
     toast(val?'Pinned to the top of Blogs':'Unpinned');
   }catch(e){ b.pinned=!val; render(); toast(netErrMsg(e,"Couldn't update the pin"),'err'); }
 }
-/* readers can save a copy of any post whose writer ticked "let readers download" */
-function downloadBlog(id){
+/* readers can save a post as a PDF when its writer ticked "let readers download" */
+async function downloadBlog(id){
   const b=(blogs||[]).concat(myBlogs||[]).find(function(x){ return String(x.id)===String(id); });
   if(!b||!b.allow_download) return;
+  if(BACKEND && !Object.prototype.hasOwnProperty.call(b,'body')){
+    try{ const {data}=await sb.from('blogs').select('body').eq('id',id).single(); b.body=(data&&data.body)||''; }catch(e){}
+  }
+  toast('Preparing your PDF…');
+  try{ await loadPdfLib(); }catch(e){ toast('Couldn’t load the PDF tool — check your connection','err'); return; }
   const rich=blogIsRich(b.body);
   const bodyHtml=rich?sanBlogHtml(b.body):'<p>'+esc(b.body||'').replace(/\n/g,'<br>')+'</p>';
-  const doc='<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(b.title||'Blog post')+'</title></head>'+
-    '<body style="font-family:Georgia,\'Times New Roman\',serif;max-width:760px;margin:40px auto;padding:0 22px;line-height:1.75;color:#222">'+
-    (b.kicker?'<p style="letter-spacing:.18em;text-transform:uppercase;font-size:.78em;color:#2083C4;font-weight:700;margin-bottom:4px">'+esc(b.kicker)+'</p>':'')+
-    '<h1 style="line-height:1.15">'+esc(b.title||'Untitled')+'</h1>'+
-    (b.subtitle?'<p style="color:#555;font-size:1.05em">'+esc(b.subtitle)+'</p>':'')+
-    '<p style="color:#777;font-size:.88em">By '+esc(b.username||'Member')+' · '+new Date(b.created_at).toLocaleDateString()+' · Earth Sweet Earth</p>'+
-    (b.image?'<img src="'+escA(b.image)+'" alt="" style="max-width:100%;border-radius:12px;margin:14px 0">':'')+
-    '<div>'+bodyHtml+'</div>'+
-    '<hr style="margin-top:34px;border:none;border-top:1px solid #ddd"><p style="color:#999;font-size:.82em">Downloaded from Earth Sweet Earth · earthsweetearth.org</p></body></html>';
-  try{
-    const blob=new Blob([doc],{type:'text/html'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url; a.download=(b.title||'blog-post').replace(/[^\w\- ]+/g,'').trim().slice(0,60)+'.html';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function(){ URL.revokeObjectURL(url); },60000);
-    toast('Blog downloaded');
-  }catch(e){ toast("Couldn't build the download — please try again",'err'); }
+  const wrap=document.createElement('div');
+  wrap.style.cssText='position:fixed;left:-9999px;top:0;width:700px;background:#fff;color:#222;font-family:Georgia,\'Times New Roman\',serif;line-height:1.7;padding:8px 26px;';
+  wrap.innerHTML=(b.kicker?'<p style="letter-spacing:.18em;text-transform:uppercase;font-size:.72em;color:#2083C4;font-weight:700;margin:0 0 4px">'+esc(b.kicker)+'</p>':'')+
+    '<h1 style="line-height:1.15;color:#14532d;margin:0 0 6px;font-size:1.9em">'+esc(b.title||'Untitled')+'</h1>'+
+    (b.subtitle?'<p style="color:#555;font-size:1.05em;margin:0 0 6px">'+esc(b.subtitle)+'</p>':'')+
+    '<p style="color:#777;font-size:.85em;margin:0 0 12px">By '+esc(b.username||'Member')+' · '+new Date(b.created_at).toLocaleDateString()+' · Earth Sweet Earth</p>'+
+    (b.image?'<img src="'+escA(b.image)+'" alt="" style="max-width:100%;border-radius:10px;margin:0 0 14px">':'')+
+    '<div style="font-size:1em">'+bodyHtml+'</div>'+
+    '<hr style="margin:28px 0 10px;border:none;border-top:1px solid #ddd"><p style="color:#999;font-size:.78em">Saved from Earth Sweet Earth · earthsweetearth.org</p>';
+  document.body.appendChild(wrap);
+  const fname=((b.title||'blog-post').replace(/[^\w\- ]+/g,'').trim().slice(0,60)||'blog-post')+'.pdf';
+  const opt={margin:[12,10,14,10],filename:fname,image:{type:'jpeg',quality:0.95},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}};
+  try{ await window.html2pdf().set(opt).from(wrap).save(); toast('Saved as PDF'); }
+  catch(e){ toast('Couldn’t build the PDF — please try again','err'); }
+  finally{ wrap.remove(); }
 }
 function blogPageView(b){
   const col=(b.name_color&&NAME_COLORS[b.name_color])?NAME_COLORS[b.name_color]:null;
@@ -8331,14 +8396,15 @@ function blogEditorView(){
   const d=_beDraft;
   const tbBtn=(cmd,val,label,ti,needSel)=>'<button type="button" class="be-tb" data-cmd="'+esc(cmd)+'"'+(val!=null?' data-val="'+esc(val)+'"':'')+(needSel?' data-sel="1"':'')+' title="'+esc(ti)+'" aria-label="'+esc(ti)+'">'+label+'</button>';
   const toolbar='<div class="be-toolbar" id="be-toolbar">'+
-    '<select class="be-select" id="be-block" title="Paragraph style" onchange="beBlock(this.value)">'+
-      '<option value="P">Paragraph</option><option value="H1">Heading 1</option><option value="H2">Heading 2</option><option value="H3">Heading 3</option><option value="BLOCKQUOTE">Quote</option><option value="PRE">Code block</option></select>'+
-    '<select class="be-select" id="be-font" title="Font" onchange="beFont(this.value)">'+
-      '<option value="">Font</option><option value="Gelasio">Gelasio (serif)</option><option value="Georgia">Georgia</option><option value="Arial">Arial</option><option value="Trebuchet MS">Trebuchet</option><option value="Courier New">Monospace</option></select>'+
+    themedSelect('be-block',BE_BLOCKS,'P','beBlock')+
+    themedSelect('be-font',BE_FONTS,'','beFont')+
     '<span class="be-sep"></span>'+
     ['black','#2083C4','#007600','#c0392b','#7c3aed','#b45309','#0e9488'].map(function(c){ return '<button type="button" class="be-sw" style="background:'+c+'" title="Text color" aria-label="Text color '+c+'" onclick="beColor(\''+c+'\')"></button>'; }).join('')+
     '<span class="be-sep"></span>'+
-    tbBtn('bold',null,'<b>B</b>','Bold',1)+tbBtn('italic',null,'<i>I</i>','Italic',1)+tbBtn('underline',null,'<u>U</u>','Underline',1)+tbBtn('strikeThrough',null,'<s>S</s>','Strikethrough',1)+
+    ['#fff3a3','#bbf7d0','#fbcfe8','#bfdbfe','#fed7aa'].map(function(c){ return '<button type="button" class="be-hi" style="background:'+c+'" title="Highlight" aria-label="Highlight" onclick="beHilite(\''+c+'\')"></button>'; }).join('')+
+    '<button type="button" class="be-tb" title="Remove highlight" aria-label="Remove highlight" onclick="beHilite(\'transparent\')">▢</button>'+
+    '<span class="be-sep"></span>'+
+    tbBtn('bold',null,'<b>B</b>','Bold',1)+tbBtn('italic',null,'<i>I</i>','Italic',1)+tbBtn('underline',null,'<u>U</u>','Underline',1)+tbBtn('strikeThrough',null,'<s>S</s>','Strikethrough',1)+tbBtn('superscript',null,'x²','Superscript',1)+tbBtn('subscript',null,'x₂','Subscript',1)+
     '<span class="be-sep"></span>'+
     tbBtn('insertUnorderedList',null,'• List','Bullet list')+tbBtn('insertOrderedList',null,'1. List','Numbered list')+
     '<span class="be-sep"></span>'+
@@ -8416,6 +8482,30 @@ function beSync(){
 function beTermsTick(cb){ const l=cb&&cb.closest?cb.closest('.be-terms'):null; if(l) l.classList.toggle('on',!!(cb&&cb.checked)); }
 /* click any picture in a blog post (or the cover) to view it full-size */
 function imgZoom(el){ const src=el&&(el.getAttribute?el.getAttribute('src'):el.src); if(src) openImgLightbox(src); }
+/* ===================== Phase 5b: themed dropdowns + more editor fonts/formatting ===================== */
+let _ddOpen=null;
+const BE_FONTS=[{v:'',l:'Font'},{v:'Gelasio',l:'Gelasio',f:'Gelasio,Georgia,serif'},{v:'Georgia',l:'Georgia',f:'Georgia,serif'},{v:'Times New Roman',l:'Times',f:"'Times New Roman',serif"},{v:'Palatino Linotype',l:'Palatino',f:"'Palatino Linotype',Palatino,serif"},{v:'Garamond',l:'Garamond',f:'Garamond,serif'},{v:'Arial',l:'Arial',f:'Arial,sans-serif'},{v:'Verdana',l:'Verdana',f:'Verdana,sans-serif'},{v:'Tahoma',l:'Tahoma',f:'Tahoma,sans-serif'},{v:'Trebuchet MS',l:'Trebuchet',f:"'Trebuchet MS',sans-serif"},{v:'Comic Sans MS',l:'Comic Sans',f:"'Comic Sans MS',cursive"},{v:'Courier New',l:'Monospace',f:"'Courier New',monospace"}];
+const BE_BLOCKS=[{v:'P',l:'Paragraph'},{v:'H1',l:'Heading 1'},{v:'H2',l:'Heading 2'},{v:'H3',l:'Heading 3'},{v:'BLOCKQUOTE',l:'Quote'},{v:'PRE',l:'Code block'}];
+function themedSelect(id,items,cur,cb){
+  const curItem=items.find(function(x){ return String(x.v)===String(cur); })||items[0];
+  return '<div class="tdd" id="tdd-'+id+'">'+
+    '<button type="button" class="tdd-btn" id="tddb-'+id+'" aria-haspopup="listbox" title="'+escA((curItem&&curItem.l)||'')+'" onclick="ddToggle(\''+id+'\')"><span class="tdd-cur">'+esc((curItem&&curItem.l)||'')+'</span>'+ICONS.chev+'</button>'+
+    '<div class="tdd-menu" role="listbox">'+items.map(function(x){ return '<button type="button" class="tdd-opt'+(String(x.v)===String(cur)?' on':'')+'" role="option" data-v="'+escA(String(x.v))+'"'+(x.f?' style="font-family:'+escA(x.f)+'"':'')+' onclick="ddPick('+hubJsArg(id)+','+hubJsArg(x.v)+','+hubJsArg(cb)+','+hubJsArg(x.l)+')">'+esc(x.l)+'</button>'; }).join('')+'</div>'+
+  '</div>';
+}
+function ddCloseAll(){ const o=document.querySelectorAll('.tdd.open'); Array.prototype.forEach.call(o,function(e){ e.classList.remove('open'); }); _ddOpen=null; }
+function ddToggle(id){ const el=document.getElementById('tdd-'+id); if(!el) return; const open=el.classList.contains('open'); ddCloseAll(); if(!open){ el.classList.add('open'); _ddOpen=id; } }
+function ddPick(id,v,cb,label){
+  const b=document.getElementById('tddb-'+id); if(b){ const c=b.querySelector('.tdd-cur'); if(c) c.textContent=label; b.title=label; }
+  const el=document.getElementById('tdd-'+id); if(el){ const os=el.querySelectorAll('.tdd-opt'); Array.prototype.forEach.call(os,function(o){ o.classList.toggle('on',o.getAttribute('data-v')===String(v)); }); }
+  ddCloseAll();
+  try{ if(typeof window[cb]==='function') window[cb](v); }catch(e){}
+}
+document.addEventListener('click',function(e){ if(_ddOpen&&!(e.target.closest&&e.target.closest('.tdd'))) ddCloseAll(); });
+document.addEventListener('mousedown',function(e){ if(e.target.closest&&e.target.closest('.be-toolbar .tdd')) e.preventDefault(); },true);   // keep the editor selection when using a toolbar dropdown
+/* highlight (marker) color */
+function beHilite(c){ const ed=document.getElementById('be-edit'); if(!ed) return; try{ ed.focus(); if(!document.execCommand('hiliteColor',false,c)) document.execCommand('backColor',false,c); }catch(e){ try{ document.execCommand('backColor',false,c); }catch(e2){} } beSync(); }
+
 function beExec(cmd,val){
   const ed=document.getElementById('be-edit'); if(!ed) return;
   try{ ed.focus(); document.execCommand(cmd,false,val||null); }catch(e){}
