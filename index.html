@@ -664,8 +664,8 @@
   .country-list li{display:flex;align-items:center;gap:9px;padding:5px 2px;font-size:.95rem;}
   .cflag{font-size:1.25rem;line-height:1;flex:none;width:1.4em;text-align:center;}
   .stat-sub{font-size:.76rem;color:var(--muted);margin-top:3px;}
-  .ndot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e0403a;vertical-align:middle;}
-  .tabdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e0403a;margin-left:2px;vertical-align:top;}
+  .ndot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e5484d;vertical-align:middle;}
+  .tabdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e5484d;margin-left:2px;vertical-align:top;}
   .notif-list{display:flex;flex-direction:column;gap:10px;}
   .notif{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
   .notif .ndot{flex:none;}
@@ -3076,7 +3076,7 @@ const canEdit=(cap)=> editUI && can(cap);   // edit buttons also require the own
 // positioned (Gallery after Newsletter, About before Contact) so they slot in when released.
 const ROUTES=['home','hub','blogs','write','myblogs','membership','chapters','chapterhub','activities','newsletter','newsletterlist','gallery','announcements','calendar','about','contact','admin','analytics','leader','developer','chapterslist','chapterapply','youthapply','challenges','construction','privacy','terms','speakers','fundraising','profile','settings','changelog'];
 const TAB={home:'Home',hub:'Hub',blogs:'Blogs',write:'Write a blog post',myblogs:'Your Blogs',about:'About',newsletter:'Newsletter',newsletterlist:'Newsletters',announcements:'Announcements',activities:'Activities',membership:'Membership',youthapply:'Apply for a leadership position',chapters:'Chapters',chapterslist:'Our Chapters',chapterapply:'Apply for a chapter',gallery:'Gallery',contact:'Contact',calendar:'Calendar',admin:'Owner Settings',analytics:'Owner Analytics',leader:'Leader Chat',developer:'Developer',challenges:'Challenges',construction:'Under Construction',privacy:'Privacy Policy',terms:'Terms & Conditions',analytics:'Owner Analytics',speakers:'Speakers',fundraising:'Fundraising',chapterhub:'Chapter Hub',profile:'My profile',settings:'Settings',changelog:'Changelog',notfound:'Page not found'};
-const NAV_HIDDEN=['newsletterlist','chapterslist','chapterapply','youthapply','challenges','construction','privacy','terms','speakers','fundraising','profile','settings','changelog'];   // reachable by link/URL, but not shown as a top-bar tab
+const NAV_HIDDEN=['newsletterlist','chapterslist','chapterapply','youthapply','challenges','construction','privacy','terms','speakers','fundraising','profile','settings','changelog','contact'];   // reachable by link/URL, but not shown as a top-bar tab (Contact lives in the footer)
 const route=()=> (location.hash.replace('#/','')||'home');
 const go=(r)=>{ location.hash='#/'+r; };
 let lastRoute=null;
@@ -3775,7 +3775,7 @@ function renderFooter(){
   if(socials.length||ed){ s='<div class="fcol"><div class="flab">Follow us</div>'+ (socials.length?'<div class="links">'+socials.map((x,i)=>'<span class="footer-managed-link"><a href="'+escA(safeUrl(x.url))+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>'+removeBtn('social',x,i)+'</span>').join('')+'</div>':'') + (ed?'<div style="margin-top:10px"><button class="addbtn" onclick="addItem(\'social\')">+ Add social account</button></div>':'')+'</div>'; }
   let a='';
   if(affs.length||ed){ a='<div class="fcol"><div class="flab">Affiliations</div>'+ (affs.length?'<div class="links">'+affs.map((x,i)=>'<span class="footer-managed-link">'+(x.url?'<a href="'+escA(safeUrl(x.url))+'" target="_blank" rel="noopener">'+esc(x.label)+'</a>':'<span class="lk">'+esc(x.label)+'</span>')+removeBtn('affiliation',x,i)+'</span>').join('')+'</div>':'') + (ed?'<div style="margin-top:10px"><button class="addbtn" onclick="addItem(\'affiliation\')">+ Add affiliation</button></div>':'')+'</div>'; }
-  document.getElementById('footer').innerHTML='<div class="wrap"><div class="fm" data-notranslate>Earth <span class="sw">Sweet</span> Earth</div>'+s+a+'<div class="flegal"><a href="#/changelog">Changelog</a> · <a href="#/privacy">Privacy Policy</a> · <a href="#/terms">Terms &amp; Conditions</a></div><div class="cpy" data-notranslate>© 2026 Earth Sweet Earth</div></div>';
+  document.getElementById('footer').innerHTML='<div class="wrap"><div class="fm" data-notranslate>Earth <span class="sw">Sweet</span> Earth</div>'+s+a+'<div class="flegal"><a href="#/contact">Contact</a> · <a href="#/changelog">Changelog</a> · <a href="#/privacy">Privacy Policy</a> · <a href="#/terms">Terms &amp; Conditions</a></div><div class="cpy" data-notranslate>© 2026 Earth Sweet Earth</div></div>';
 }
 
 /* ==========================================================================
@@ -9798,7 +9798,7 @@ function applyScene(hero, night){
   ['tree-left','tree-right'].forEach(function(id){ const t=document.getElementById(id); if(t) t.style.display=keepTrees?'':'none'; });
   ['shadow-left','shadow-right','leafPile','zzzL','zzzR'].forEach(function(id){ const el=document.getElementById(id); if(el) el.style.display=keepTrees?'':'none'; });
   const st=document.getElementById('sceneStory'); if(st) st.remove();   // 3.7: the scene story line is retired
-  const snowEl=document.getElementById('snow'); if(snowEl&&(scene==='sea'||scene==='desert')) snowEl.style.display='none';   // 3.7: snow never falls on water or sand
+  const snowEl=document.getElementById('snow'); if(snowEl) snowEl.style.display=(scene==='sea'||scene==='desert')?'none':'';   // snow never falls on water or sand; shown again when the scene changes back
   const fx=document.getElementById('sceneFx'), fxb=document.getElementById('sceneFxBack');
   if(fx && fx.dataset.scene!==scene){
     const hadScene=!!fx.dataset.scene;   /* a change mid-session rolls a soft mist sweep across the old scene first */
