@@ -4076,7 +4076,7 @@ const ANN_INTRO='<p>Announcements are for members to view ESE\u2019s achievement
 let annOpen={};
 function nlComposer(){   // Newsletter page: post a newsletter issue (becomes the featured one)
   return '<div class="card composer" style="margin:24px 0 0;background:rgba(0,118,0,.04)"><h3 style="font-size:1.15rem;margin-bottom:12px">+ New newsletter <span class="pill">you can post</span></h3>'+
-    '<input id="np-title" type="text" placeholder="Title"><textarea id="np-body" rows="4" placeholder="Write it here."></textarea>'+
+    '<input id="np-title" type="text" placeholder="Title" data-autosave="nl-title"><textarea id="np-body" rows="4" placeholder="Write it here." data-autosave="nl-body"></textarea>'+
     '<label class="flab" style="margin-top:4px">Credit contributors (optional)</label>'+creditPickerHtml('ncredit')+
     '<div class="tools"><span style="flex:1"></span><button class="btn btn-primary btn-sm" onclick="publishNewsletter()">Publish</button></div></div>';
 }
@@ -4087,19 +4087,21 @@ function publishNewsletter(){
   newsletters.unshift({id:nid, kind:'issue', title:t, body:b, publishedAt:Date.now(), pdfUrl:'', credits:creditSelClean()});
   if(_creditSel.length) createCredits(creditSelClean(),'newsletter','newsletter',nid,t);
   _creditSel=[];
+  autosaveClear('nl-title','nl-body');
   toast('Published \u2014 this is now the featured issue');
   saveSiteContent(true); render();
 }
 function annComposer(){   // Announcements page: post an announcement/update, with an OPTIONAL link
   return '<div class="card composer" style="margin:8px 0 22px;background:rgba(0,118,0,.04)"><h3 style="font-size:1.15rem;margin-bottom:12px">+ New announcement <span class="pill">you can post</span></h3>'+
-    '<input id="an-title" type="text" placeholder="Title"><textarea id="an-body" rows="4" placeholder="Write it here."></textarea>'+
-    '<input id="an-link" type="url" placeholder="Link (optional)">'+
+    '<input id="an-title" type="text" placeholder="Title" data-autosave="ann-title"><textarea id="an-body" rows="4" placeholder="Write it here." data-autosave="ann-body"></textarea>'+
+    '<input id="an-link" type="url" placeholder="Link (optional)" data-autosave="ann-link">'+
     '<div class="tools"><span style="flex:1"></span><button class="btn btn-primary btn-sm" onclick="publishAnnouncement()">Publish</button></div></div>';
 }
 function publishAnnouncement(){
   const t=v('an-title'), b=document.getElementById('an-body').value.trim(), l=v('an-link');
   if(!t){toast('Add a title first');return;}
   newsletters.unshift({id:uid(), kind:'update', title:t, body:b, link:l, publishedAt:Date.now(), pdfUrl:''});
+  autosaveClear('ann-title','ann-body','ann-link');
   toast('Announcement posted');
   saveSiteContent(true); render();
 }
@@ -4356,7 +4358,7 @@ function bulletList(kind,ed){
   const arr=content[COLL[kind]]||[];
   if(!arr.length) return '<p class="muted">The rest of this is still under construction!</p>';
   return '<ul class="ch-list">'+arr.map(function(b){
-    return '<li>'+esc(b.text||'')+(ed?' <button class="btn btn-ghost btn-xs" onclick="editItem(\''+kind+'\',\''+b.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" title="Remove" onclick="deleteItem(\''+kind+'\',\''+b.id+'\')">\u00d7</button>':'')+'</li>';
+    return '<li>'+esc(b.text||'').replace(/\n/g,'<br>')+(ed?' <button class="btn btn-ghost btn-xs" onclick="editItem(\''+kind+'\',\''+b.id+'\')">Edit</button><button class="btn btn-ghost btn-xs" title="Remove" onclick="deleteItem(\''+kind+'\',\''+b.id+'\')">\u00d7</button>':'')+'</li>';
   }).join('')+'</ul>';
 }
 function challengesView(){
@@ -8325,6 +8327,48 @@ const blogIsRich=(body)=>/^\s*</.test(String(body||''));
 function blogPlain(body){ return String(body||'').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]*>/g,' ').replace(/&nbsp;/g,' '); }
 function plainToRich(t){ return String(t||'').split(/\n\n+/).map(function(p){ return '<p>'+esc(p).replace(/\n/g,'<br>')+'</p>'; }).join(''); }
 /* whitelist sanitizer: only known formatting tags + safe attributes survive */
+/* ===================== Phase 6: editor paste / auto-link + site-wide autosave ===================== */
+let _bePlainPaste=false;
+function beTogglePlainPaste(){ _bePlainPaste=!_bePlainPaste; const b=document.getElementById('be-plainpaste'); if(b) b.classList.toggle('on',_bePlainPaste); toast(_bePlainPaste?'Plain paste on — pasted text drops its formatting':'Rich paste on — pasted text keeps its formatting'); }
+function bePasteHandler(e){
+  const cd=e.clipboardData||window.clipboardData; if(!cd) return;
+  if(_bePlainPaste){ e.preventDefault(); document.execCommand('insertText',false,cd.getData('text/plain')||''); beSync(); return; }
+  const html=cd.getData('text/html');
+  if(html){
+    e.preventDefault();
+    let clean=''; try{ clean=sanBlogHtml(html); }catch(err){ clean=''; }
+    if(clean) document.execCommand('insertHTML',false,clean); else document.execCommand('insertText',false,cd.getData('text/plain')||'');
+    beSync();
+  }
+  /* no HTML on the clipboard: let the browser paste the plain text as usual */
+}
+/* turn bare URLs in the editor into links — runs on blur and before publishing, so it never fights live typing */
+function beAutoLinkAll(){
+  const ed=document.getElementById('be-edit'); if(!ed) return;
+  try{
+    const walker=document.createTreeWalker(ed,NodeFilter.SHOW_TEXT,null);
+    const targets=[]; let n;
+    while(n=walker.nextNode()){ if(n.parentNode&&n.parentNode.closest&&n.parentNode.closest('a')) continue; if(/(https?:\/\/|www\.)[^\s]+\.[^\s]{2,}/i.test(n.textContent)) targets.push(n); }
+    let changed=false;
+    targets.forEach(function(node){
+      const text=node.textContent; const re=/(https?:\/\/[^\s]+|www\.[^\s]+\.[^\s]+)/gi; let last=0,m,any=false; const frag=document.createDocumentFragment();
+      while(m=re.exec(text)){
+        let url=m[0].replace(/[.,;:!?)\]}'"]+$/,''); if(url.length<4){ continue; }
+        if(m.index>last) frag.appendChild(document.createTextNode(text.slice(last,m.index)));
+        const a=document.createElement('a'); a.href=/^https?:\/\//i.test(url)?url:('https://'+url); a.textContent=url; a.target='_blank'; a.rel='noopener'; frag.appendChild(a); any=true; last=m.index+url.length;
+      }
+      if(any){ if(last<text.length) frag.appendChild(document.createTextNode(text.slice(last))); if(node.parentNode){ node.parentNode.replaceChild(frag,node); changed=true; } }
+    });
+    if(changed) beSync();
+  }catch(e){}
+}
+/* ---- site-wide autosave: any input/textarea carrying data-autosave is remembered on this device ---- */
+let _asTimers={};
+function _asSave(el){ const k=el&&el.dataset&&el.dataset.autosave; if(!k) return; clearTimeout(_asTimers[k]); _asTimers[k]=setTimeout(function(){ try{ const v=el.value; if(v&&v.trim()) localStorage.setItem('ese_as_'+k,v); else localStorage.removeItem('ese_as_'+k); }catch(e){} },400); }
+function autosaveRestore(){ try{ const els=document.querySelectorAll('[data-autosave]'); Array.prototype.forEach.call(els,function(el){ if(document.activeElement===el||el.value) return; try{ const v=localStorage.getItem('ese_as_'+el.dataset.autosave); if(v) el.value=v; }catch(e){} }); }catch(e){} }
+function autosaveClear(){ for(var i=0;i<arguments.length;i++){ try{ localStorage.removeItem('ese_as_'+arguments[i]); }catch(e){} } }
+document.addEventListener('input',function(e){ const el=e.target; if(el&&el.dataset&&el.dataset.autosave) _asSave(el); });
+
 function sanBlogHtml(html){
   try{
     const t=document.createElement('template'); t.innerHTML=String(html||'');
@@ -8410,6 +8454,7 @@ function blogEditorView(){
     '<span class="be-sep"></span>'+
     '<button type="button" class="be-tb" title="Insert a link" aria-label="Insert a link" onclick="beLink()">'+ICONS.link+' Link</button>'+
     '<button type="button" class="be-tb" title="Insert an image by its address" aria-label="Insert an image" onclick="beImage()">'+ICONS.image+' Image</button>'+
+    '<button type="button" class="be-tb'+(_bePlainPaste?' on':'')+'" id="be-plainpaste" title="Plain paste: paste text without its formatting" aria-label="Toggle plain paste" onclick="beTogglePlainPaste()">Plain paste</button>'+
     tbBtn('insertHorizontalRule',null,'—','Divider line')+
     '<span class="be-sep"></span>'+
     tbBtn('justifyLeft',null,'⯇','Align left')+tbBtn('justifyCenter',null,'≡','Center')+tbBtn('justifyRight',null,'⯈','Align right')+
@@ -8568,6 +8613,7 @@ function beExit(){
 function beInit(){
   const ed=document.getElementById('be-edit');
   if(ed&&!_bePreview){ ed.innerHTML=_beDraft.body||''; }
+  if(ed&&!ed._p6){ ed._p6=1; ed.addEventListener('paste',bePasteHandler); ed.addEventListener('blur',beAutoLinkAll); }   // paste keeps formatting + bare URLs auto-link
   const fill=(id,v)=>{ const el=document.getElementById(id); if(el&&v) el.value=v; };
   fill('be-kick',_beDraft.kicker); fill('be-title',_beDraft.title); fill('be-sub',_beDraft.sub); fill('be-category',_beDraft.category||'environment');
   const dl=document.getElementById('be-dl'); if(dl) dl.checked=!!_beAllowDl;
@@ -8578,6 +8624,7 @@ function beInit(){
   if(tb) tb.addEventListener('mousedown',function(e){ if(e.target.closest&&e.target.closest('.be-tb,.be-sw')) e.preventDefault(); });   /* keep the text selection when clicking toolbar buttons */
 }
 async function bePublish(btn,asDraft){
+  beAutoLinkAll();   // make sure any bare URLs are linked before we read the post
   beReadDom();
   const d=_beDraft;
   const title=(d.title||'').trim();
@@ -9449,6 +9496,7 @@ function render(){
     if(r==='profile') requestAnimationFrame(initProfilePage);         // avatar crop + file input live on the profile page now
     if(r==='write') requestAnimationFrame(beInit);                    // the blog editor: toolbar, live counts, saved draft
     if(r==='newsletter') requestAnimationFrame(function(){ creditChipsRender('ncredit'); });   // draw the credit chips in the newsletter composer
+    if(r==='newsletter'||r==='announcements') requestAnimationFrame(autosaveRestore);   // bring back any unsent composer text
     if(r==='youthapply') requestAnimationFrame(initYouthApply);
     if(r==='leader'){ if(leaderMsgs===null) loadLeaderMsgs().then(function(){ if(route()==='leader') render(); }); if(leaderPeeps===null) loadLeaderPeeps().then(function(){ if(route()==='leader') render(); }); }         // first load of the chat + who's around
     if(r==='hub'){ if(hubMsgs===null) loadHubMsgs().then(function(){ if(route()==='hub') render(); }); if(hubPeeps===null) loadHubPeeps().then(function(){ if(route()==='hub') render(); }); checkHubMute(); }   // first load of the Hub
